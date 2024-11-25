@@ -4,6 +4,10 @@ import com.fabiolima.online_shop.entities.enums.UserRole;
 import com.fabiolima.online_shop.entities.enums.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.OffsetDateTime;
@@ -27,9 +31,12 @@ public class User {
     private long id;
 
     @Column(name = "name")
+    @Size(min = 2, max = 20)
     private String name;
 
     @Column(name = "email")
+    @Email(regexp = "[a-z0-9._%-+]+@[a-z0-9.-]+\\.[a-z]{2,3}",
+            flags = Pattern.Flag.CASE_INSENSITIVE)
     private String email;
 
     @Column(name = "password")
@@ -45,10 +52,10 @@ public class User {
     private UserStatus userStatus;
 
     @Column(name = "createdAt")
-    private OffsetDateTime createdAt;
+    private OffsetDateTime userCreatedAt;
 
     @Column(name = "updatedAt")
-    private OffsetDateTime updatedAt;
+    private OffsetDateTime userUpdatedAt;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user",  //field "user" in Order Class
@@ -67,20 +74,26 @@ public class User {
     * It ensures createdAt and updatedAt are set to the current time if they are null.*/
     @PrePersist
     public void prePersist() {
-        if (createdAt == null) {
-            createdAt = OffsetDateTime.now();
+        if (userCreatedAt == null) {
+            userCreatedAt = OffsetDateTime.now();
         }
-        if (updatedAt == null) {
-            updatedAt = OffsetDateTime.now();
+        if (userUpdatedAt == null) {
+            userUpdatedAt = OffsetDateTime.now();
+        }
+        if (userRole == null) {
+            userRole = UserRole.CUSTOMER;
+        }
+        if (userStatus == null) {
+            userStatus = UserStatus.ENABLED;
         }
     }
 
-/**
- * This method is invoked whenever the entity is updated.
- * It ensures that updatedAt is set to the current time whenever the entity is modified. */
+    /**
+    * This method is invoked whenever the entity is updated.
+    * It ensures that updatedAt is set to the current time whenever the entity is modified. */
     @PreUpdate
     public void preUpdate() {
-        updatedAt = OffsetDateTime.now();
+        userUpdatedAt = OffsetDateTime.now();
     }
 
     public void addOrderToUser(Order theOrder){ //bi-directional method

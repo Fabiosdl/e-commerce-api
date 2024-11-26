@@ -1,6 +1,6 @@
-package com.fabiolima.online_shop.entities;
+package com.fabiolima.online_shop.model;
 
-import com.fabiolima.online_shop.entities.enums.BasketStatus;
+import com.fabiolima.online_shop.model.enums.BasketStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,18 +20,26 @@ public class Basket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
+    @ToString.Exclude
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a user can have multiple baskets
                 CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id") //column in the database that will join user to basket
     private User user;
 
+    @ToString.Exclude
+    @OneToOne(mappedBy = "basket", cascade = CascadeType.ALL)
+    private Order order;
+
+
+    @ToString.Exclude
     @OneToMany(mappedBy = "basket", // field in BasketItem Class
             cascade = CascadeType.ALL
     )
     private final List<BasketItem> basketItems = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private BasketStatus basketStatus;
 
@@ -57,6 +65,4 @@ public class Basket {
     public void preUpdate(){
         basketUpdatedAt = OffsetDateTime.now();
     }
-
-
 }

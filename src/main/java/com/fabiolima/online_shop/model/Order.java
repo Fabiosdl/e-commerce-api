@@ -1,6 +1,6 @@
-package com.fabiolima.online_shop.entities;
+package com.fabiolima.online_shop.model;
 
-import com.fabiolima.online_shop.entities.enums.PaymentStatus;
+import com.fabiolima.online_shop.model.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,19 +18,24 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
+    @ToString.Exclude
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.REFRESH, CascadeType.PERSIST})
-    @JoinColumn(name = "user_id") //name of the column in the database
+    @JoinColumn(name = "user_id") //a user can place multiple orders
     private User user;
 
-    @OneToOne
+    @ToString.Exclude
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a basket becomes an order
+            CascadeType.REFRESH, CascadeType.PERSIST})
+    @JoinColumn(name = "basket_id", unique = true, nullable = false)
     private Basket basket;
 
     @Column(name = "totalPrice")
     private double totalPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "paymentStatus")
     private PaymentStatus paymentStatus;
 

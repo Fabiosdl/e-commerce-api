@@ -1,11 +1,9 @@
-package com.fabiolima.online_shop.entities;
+package com.fabiolima.online_shop.model;
 
-import com.fabiolima.online_shop.entities.enums.UserRole;
-import com.fabiolima.online_shop.entities.enums.UserStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fabiolima.online_shop.model.enums.UserRole;
+import com.fabiolima.online_shop.model.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -28,7 +26,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @Column(name = "name")
     @Size(min = 2, max = 20)
@@ -45,9 +43,11 @@ public class User {
     @Column(name = "address")
     private String address;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private UserRole userRole;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private UserStatus userStatus;
 
@@ -57,14 +57,13 @@ public class User {
     @Column(name = "updatedAt")
     private OffsetDateTime userUpdatedAt;
 
-    @JsonIgnore
+    @ToString.Exclude
     @OneToMany(mappedBy = "user",  //field "user" in Order Class
-            fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private final List<Order> orders = new ArrayList<>();
     //it's final to reassure that the orders list belongs to the user
 
-    @JsonIgnore
+    @ToString.Exclude
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)
     private final List<Basket> baskets = new ArrayList<>();

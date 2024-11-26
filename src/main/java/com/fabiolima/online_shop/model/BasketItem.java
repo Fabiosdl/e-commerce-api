@@ -1,11 +1,10 @@
-package com.fabiolima.online_shop.entities;
+package com.fabiolima.online_shop.model;
 
-import com.fabiolima.online_shop.entities.enums.BasketStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 
 @NoArgsConstructor
 @Builder
@@ -20,23 +19,20 @@ public class BasketItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
 
-    @ManyToOne(
-            cascade = {CascadeType.MERGE, CascadeType.DETACH,
-            CascadeType.REFRESH, CascadeType.PERSIST}
-    )
+    @ToString.Exclude
+    @ManyToOne
     @JoinColumn(name = "basket_id")
     private Basket basket;
 
-    @ManyToOne(
-            cascade = {CascadeType.MERGE, CascadeType.DETACH,
-                    CascadeType.REFRESH, CascadeType.PERSIST}
-    )
+    @ToString.Exclude
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
     @Column(name = "quantity")
+    @Min(1)
     private int quantity;
 
     @Column(name = "createdAt")
@@ -44,6 +40,18 @@ public class BasketItem {
 
     @Column(name = "updatedAt")
     private OffsetDateTime basketItemUpdatedAt;
+
+    public void incrementQuantity(int amount) {
+        if (amount > 0) {
+            this.quantity += amount;
+        }
+    }
+
+    public void decrementQuantity(int amount) {
+        if (amount > 0 && this.quantity >= amount) {
+            this.quantity -= amount;
+        }
+    }
 
     @PrePersist
     public void prePersit(){
@@ -58,4 +66,5 @@ public class BasketItem {
     public void preUpdate(){
         basketItemUpdatedAt = OffsetDateTime.now();
     }
+
 }

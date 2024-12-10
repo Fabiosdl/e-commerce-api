@@ -16,11 +16,16 @@ import java.util.List;
 @ToString
 
 @Entity
+@Table(name = "basket")
 public class Basket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private BasketStatus basketStatus;
 
     @ToString.Exclude
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a user can have multiple baskets
@@ -30,7 +35,7 @@ public class Basket {
 
     @ToString.Exclude
     @OneToOne(mappedBy = "basket", cascade = CascadeType.ALL)
-    private Order order;
+    private TheOrder order;
 
 
     @ToString.Exclude
@@ -39,30 +44,4 @@ public class Basket {
     )
     private final List<BasketItem> basketItems = new ArrayList<>();
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private BasketStatus basketStatus;
-
-    @Column(name = "createdAt")
-    private OffsetDateTime basketCreatedAt;
-
-    @Column(name = "updatedAt")
-    private OffsetDateTime basketUpdatedAt;
-
-    @PrePersist
-    public void prePersit(){
-        if(basketCreatedAt == null){
-            basketCreatedAt = OffsetDateTime.now();
-        }
-        if(basketUpdatedAt == null){
-            basketUpdatedAt = OffsetDateTime.now();
-        }
-        if(basketStatus == null){
-            basketStatus = BasketStatus.OPEN;
-        }
-    }
-    @PreUpdate
-    public void preUpdate(){
-        basketUpdatedAt = OffsetDateTime.now();
-    }
 }

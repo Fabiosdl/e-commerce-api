@@ -14,6 +14,7 @@ import java.time.OffsetDateTime;
 @ToString
 
 @Entity
+@Table(name = "payment")
 public class Payment {
 
     @Id
@@ -23,28 +24,16 @@ public class Payment {
 
     @OneToOne
     @JoinColumn(name = "order_id")
-    private Order order;
+    private TheOrder order;
 
-    @Column(name = "paymentMethod")
+    @Column(name = "payment_method")
     private String paymentMethod;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private PaymentStatus paymentStatus;
 
-    @Column(name = "transactionId")
+    @Column(name = "transaction_id")
     private String transactionId;
 
-    @Column(name = "createdAt")
-    private OffsetDateTime paymentCreatedAt;
-
-    @PrePersist
-    public void prePersist(){
-        if (paymentCreatedAt == null){
-            paymentCreatedAt = OffsetDateTime.now();
-        }
-        if (paymentStatus == null){
-            paymentStatus = PaymentStatus.PENDING;
-        }
-    }
 }

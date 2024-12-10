@@ -14,6 +14,7 @@ import java.time.OffsetDateTime;
 @ToString
 
 @Entity
+@Table(name = "basket_item")
 public class BasketItem {
 
     @Id
@@ -32,14 +33,8 @@ public class BasketItem {
     private Product product;
 
     @Column(name = "quantity")
-    @Min(1)
+    @Min(value = 1, message = "Quantity must be greater than 0")
     private int quantity;
-
-    @Column(name = "createdAt")
-    private OffsetDateTime basketItemCreatedAt;
-
-    @Column(name = "updatedAt")
-    private OffsetDateTime basketItemUpdatedAt;
 
     public void incrementQuantity(int amount) {
         if (amount > 0) {
@@ -51,20 +46,6 @@ public class BasketItem {
         if (amount > 0 && this.quantity >= amount) {
             this.quantity -= amount;
         }
-    }
-
-    @PrePersist
-    public void prePersit(){
-        if(basketItemCreatedAt == null){
-            basketItemCreatedAt = OffsetDateTime.now();
-        }
-        if(basketItemUpdatedAt == null){
-            basketItemUpdatedAt = OffsetDateTime.now();
-        }
-    }
-    @PreUpdate
-    public void preUpdate(){
-        basketItemUpdatedAt = OffsetDateTime.now();
     }
 
 }

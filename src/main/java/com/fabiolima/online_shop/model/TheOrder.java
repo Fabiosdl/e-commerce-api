@@ -14,7 +14,8 @@ import java.time.OffsetDateTime;
 @ToString
 
 @Entity
-public class Order {
+@Table(name = "the_order")
+public class TheOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,30 +33,11 @@ public class Order {
     @JoinColumn(name = "basket_id", unique = true, nullable = false)
     private Basket basket;
 
-    @Column(name = "totalPrice")
+    @Column(name = "total_price")
     private double totalPrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "paymentStatus")
+    @Column(name = "payment_status")
     private PaymentStatus paymentStatus;
 
-    @Column(name = "createdAt")
-    private OffsetDateTime orderCreatedAt;
-
-    @Column(name = "updatedAt")
-    private OffsetDateTime orderUpdatedAt;
-
-    @PrePersist
-    public void prePersist(){
-        if(orderCreatedAt == null){
-            orderCreatedAt = OffsetDateTime.now();
-        }
-        if(orderUpdatedAt == null){
-            orderUpdatedAt = OffsetDateTime.now();
-        }
-    }
-    @PreUpdate
-    public void preUpdate(){
-        orderUpdatedAt = OffsetDateTime.now();
-    }
 }

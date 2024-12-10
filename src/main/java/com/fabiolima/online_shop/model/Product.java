@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +15,7 @@ import java.util.List;
 @ToString
 
 @Entity
+@Table(name = "product")
 public class Product {
 
     @Id
@@ -38,28 +38,13 @@ public class Product {
     @Column(name = "category")
     private String category;
 
+    @ToString.Exclude // to avoid infinite looping
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private final List<BasketItem> basketItemList = new ArrayList<>();
 
-    @Column(name = "createdAt")
-    private OffsetDateTime productCreatedAt;
-
-    @Column(name = "updatedAt")
-    private OffsetDateTime productUpdatedAt;
-
-    @PrePersist
-    public void prePersist(){
-
-        if (productCreatedAt == null){
-            productCreatedAt = OffsetDateTime.now();
-        }
-        if (productUpdatedAt == null){
-            productUpdatedAt = OffsetDateTime.now();
-        }
+    public void addProductInBasketItem(BasketItem theBasketItem){
+        basketItemList.add(theBasketItem);
+        theBasketItem.setProduct(this);
     }
 
-    @PreUpdate
-    public void preUpdate(){
-        productUpdatedAt = OffsetDateTime.now();
-    }
 }

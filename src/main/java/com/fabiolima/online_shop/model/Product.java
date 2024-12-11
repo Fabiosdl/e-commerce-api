@@ -30,7 +30,7 @@ public class Product {
     private String productDescription;
 
     @Column(name = "price")
-    private BigDecimal productPrice;
+    private double productPrice;
 
     @Column(name = "stock")
     private int stock;

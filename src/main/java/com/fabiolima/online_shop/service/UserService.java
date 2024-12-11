@@ -18,8 +18,4 @@ public interface UserService {
     User updateUserByUserId(Long userId, User updatedUser);
     User patchUpdateUserByUserId(Long userId, Map<String, Object> updates);
     User deactivateUserByUserId(Long userId); //delete user means to change data in column status to DISABLED
-
-    List<TheOrder> getUserOrders(Long userId);
-    TheOrder getUserOrderById(Long userId, Long orderId);
-
 }

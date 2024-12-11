@@ -1,14 +1,16 @@
 package com.fabiolima.online_shop.service;
 
+import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.model.User;
+import com.fabiolima.online_shop.model.enums.BasketStatus;
 import com.fabiolima.online_shop.repository.BasketRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BasketServiceImpl implements BasketService {
@@ -20,16 +22,18 @@ public class BasketServiceImpl implements BasketService {
     private UserService userService;
 
     @Override
-    public Basket saveBasket(Basket theBasket) {
-        return basketRepository.save(theBasket);
-    }
+    @Transactional
+    public Basket saveBasketAndAddToUser(Long userId, Basket theBasket) {
+        //find user
+        User theUser = userService.findUserByUserId(userId);
 
-    @Override
-    public Basket findBasketById(Long basketId) {
+        //add basket to the user (addBasketToUser is a bidirectional helper method)
+        theUser.addBasketToUser(theBasket);
 
-        Optional<Basket> result = basketRepository.findById(basketId);
-        if(result.isEmpty()) throw new NotFoundException("Basket not found");
-        return result.get();
+        //save the user that will cascade to saving the basket
+        userService.saveUser(theUser);
+
+        return theBasket;
     }
 
     @Override
@@ -41,40 +45,43 @@ public class BasketServiceImpl implements BasketService {
     @Override
     public Basket getUserBasketById(Long userId, Long basketId) {
         // check if the basket exists
-        Basket theBasket = findBasketById(basketId);
-
-        // check if the user owns the basket
-        basketBelongToUser(userId, basketId);
-
-        return theBasket;
+        return validateAndFetchBasket(userId, basketId);
     }
 
     @Override
-    public Basket updateBasketStatus(Long userId, Long basketId, Basket theBasket) {
+    public Basket checkOutBasket(Long userId, Long basketId) {
         // check if the basket belongs to user
-        basketBelongToUser(userId, basketId);
+        Basket theBasket = validateAndFetchBasket(userId, basketId);
 
-        Basket existingBasket = findBasketById(basketId);
-        existingBasket.setBasketStatus(theBasket.getBasketStatus());
-        return basketRepository.save(existingBasket);
+        // check if basket status is OPEN and set it to Checked out
+        if(!theBasket.getBasketStatus().equals(BasketStatus.OPEN))
+            throw new ForbiddenException("Can only check out an open basket.");
+        theBasket.setBasketStatus(BasketStatus.CHECKED_OUT);
+
+        // persist the updated basket
+        return basketRepository.save(theBasket);
     }
 
     @Override
     public Basket deleteBasketById(Long userId, Long basketId) {
 
-        basketBelongToUser(userId, basketId);
-        Basket reference = findBasketById(basketId);
+        Basket reference = validateAndFetchBasket(userId, basketId);
+        if(reference.getBasketStatus() == BasketStatus.CHECKED_OUT)
+            throw new ForbiddenException("Cannot delete a checked out basket.");
         basketRepository.deleteById(basketId);
         return reference;
     }
+    @Override
+    public Basket findBasketById(Long basketId) {
+        return basketRepository.findById(basketId)
+                .orElseThrow(() -> new NotFoundException(String.format("Basket with ID %d not found",basketId)));
+    }
 
-    private void basketBelongToUser(Long userId, Long basketId){
+    private Basket validateAndFetchBasket(Long userId, Long basketId){
 
-        User theUser = userService.findUserByUserId(userId);
-        Basket theBasket = findBasketById(basketId);
-
-        if(!theUser.equals(theBasket.getUser())) throw new NotFoundException(
-                "Basket does not belong to the user."
-        );
+        return basketRepository.findBasketByIdAndUserId(basketId, userId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Basket with Id %d does not belong to the user with Id %d."
+                                ,basketId,userId)));
     }
 }

@@ -7,10 +7,8 @@ import com.fabiolima.online_shop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -30,11 +28,8 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product findProductById(Long productId) {
-
-        Optional<Product> result = productRepository.findById(productId);
-        if(result.isEmpty()) throw new NotFoundException("Product not found");
-
-        return result.get();
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException(String.format("Product with Id %d not found",productId)));
     }
 
     @Override
@@ -49,7 +44,7 @@ public class ProductServiceImpl implements ProductService{
 
                 case "productName" : theProduct.setProductName((String) value); break;
                 case "productDescription" : theProduct.setProductDescription((String) value); break;
-                case "productPrice" : theProduct.setProductPrice((BigDecimal) value); break;
+                case "productPrice" : theProduct.setProductPrice((double) value); break;
                 case "stock" : theProduct.setStock((Integer) value); break;
                 case "category" : theProduct.setCategory((String) value); break;
                 default: throw new ForbiddenException("Field not found or not allowed to update");
@@ -60,7 +55,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Product deleteProdcutById(Long productId) {
+    public Product deleteProductById(Long productId) {
         Product reference = findProductById(productId);
         productRepository.deleteById(productId);
         return reference;

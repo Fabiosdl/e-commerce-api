@@ -10,6 +10,6 @@ public interface ProductService {
     List<Product> findAllProducts();
     Product findProductById(Long productId);
     Product patchUpdateProductById(Long productId, Map<String,Object> updates);
-    Product deleteProdcutById(Long productId);
+    Product deleteProductById(Long productId);
 
 }

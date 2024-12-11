@@ -3,20 +3,18 @@ package com.fabiolima.online_shop.service;
 import com.fabiolima.online_shop.exceptions.BadRequestException;
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
-import com.fabiolima.online_shop.model.Basket;
-import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.UserStatus;
 import com.fabiolima.online_shop.repository.BasketRepository;
 import com.fabiolima.online_shop.repository.OrderRepository;
 import com.fabiolima.online_shop.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.fabiolima.online_shop.model.enums.UserStatus.ACTIVE;
-import static com.fabiolima.online_shop.model.enums.UserStatus.INACTIVE;
+import static com.fabiolima.online_shop.model.enums.UserStatus.*;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -31,6 +29,7 @@ public class UserServiceImpl implements UserService{
     private OrderRepository orderRepository;
 
     @Override
+    @Transactional
     public User saveUser(User theUser) {
 
         return userRepository.save(theUser);
@@ -71,6 +70,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public User updateUserByUserId(Long userId, User updatedUser) {
 
         // first check if the user id in the parameter matches the user id in the body.
@@ -118,26 +118,5 @@ public class UserServiceImpl implements UserService{
         User theUser = findUserByUserId(userId);
         theUser.setUserStatus(INACTIVE);
         return saveUser(theUser);
-    }
-
-    @Override
-    public List<TheOrder> getUserOrders(Long userId) {
-        User theUser = findUserByUserId(userId);
-        return theUser.getOrders();
-    }
-
-    @Override
-    public TheOrder getUserOrderById(Long userId, Long orderId) {
-
-        Optional<TheOrder> result = orderRepository.findById(orderId);
-        if(result.isEmpty()) throw new NotFoundException("Order not found");
-        TheOrder theOrder = result.get();
-
-        // check if the user owns the order
-        User theUser = findUserByUserId(userId);
-        if(!theUser.equals(theOrder.getUser())) throw new NotFoundException(
-                "Order does not belong to user"
-        );
-        return theOrder;
     }
 }

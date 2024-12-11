@@ -44,4 +44,16 @@ public class Basket {
     )
     private final List<BasketItem> basketItems = new ArrayList<>();
 
+    @PrePersist
+    public void defaultBasketStatus(){
+        if(basketStatus == null)
+            basketStatus = BasketStatus.OPEN;
+    }
+
+    //bidirectional helper method
+    public void addBasketItemToBasket(BasketItem theBasketItem){
+        basketItems.add(theBasketItem);
+        theBasketItem.setBasket(this);
+    }
+
 }

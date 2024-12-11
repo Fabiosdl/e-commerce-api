@@ -1,5 +1,6 @@
 package com.fabiolima.online_shop.model;
 
+import com.fabiolima.online_shop.model.enums.OrderStatus;
 import com.fabiolima.online_shop.model.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,5 +40,15 @@ public class TheOrder {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
     private PaymentStatus paymentStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private OrderStatus orderStatus;
+
+    @PrePersist
+    public void defaultOrderStatus(){
+        if(orderStatus == null)
+            orderStatus = OrderStatus.PENDING;
+    }
 
 }

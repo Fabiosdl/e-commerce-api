@@ -33,7 +33,6 @@ public class BasketItem {
     private Product product;
 
     @Column(name = "quantity")
-    @Min(value = 1, message = "Quantity must be greater than 0")
     private int quantity;
 
     public void incrementQuantity(int amount) {

@@ -22,4 +22,9 @@ public class GlobalControllerExceptionHandler {
     public ResponseEntity<ForbiddenException> handleForbidden(ForbiddenException ex){
         return new ResponseEntity<>(ex, HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<InsufficientStockException> handleInsufficientStockException(InsufficientStockException ex){
+        return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+    }
 }

@@ -99,8 +99,8 @@ public class OrderServiceImpl implements OrderService {
 
         return selectedOrder;
     }
-
-    private TheOrder findOrderById(Long orderId){
+    @Override
+    public TheOrder findOrderById(Long orderId){
 
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(String.format("Order with Id %d not found.", orderId)));

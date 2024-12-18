@@ -2,6 +2,7 @@ package com.fabiolima.online_shop.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.OffsetDateTime;
@@ -27,12 +28,14 @@ public class BasketItem {
     @JoinColumn(name = "basket_id")
     private Basket basket;
 
+    @NotNull
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
     @Column(name = "quantity")
+    @Min(1)
     private int quantity;
 
     public void incrementQuantity(int amount) {

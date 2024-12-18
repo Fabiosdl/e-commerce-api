@@ -1,6 +1,7 @@
 package com.fabiolima.online_shop.service;
 
 import com.fabiolima.online_shop.model.BasketItem;
+import com.fabiolima.online_shop.model.Product;
 
 import java.util.List;
 
@@ -11,17 +12,13 @@ public interface BasketItemService {
     BasketItem getItemById(Long basketItemId);
     BasketItem updateBasketItem(Long basketItemId, int newQuantity);
     BasketItem removeItem(Long basketItemId);
-    void clearBasket(Long basketId);
 
-    BasketItem incrementItemQuantity(Long basketItemId, int amount);
-    BasketItem decrementItemQuantity(Long basketItemId, int amount);
+    BasketItem incrementItemQuantity(Long basketItemId);
+    BasketItem decrementItemQuantity(Long basketItemId);
 
-    boolean isStockAvailable(Long productId, int quantity);
-    boolean validateItemQuantity(Long basketItemId);
+    void isStockAvailable(Product product, int quantity);
 
     double calculateItemTotalPrice(Long basketItemId);
 
-    int getTotalQuantity(Long basketId);
-    double calculateTotalPrice(Long basketId);
 
 }

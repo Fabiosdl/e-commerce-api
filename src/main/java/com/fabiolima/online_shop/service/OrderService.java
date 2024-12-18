@@ -11,7 +11,6 @@ public interface OrderService {
     TheOrder getUserOrderById(Long userId, Long orderId);
     TheOrder updateStatusOrder(Long userId, Long orderId, String orderStatus);
     TheOrder cancelOrder(Long userId, Long orderId);
-
     List<TheOrder> getOrdersByStatus(Long userId, String status);
-
+    TheOrder findOrderById(Long orderId);
 }

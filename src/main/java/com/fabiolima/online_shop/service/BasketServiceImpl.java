@@ -3,6 +3,7 @@ package com.fabiolima.online_shop.service;
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.model.Basket;
+import com.fabiolima.online_shop.model.BasketItem;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.BasketStatus;
 import com.fabiolima.online_shop.repository.BasketRepository;
@@ -17,7 +18,6 @@ public class BasketServiceImpl implements BasketService {
 
     @Autowired
     private BasketRepository basketRepository;
-
     @Autowired
     private UserService userService;
 
@@ -71,10 +71,34 @@ public class BasketServiceImpl implements BasketService {
         basketRepository.deleteById(basketId);
         return reference;
     }
+
     @Override
     public Basket findBasketById(Long basketId) {
         return basketRepository.findById(basketId)
-                .orElseThrow(() -> new NotFoundException(String.format("Basket with ID %d not found",basketId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Basket with Id %d not found",basketId)));
+    }
+
+    @Override
+    @Transactional
+    public void clearBasket(Long basketId) {
+        Basket theBasket = findBasketById(basketId);
+        theBasket.getBasketItems().clear();
+        basketRepository.save(theBasket);
+    }
+
+    @Override
+    public int getTotalQuantity(Long basketId) {
+        Basket theBasket = findBasketById(basketId);
+        return theBasket.getBasketItems().size();
+    }
+
+    @Override
+    public double calculateTotalPrice(Long basketId) {
+
+        Basket theBasket = findBasketById(basketId);
+        return theBasket.getBasketItems().stream()
+                .mapToDouble(basketItem -> basketItem.getQuantity() * basketItem.getProduct().getProductPrice())
+                .sum();
     }
 
     private Basket validateAndFetchBasket(Long userId, Long basketId){

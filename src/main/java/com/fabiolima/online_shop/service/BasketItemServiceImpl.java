@@ -34,10 +34,8 @@ public class BasketItemServiceImpl implements BasketItemService{
         // fetch product
         Product theProduct = productService.findProductById(productId);
 
-        // Check if there's enough stock
-        if (!isStockAvailable(productId, quantity)) {
-            throw new InsufficientStockException("Not enough stock available");
-        }
+        // Check if there's enough stock. If not it will throw an InsufficientStockException
+        isStockAvailable(theProduct, quantity);
 
         // Check if item already exists in the basket, if so update item quantity
         BasketItem existingItem = theBasket.getBasketItems().stream()
@@ -78,9 +76,52 @@ public class BasketItemServiceImpl implements BasketItemService{
 
     @Override
     @Transactional
+    // in case the user changes the quantity of a product directly providing the quantity they want
     public BasketItem updateBasketItem(Long basketItemId, int newQuantity) {
         BasketItem basketItem = getItemById(basketItemId);
         basketItem.setQuantity(newQuantity);
+
+        Product product = basketItem.getProduct();
+
+        // Check if there's enough stock. If not it will throw an InsufficientStockException
+        isStockAvailable(product, newQuantity);
+
+        //check if quantity is 0. If so, remove item.
+        if(basketItem.getQuantity() == 0) {
+            return removeItem(basketItemId);
+        }
+
+        // check if it's negative quantity and throw an exception if its the case
+        if(basketItem.getQuantity() < 0)
+            throw new IllegalArgumentException("Quantity must have a positive value.");
+
+        return basketItemRepository.save(basketItem);
+    }
+
+    @Override
+    @Transactional
+    //in case the quantity is provided  by pressing a button that increment the quantity
+    public BasketItem incrementItemQuantity(Long basketItemId) {
+        BasketItem basketItem = getItemById(basketItemId);
+        basketItem.incrementQuantity(1);
+
+        Product product = basketItem.getProduct();
+
+        // Check if there's enough stock. If not it will throw an InsufficientStockException
+        isStockAvailable(product, basketItem.getQuantity());
+
+        return basketItemRepository.save(basketItem);
+    }
+
+    @Override
+    @Transactional
+    public BasketItem decrementItemQuantity(Long basketItemId) {
+        BasketItem basketItem = getItemById(basketItemId);
+        if(basketItem.getQuantity() <= 1)
+            throw new IllegalArgumentException("Cannot decrement quantity below 1.");
+
+        basketItem.decrementQuantity(1);
+
         return basketItemRepository.save(basketItem);
     }
 
@@ -93,63 +134,17 @@ public class BasketItemServiceImpl implements BasketItemService{
     }
 
     @Override
-    @Transactional
-    public void clearBasket(Long basketId) {
-        Basket theBasket = basketService.findBasketById(basketId);
-        theBasket.getBasketItems().clear();
+    public void isStockAvailable(Product product, int quantity) {
+        if(product.getStock() < quantity)
+            throw new InsufficientStockException(
+                    String.format("Not enough stock available for product '%s'. Available: %d, Requested: %d",
+                            product.getProductName(), product.getStock(), quantity));
     }
 
-    @Override
-    @Transactional
-    public BasketItem incrementItemQuantity(Long basketItemId, int amount) {
-        BasketItem basketItem = getItemById(basketItemId);
-        basketItem.incrementQuantity(amount);
-        return basketItem;
-    }
-
-    @Override
-    @Transactional
-    public BasketItem decrementItemQuantity(Long basketItemId, int amount) {
-        BasketItem basketItem = getItemById(basketItemId);
-        basketItem.decrementQuantity(amount);
-        return basketItem;
-    }
-
-    @Override
-    public boolean isStockAvailable(Long productId, int quantity) {
-        Product theProduct = productService.findProductById(productId);
-        return (theProduct.getStock() > 0);
-    }
-
-    @Override
-    public boolean validateItemQuantity(Long basketItemId) {
-        BasketItem basketItem = getItemById(basketItemId);
-        return (basketItem.getQuantity() > 0
-                && basketItem.getQuantity() <= basketItem.getProduct().getStock());
-    }
 
     @Override
     public double calculateItemTotalPrice(Long basketItemId) {
         BasketItem basketItem = getItemById(basketItemId);
         return (basketItem.getQuantity() * basketItem.getProduct().getProductPrice());
-    }
-
-    @Override
-    public int getTotalQuantity(Long basketId) {
-        int totalQuant = 0;
-        Basket theBasket = basketService.findBasketById(basketId);
-        for(BasketItem item : theBasket.getBasketItems()){
-            totalQuant += item.getQuantity();
-        }
-        return totalQuant;
-    }
-
-    @Override
-    public double calculateTotalPrice(Long basketId) {
-
-        Basket theBasket = basketService.findBasketById(basketId);
-        return theBasket.getBasketItems().stream()
-                .mapToDouble(basketItem -> basketItem.getQuantity() * basketItem.getProduct().getProductPrice())
-                .sum();
     }
 }

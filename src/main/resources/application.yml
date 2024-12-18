@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: online-shop
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/online-shop
+    username: springstudent
+    password: springstudent
+
+  error:
+    include-message: always
+
+  paypal:
+    client-id: "Ac8zvk-hlrlrO1Gm-dEpIW44OBZrfYDodhyflSx71a1d4CNj0-SvIi1WBh_L7bZRWj_tCvsT3L5rnnux"
+    client-secret: "EG3hZRfneY6OwcwPMALp1RvtzZ_yNgQkmQbdCGwgHxeMfXUujO_PzP45uJ-xXBRbxDhnAzrrEnqge8So"
+    mode: sandbox
+

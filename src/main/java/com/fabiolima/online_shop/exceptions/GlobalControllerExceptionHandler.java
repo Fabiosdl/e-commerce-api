@@ -27,4 +27,14 @@ public class GlobalControllerExceptionHandler {
     public ResponseEntity<InsufficientStockException> handleInsufficientStockException(InsufficientStockException ex){
         return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<OrderStatusException> handleForbidden(OrderStatusException ex){
+        return new ResponseEntity<>(ex, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<PaymentMethodException> handleForbidden(PaymentMethodException ex){
+        return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+    }
 }

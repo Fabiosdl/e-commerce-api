@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
-public class userController {
+public class UserController {
 
     @Autowired
     private UserService userService;
@@ -25,18 +25,22 @@ public class userController {
     public List<User> getAllUsers(){
         return userService.findAllUsers();
     }
+
     @GetMapping("/active")
     public List<User> getAllActiveUsers(){
         return userService.findAllUsersWithStatus(UserStatus.ACTIVE);
     }
+
     @GetMapping("/inactive")
     public List<User> getAllInactiveUsers(){
         return userService.findAllUsersWithStatus(UserStatus.INACTIVE);
     }
+
     @GetMapping("/{userId}")
     public User getUserByUserId(@PathVariable Long userId){
         return userService.findUserByUserId(userId);
     }
+
     @PatchMapping("/{userId}")
     public User updateUserByUserId(@RequestBody Map<String, Object> updates,
                                    @PathVariable Long userId){

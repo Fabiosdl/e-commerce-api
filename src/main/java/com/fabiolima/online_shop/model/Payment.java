@@ -36,4 +36,7 @@ public class Payment {
     @Column(name = "transaction_id")
     private String transactionId;
 
+    @Column(name = "amount")
+    private Double amount;
+
 }

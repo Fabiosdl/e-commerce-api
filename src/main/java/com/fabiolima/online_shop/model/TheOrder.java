@@ -51,4 +51,10 @@ public class TheOrder {
             orderStatus = OrderStatus.PENDING;
     }
 
+    @PrePersist
+    public void defaultPaymentStatus(){
+        if(paymentStatus == null)
+            paymentStatus = PaymentStatus.PENDING;
+    }
+
 }

@@ -51,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public TheOrder updateStatusOrder(Long userId, Long orderId, String orderStatus) {
 
         //Check if orderStatus is a valid Enum

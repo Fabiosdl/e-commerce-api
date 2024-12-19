@@ -64,7 +64,7 @@ public class BasketItemController {
     }
 
     // get the total item price
-    @GetMapping("/{itemId}/totalPrice")
+    @GetMapping("/{itemId}/total-price")
     public ResponseEntity<Double> getTotalItemPrice(@PathVariable("itemId") Long itemId){
         return ResponseEntity.ok(basketItemService.calculateItemTotalPrice(itemId));
     }

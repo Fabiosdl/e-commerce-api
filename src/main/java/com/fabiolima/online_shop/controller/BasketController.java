@@ -47,18 +47,18 @@ public class BasketController {
         return ResponseEntity.ok(theBasket);
     }
 
-    @PostMapping("/{basketId}/clearBasket")
+    @PostMapping("/{basketId}/clear-basket")
     public ResponseEntity<Basket> clearBasket(@PathVariable("basketId") Long basketId){
         basketService.clearBasket(basketId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{basketId}/quantOfItems")
+    @GetMapping("/{basketId}/quant-of-items")
     public ResponseEntity<Integer> getTotalAmountOfItemsInBasket(@PathVariable("basketId") Long basketId){
         return ResponseEntity.ok(basketService.getTotalQuantity(basketId));
     }
 
-    @GetMapping("{basketId}/totalPrice")
+    @GetMapping("{basketId}/total-price")
     public ResponseEntity<Double> getTotalBasketPrice(@PathVariable("basketId") Long basketId){
         return ResponseEntity.ok(basketService.calculateTotalPrice(basketId));
     }

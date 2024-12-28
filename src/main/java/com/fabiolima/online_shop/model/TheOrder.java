@@ -46,15 +46,12 @@ public class TheOrder {
     private OrderStatus orderStatus;
 
     @PrePersist
-    public void defaultOrderStatus(){
+    public void defaultOrderAndPaymentStatus(){
         if(orderStatus == null)
             orderStatus = OrderStatus.PENDING;
-    }
-
-    @PrePersist
-    public void defaultPaymentStatus(){
         if(paymentStatus == null)
             paymentStatus = PaymentStatus.PENDING;
+
     }
 
 }

@@ -37,7 +37,7 @@ public class User {
     private String email;
 
     @Column(name = "password")
-    @Size(min = 8)
+    @Size(min = 8, message = "Password must contain at least 8 characters")
     private String password;
 
     @Column(name = "address")
@@ -70,5 +70,15 @@ public class User {
     public void addBasketToUser(Basket theBasket){ //bi-directional method
         baskets.add(theBasket);
         theBasket.setUser(this);
+    }
+
+    @PrePersist
+    public void defaultUserStatus(){
+        if(userStatus == null){
+            userStatus = UserStatus.ACTIVE;
+        }
+        if(userRole == null){
+            userRole = UserRole.CUSTOMER;
+        }
     }
 }

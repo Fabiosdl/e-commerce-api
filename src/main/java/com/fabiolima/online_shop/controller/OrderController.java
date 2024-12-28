@@ -3,6 +3,7 @@ package com.fabiolima.online_shop.controller;
 import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.service.OrderService;
+import com.fabiolima.online_shop.service.ProductService;
 import com.fabiolima.online_shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ public class OrderController {
     private OrderService orderService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProductService productService;
 
     @PostMapping //the front end will pass all the payload of an order, including basketId, address and total price
     public ResponseEntity<TheOrder> createNewOrder(@PathVariable ("userId") Long userId,
@@ -42,7 +45,14 @@ public class OrderController {
     public ResponseEntity<TheOrder> updateOrderStatus(@PathVariable ("userId") Long userId,
                                                       @PathVariable ("orderId") Long orderId,
                                                       @RequestParam ("status") String status){
-        return ResponseEntity.ok(orderService.updateStatusOrder(userId,orderId,status));
+        TheOrder order = orderService.updateStatusOrder(userId,orderId,status);
+
+        /**
+         * As it's a small online shop, the stock quantity will be decremented only after payment
+         */
+        if(status.equalsIgnoreCase("paid"))
+            productService.updateQuantInStock(order);
+        return ResponseEntity.ok(order);
     }
 
     @DeleteMapping("/{orderId}/cancel")

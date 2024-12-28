@@ -21,6 +21,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ProductService productService;
+
 
     @Override
     @Transactional

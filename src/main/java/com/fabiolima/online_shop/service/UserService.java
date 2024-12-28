@@ -1,8 +1,5 @@
 package com.fabiolima.online_shop.service;
 
-
-import com.fabiolima.online_shop.model.Basket;
-import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.UserStatus;
 

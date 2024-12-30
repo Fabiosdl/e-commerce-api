@@ -5,7 +5,7 @@ import com.fabiolima.online_shop.model.Basket;
 import java.util.List;
 public interface BasketService {
 
-    Basket saveBasketAndAddToUser(Long userId, Basket theBasket);
+    Basket saveBasketAndAddToUser(Long userId);
     List<Basket> getUserBaskets(Long userId);
     Basket getUserBasketById(Long userId, Long basketId);
     Basket checkOutBasket(Long userId, Long basketId);

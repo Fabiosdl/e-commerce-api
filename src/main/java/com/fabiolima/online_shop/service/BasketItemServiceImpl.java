@@ -6,7 +6,6 @@ import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.model.BasketItem;
 import com.fabiolima.online_shop.model.Product;
 import com.fabiolima.online_shop.repository.BasketItemRepository;
-import com.fabiolima.online_shop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +15,18 @@ import java.util.List;
 @Service
 public class BasketItemServiceImpl implements BasketItemService{
 
+    private final BasketItemRepository basketItemRepository;
+    private final BasketService basketService;
+    private final ProductService productService;
+
     @Autowired
-    private BasketItemRepository basketItemRepository;
-    @Autowired
-    private BasketService basketService;
-    @Autowired
-    private ProductService productService;
-    @Autowired
-    private ProductRepository productRepository;
+    public BasketItemServiceImpl (BasketItemRepository basketItemRepository,
+                                  BasketService basketService,
+                                  ProductService productService){
+        this.basketItemRepository = basketItemRepository;
+        this.basketService = basketService;
+        this.productService = productService;
+    }
 
     @Override
     @Transactional

@@ -2,6 +2,8 @@ package com.fabiolima.online_shop.model;
 
 import com.fabiolima.online_shop.model.enums.OrderStatus;
 import com.fabiolima.online_shop.model.enums.PaymentStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,10 +24,10 @@ public class TheOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ToString.Exclude
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id") //a user can place multiple orders
+    @JsonBackReference
     private User user;
 
     @ToString.Exclude
@@ -42,7 +44,7 @@ public class TheOrder {
     private PaymentStatus paymentStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "order_status")
     private OrderStatus orderStatus;
 
     @PrePersist

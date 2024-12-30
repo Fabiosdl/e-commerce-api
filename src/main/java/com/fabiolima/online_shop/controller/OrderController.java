@@ -15,12 +15,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/user/{userId}/order")
 public class OrderController {
+
+    private final OrderService orderService;
+    private final UserService userService;
+    private final ProductService productService;
+
     @Autowired
-    private OrderService orderService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ProductService productService;
+    public OrderController (OrderService orderService,
+                            UserService userService,
+                            ProductService productService){
+        this.orderService = orderService;
+        this.userService = userService;
+        this.productService = productService;
+    }
 
     @PostMapping //the front end will pass all the payload of an order, including basketId, address and total price
     public ResponseEntity<TheOrder> createNewOrder(@PathVariable ("userId") Long userId,

@@ -1,5 +1,6 @@
 package com.fabiolima.online_shop.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -23,15 +24,15 @@ public class BasketItem {
     @Column(name = "id")
     private Long id;
 
-    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "basket_id")
+    @JsonBackReference
     private Basket basket;
 
     @NotNull
-    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "product_id")
+    @JsonBackReference
     private Product product;
 
     @Column(name = "quantity")

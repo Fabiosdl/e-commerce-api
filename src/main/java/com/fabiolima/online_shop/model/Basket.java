@@ -1,6 +1,8 @@
 package com.fabiolima.online_shop.model;
 
 import com.fabiolima.online_shop.model.enums.BasketStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,21 +28,19 @@ public class Basket {
     @Column(name = "status")
     private BasketStatus basketStatus;
 
-    @ToString.Exclude
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a user can have multiple baskets
                 CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id") //column in the database that will join user to basket
+    @JsonBackReference
     private User user;
 
     @ToString.Exclude
     @OneToOne(mappedBy = "basket", cascade = CascadeType.ALL)
     private TheOrder order;
 
-
-    @ToString.Exclude
     @OneToMany(mappedBy = "basket", // field in BasketItem Class
-            cascade = CascadeType.ALL
-    )
+            cascade = CascadeType.ALL)
+    @JsonManagedReference
     private final List<BasketItem> basketItems = new ArrayList<>();
 
     @PrePersist

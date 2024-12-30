@@ -14,8 +14,12 @@ import java.util.Map;
 @RequestMapping("/product")
 public class ProductController {
 
+    private final ProductService productService;
+
     @Autowired
-    private ProductService productService;
+    public ProductController (ProductService productService){
+        this.productService = productService;
+    }
 
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product theProduct){

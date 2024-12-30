@@ -14,10 +14,13 @@ import java.util.List;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
+    private final OrderService orderService;
+
     @Autowired
-    private OrderService orderService;
-    @Autowired
-    private PaymentRepository paymentRepository;
+    public PaymentServiceImpl (OrderService orderService,
+                               PaymentRepository paymentRepository){
+        this.orderService = orderService;
+    }
 
     @Override
     public Payment processPayment(Long orderId, String paymentMethod) {

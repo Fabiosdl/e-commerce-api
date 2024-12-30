@@ -15,15 +15,16 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+    private final UserService userService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ProductService productService;
-
+    public OrderServiceImpl (OrderRepository orderRepository,
+                             UserService userService,
+                             ProductService productService){
+        this.orderRepository = orderRepository;
+        this.userService = userService;
+    }
 
     @Override
     @Transactional

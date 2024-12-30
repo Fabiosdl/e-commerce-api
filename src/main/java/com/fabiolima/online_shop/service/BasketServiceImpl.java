@@ -3,7 +3,6 @@ package com.fabiolima.online_shop.service;
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.model.Basket;
-import com.fabiolima.online_shop.model.BasketItem;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.BasketStatus;
 import com.fabiolima.online_shop.repository.BasketRepository;
@@ -16,24 +15,29 @@ import java.util.List;
 @Service
 public class BasketServiceImpl implements BasketService {
 
+    private final BasketRepository basketRepository;
+    private final UserService userService;
+
     @Autowired
-    private BasketRepository basketRepository;
-    @Autowired
-    private UserService userService;
+    public BasketServiceImpl (BasketRepository basketRepository,
+                              UserService userService){
+        this.basketRepository = basketRepository;
+        this.userService = userService;
+    }
 
     @Override
     @Transactional
-    public Basket saveBasketAndAddToUser(Long userId, Basket theBasket) {
+    public Basket saveBasketAndAddToUser(Long userId) {
         //find user
         User theUser = userService.findUserByUserId(userId);
 
         //add basket to the user (addBasketToUser is a bidirectional helper method)
-        theUser.addBasketToUser(theBasket);
+        theUser.addBasketToUser(new Basket());
 
         //save the user that will cascade to saving the basket
         userService.saveUser(theUser);
 
-        return theBasket;
+        return theUser.getBaskets().getLast();
     }
 
     @Override

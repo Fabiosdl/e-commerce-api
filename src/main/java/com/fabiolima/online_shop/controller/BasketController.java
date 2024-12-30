@@ -2,6 +2,7 @@ package com.fabiolima.online_shop.controller;
 
 import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.service.BasketService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +13,17 @@ import java.util.List;
 @RequestMapping("user/{userId}/basket")
 public class BasketController {
 
-    private BasketService basketService;
+    private final BasketService basketService;
+
+    @Autowired
+    public BasketController(BasketService basketService){
+        this.basketService = basketService;
+    }
 
     @PostMapping()
-    public ResponseEntity<Basket> createBasket(@PathVariable("userId") Long userId,
-                                               @RequestBody Basket theBasket){
-        Basket createdBasket = basketService.saveBasketAndAddToUser(userId, theBasket);
+    public ResponseEntity<Basket> createBasket(@PathVariable("userId") Long userId){
+
+        Basket createdBasket = basketService.saveBasketAndAddToUser(userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBasket);
     }
 
@@ -28,8 +34,9 @@ public class BasketController {
     }
 
     @GetMapping("/{basketId}")
-    public ResponseEntity<Basket> getBasketById(@PathVariable("basketId") Long basketId){
-        Basket theBasket = basketService.findBasketById(basketId);
+    public ResponseEntity<Basket> getBasketById(@PathVariable("userId") Long userId,
+                                                @PathVariable("basketId") Long basketId){
+        Basket theBasket = basketService.getUserBasketById(userId,basketId);
         return ResponseEntity.ok(theBasket);
     }
 

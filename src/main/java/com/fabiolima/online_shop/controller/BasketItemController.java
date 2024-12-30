@@ -13,8 +13,12 @@ import java.util.List;
 @RequestMapping("/basket/{basketId}/item")
 public class BasketItemController {
 
+
+    private final BasketItemService basketItemService;
     @Autowired
-    private BasketItemService basketItemService;
+    public BasketItemController(BasketItemService basketItemService){
+        this.basketItemService = basketItemService;
+    }
 
     // add item to basket
     @PostMapping

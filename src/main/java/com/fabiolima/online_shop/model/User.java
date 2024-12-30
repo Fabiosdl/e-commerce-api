@@ -2,6 +2,7 @@ package com.fabiolima.online_shop.model;
 
 import com.fabiolima.online_shop.model.enums.UserRole;
 import com.fabiolima.online_shop.model.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -51,15 +52,15 @@ public class User {
     @Column(name = "status")
     private UserStatus userStatus;
 
-    @ToString.Exclude
     @OneToMany(mappedBy = "user",  //field "user" in Order Class
             cascade = CascadeType.ALL)
+    @JsonManagedReference
     private final List<TheOrder> orders = new ArrayList<>();
     //it's final to reassure that the orders list belongs to the user
 
-    @ToString.Exclude
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)
+    @JsonManagedReference
     private final List<Basket> baskets = new ArrayList<>();
 
     public void addOrderToUser(TheOrder theOrder){ //bi-directional method

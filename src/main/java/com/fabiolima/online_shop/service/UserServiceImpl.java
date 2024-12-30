@@ -5,8 +5,6 @@ import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.UserStatus;
-import com.fabiolima.online_shop.repository.BasketRepository;
-import com.fabiolima.online_shop.repository.OrderRepository;
 import com.fabiolima.online_shop.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +17,12 @@ import static com.fabiolima.online_shop.model.enums.UserStatus.*;
 @Service
 public class UserServiceImpl implements UserService{
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    private BasketRepository basketRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
+    public UserServiceImpl(UserRepository userRepository){
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional

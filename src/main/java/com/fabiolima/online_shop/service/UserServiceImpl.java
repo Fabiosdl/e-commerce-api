@@ -112,7 +112,16 @@ public class UserServiceImpl implements UserService{
     @Override
     public User deactivateUserByUserId(Long userId) {
         User theUser = findUserByUserId(userId);
+        if(theUser.getUserStatus().equals(INACTIVE))
+            throw new ForbiddenException("Cannot complete operation. User status is already INACTIVE");
         theUser.setUserStatus(INACTIVE);
         return saveUser(theUser);
+    }
+
+    @Override
+    public User deleteUserById(Long userId) {
+        User theUser = findUserByUserId(userId);
+        userRepository.deleteById(userId);
+        return theUser;
     }
 }

@@ -31,7 +31,7 @@ public class Basket {
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a user can have multiple baskets
                 CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id") //column in the database that will join user to basket
-    @JsonBackReference
+    //@JsonBackReference
     private User user;
 
     @ToString.Exclude
@@ -40,7 +40,6 @@ public class Basket {
 
     @OneToMany(mappedBy = "basket", // field in BasketItem Class
             cascade = CascadeType.ALL)
-    @JsonManagedReference
     private final List<BasketItem> basketItems = new ArrayList<>();
 
     @PrePersist

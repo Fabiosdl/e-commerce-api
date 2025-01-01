@@ -56,4 +56,8 @@ public class UserController {
     public ResponseEntity<User> deactivateUserByUserId(@PathVariable Long userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
     }
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<User> deleteUserByUserId(@PathVariable Long userId){
+        return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
+    }
 }

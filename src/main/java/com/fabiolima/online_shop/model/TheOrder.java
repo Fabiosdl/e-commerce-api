@@ -27,7 +27,7 @@ public class TheOrder {
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id") //a user can place multiple orders
-    @JsonBackReference
+    //@JsonBackReference
     private User user;
 
     @ToString.Exclude

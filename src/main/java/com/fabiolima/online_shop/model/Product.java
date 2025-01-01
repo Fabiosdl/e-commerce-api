@@ -41,7 +41,7 @@ public class Product {
 
     @ToString.Exclude // to avoid infinite looping
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    //@JsonManagedReference
     private final List<BasketItem> basketItemList = new ArrayList<>();
 
     public void addProductInBasketItem(BasketItem theBasketItem){

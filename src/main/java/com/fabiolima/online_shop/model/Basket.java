@@ -31,7 +31,6 @@ public class Basket {
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a user can have multiple baskets
                 CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id") //column in the database that will join user to basket
-    //@JsonBackReference
     private User user;
 
     @ToString.Exclude

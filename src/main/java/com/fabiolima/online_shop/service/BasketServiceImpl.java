@@ -32,7 +32,8 @@ public class BasketServiceImpl implements BasketService {
         User theUser = userService.findUserByUserId(userId);
 
         //add basket to the user (addBasketToUser is a bidirectional helper method)
-        theUser.addBasketToUser(new Basket());
+        Basket basket = new Basket();
+        theUser.addBasketToUser(basket);
 
         //save the user that will cascade to saving the basket
         userService.saveUser(theUser);

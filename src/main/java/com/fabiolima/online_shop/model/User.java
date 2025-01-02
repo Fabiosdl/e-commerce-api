@@ -59,6 +59,7 @@ public class User {
     private final List<TheOrder> orders = new ArrayList<>();
     //it's final to reassure that the orders list belongs to the user
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)
     @JsonIgnore

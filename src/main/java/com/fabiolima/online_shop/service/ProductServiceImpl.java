@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +54,7 @@ public class ProductServiceImpl implements ProductService{
 
                 case "productName" : theProduct.setProductName((String) value); break;
                 case "productDescription" : theProduct.setProductDescription((String) value); break;
-                case "productPrice" : theProduct.setProductPrice((double) value); break;
+                case "productPrice" : theProduct.setProductPrice((Double) value); break;
                 case "stock" : theProduct.setStock((Integer) value); break;
                 case "category" : theProduct.setCategory((String) value); break;
                 default: throw new ForbiddenException("Field not found or not allowed to update");
@@ -72,7 +73,9 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public void updateQuantInStock(TheOrder order) {
+    public List<Product> updateQuantInStock(TheOrder order) {
+        List<Product> updatedProductStock = new ArrayList<>();
+
         // retrieve the basket that originated the order
         Basket theBasket = order.getBasket();
 
@@ -91,6 +94,8 @@ public class ProductServiceImpl implements ProductService{
             product.setStock(currentStock - quantity);
             // save product with updated stock quantity
             saveProduct(product);
+            updatedProductStock.add(product);
         }
+        return updatedProductStock;
     }
 }

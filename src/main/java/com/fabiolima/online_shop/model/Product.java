@@ -1,10 +1,8 @@
 package com.fabiolima.online_shop.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,9 +37,7 @@ public class Product {
     @Column(name = "category")
     private String category;
 
-    @ToString.Exclude // to avoid infinite looping
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    //@JsonManagedReference
     private final List<BasketItem> basketItemList = new ArrayList<>();
 
     public void addProductInBasketItem(BasketItem theBasketItem){

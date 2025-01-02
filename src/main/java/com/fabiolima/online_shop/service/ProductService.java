@@ -12,6 +12,6 @@ public interface ProductService {
     Product findProductById(Long productId);
     Product patchUpdateProductById(Long productId, Map<String,Object> updates);
     Product deleteProductById(Long productId);
-    void updateQuantInStock(TheOrder order);
+    List<Product> updateQuantInStock(TheOrder order);
 
 }

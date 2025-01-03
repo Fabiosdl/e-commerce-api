@@ -10,7 +10,7 @@ public interface BasketService {
     Basket getUserBasketById(Long userId, Long basketId);
     Basket checkOutBasket(Long userId, Long basketId);
     Basket deleteBasketById(Long userId, Long basketId);
-    void clearBasket(Long basketId);
+    Basket clearBasket(Long basketId);
     Basket findBasketById(Long basketId);
 
     int getTotalQuantity(Long basketId);

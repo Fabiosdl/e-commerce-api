@@ -84,11 +84,10 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    @Transactional
-    public void clearBasket(Long basketId) {
+    public Basket clearBasket(Long basketId) {
         Basket theBasket = findBasketById(basketId);
         theBasket.getBasketItems().clear();
-        basketRepository.save(theBasket);
+        return basketRepository.save(theBasket);
     }
 
     @Override
@@ -106,7 +105,7 @@ public class BasketServiceImpl implements BasketService {
                 .sum();
     }
 
-    private Basket validateAndFetchBasket(Long userId, Long basketId){
+    protected Basket validateAndFetchBasket(Long userId, Long basketId){
 
         return basketRepository.findBasketByIdAndUserId(basketId, userId)
                 .orElseThrow(() -> new NotFoundException(

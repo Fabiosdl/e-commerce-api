@@ -37,6 +37,7 @@ public class Basket {
     @OneToOne(mappedBy = "basket", cascade = CascadeType.ALL)
     private TheOrder order;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "basket", // field in BasketItem Class
             cascade = CascadeType.ALL)
     private final List<BasketItem> basketItems = new ArrayList<>();

@@ -35,11 +35,16 @@ class BasketServiceImplTest {
 
     @Test
     @Transactional
-    void saveBasketAndAddToUser_ShouldReturnBasketAddedToUser_() {
+    void saveBasketAndAddToUser_ShouldReturnBasketAddedToUser_WhenUserExists() {
         // given
-        User user = new User();  // Create a new User
-        Basket basket = new Basket();  // Create a new Basket
-        basket.setId(1L);
+
+        // Create a new User
+        User user = new User();
+
+        //Create new baskets
+        Basket basket1 = new Basket();
+        Basket basket2 = new Basket();
+        Basket expectedBasket = new Basket();
 
         // Mocking the behavior of userService
         when(userService.findUserByUserId(anyLong())).thenReturn(user);
@@ -47,19 +52,21 @@ class BasketServiceImplTest {
         // Simulate saving the User along with its associated Basket
         when(userService.saveUser(any(User.class))).thenAnswer(invocation -> {
             User capturedUser = invocation.getArgument(0);
-            // Manually ensuring that the basket is related to the user and saved
-            capturedUser.addBasketToUser(basket);
+            // adding a baskets to the list of baskets. The correct one should be the last one.
+            capturedUser.addBasketToUser(basket1);
+            capturedUser.addBasketToUser(basket2);
+            capturedUser.addBasketToUser(expectedBasket);
             return capturedUser;  // Return the user with the updated Basket
         });
 
         // when
-        Basket actual = basketService.saveBasketAndAddToUser(1L);
+        Basket actualBasket = basketService.saveBasketAndAddToUser(1L);
 
         // then
         assertAll(
-                () -> assertNotNull(actual),
-                () -> assertEquals(basket, actual),  // Ensure the returned Basket is the same one added to the User
-                () -> assertTrue(user.getBaskets().contains(basket))  // Ensure the Basket was added to the User's baskets
+                () -> assertNotNull(actualBasket),
+                () -> assertEquals(expectedBasket, actualBasket),  // Ensure the returned Basket is the same one added to the User
+                () -> assertTrue(user.getBaskets().contains(expectedBasket))  // Ensure the Basket was added to the User's baskets
         );
 
         // Verify that userService.saveUser() was called exactly once
@@ -103,7 +110,6 @@ class BasketServiceImplTest {
     @Test
     void getUserBasketById_ShouldThrowNotFoundException_WhenBasketDoesNotBelongToUser() {
         //given
-        Basket basket = new Basket();
 
         when(basketRepository.findBasketByIdAndUserId(anyLong(),anyLong())).thenReturn(Optional.empty());
 

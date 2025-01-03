@@ -1,5 +1,6 @@
 package com.fabiolima.online_shop.service;
 
+import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.model.User;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -38,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
         // persist user with its new order. The order will also be persisted due to the bidirectional helper method
         userService.saveUser(theUser);
 
-        return theOrder;
+        return theUser.getOrders().getLast();
     }
 
     @Override
@@ -65,8 +67,23 @@ public class OrderServiceImpl implements OrderService {
         //validate and fetch order
         TheOrder theOrder = validateAndFetchOrder(userId, orderId);
 
-        // set new status to order
-        theOrder.setOrderStatus(OrderStatus.fromString(orderStatus));
+        // set new status to order depending on the current Status
+        String currentStatus = theOrder.getOrderStatus().toString();
+        switch (currentStatus){
+            case "PENDING" : if(orderStatus.equalsIgnoreCase("PAID"))
+                                theOrder.setOrderStatus(OrderStatus.fromString(orderStatus));
+                            else if(orderStatus.equalsIgnoreCase("CANCELLED"))
+                                throw new ForbiddenException("Please, use the method cancelOrder to cancel an order.");
+                            else
+                                throw new ForbiddenException("Current Status PENDING can only be updated to PAID. To update to Cancel use method cancelOrder.");
+                            break;
+            case "PAID" :   if(orderStatus.equalsIgnoreCase("COMPLETED"))
+                                theOrder.setOrderStatus(OrderStatus.fromString(orderStatus));
+                            else
+                                throw new ForbiddenException("Current Status PAID can only be updated to COMPLETED.");
+                            break;
+            default: throw new ForbiddenException("Current Status " + currentStatus + " cannot be updated.");
+        }
 
         //persist new order
         return orderRepository.save(theOrder);
@@ -74,8 +91,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public TheOrder cancelOrder(Long userId, Long orderId) {
+        //retrieve order
         TheOrder theOrder = validateAndFetchOrder(userId, orderId);
-        theOrder.setOrderStatus(OrderStatus.CANCELLED);
+        //retrieve current status of order
+        OrderStatus currentStatus = theOrder.getOrderStatus();
+
+        //check if its possible to cancel order
+        if (Objects.requireNonNull(currentStatus) == OrderStatus.PENDING) {
+            theOrder.setOrderStatus(OrderStatus.CANCELLED);
+        } else {
+            throw new ForbiddenException("Only order with status PENDING can be cancelled");
+        }
         return orderRepository.save(theOrder);
     }
 

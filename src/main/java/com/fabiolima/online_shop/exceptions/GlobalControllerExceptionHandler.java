@@ -1,5 +1,6 @@
 package com.fabiolima.online_shop.exceptions;
 
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,18 +24,28 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(ex, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(InsufficientStockException.class)
     public ResponseEntity<InsufficientStockException> handleInsufficientStockException(InsufficientStockException ex){
         return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<OrderStatusException> handleForbidden(OrderStatusException ex){
+    public ResponseEntity<OrderStatusException> handleOrderStatusException(OrderStatusException ex){
         return new ResponseEntity<>(ex, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<PaymentMethodException> handleForbidden(PaymentMethodException ex){
+    public ResponseEntity<PaymentMethodException> handlePaymentMethodException(PaymentMethodException ex){
+        return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidQuantityException.class)
+    public ResponseEntity<InvalidQuantityException> handleInvalidQuantityException(InvalidQuantityException ex){
+        return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidIdException.class)
+    public ResponseEntity<?> handleInvalidIdException(InvalidIdException ex){
         return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
     }
 }

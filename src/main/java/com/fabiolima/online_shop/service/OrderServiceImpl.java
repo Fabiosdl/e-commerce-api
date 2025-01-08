@@ -40,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
         // persist user with its new order. The order will also be persisted due to the bidirectional helper method
         userService.saveUser(theUser);
 
-        return theUser.getOrders().getLast();
+        return theOrder;
     }
 
     @Override
@@ -52,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public TheOrder getUserOrderById(Long userId, Long orderId) {
+
         // validate and fetch the order
         return validateAndFetchOrder(userId,orderId);
     }
@@ -100,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
         if (Objects.requireNonNull(currentStatus) == OrderStatus.PENDING) {
             theOrder.setOrderStatus(OrderStatus.CANCELLED);
         } else {
-            throw new ForbiddenException("Only order with status PENDING can be cancelled");
+            throw new ForbiddenException("Only orders with status PENDING can be cancelled");
         }
         return orderRepository.save(theOrder);
     }

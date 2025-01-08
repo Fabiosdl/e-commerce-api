@@ -9,6 +9,7 @@ public interface BasketService {
     List<Basket> getUserBaskets(Long userId);
     Basket getUserBasketById(Long userId, Long basketId);
     Basket checkOutBasket(Long userId, Long basketId);
+    Basket updateBasketWhenItemsAreAddedOrModified(Basket basket);
     Basket deleteBasketById(Long userId, Long basketId);
     Basket clearBasket(Long basketId);
     Basket findBasketById(Long basketId);

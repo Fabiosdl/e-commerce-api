@@ -25,6 +25,7 @@ public class BasketItemController {
     public ResponseEntity<BasketItem> createBasketItem(@PathVariable("basketId") Long basketId,
                                                        @RequestParam Long productId,
                                                        @RequestParam int quant){
+
         BasketItem item = basketItemService.addItemToBasket(basketId, productId, quant);
         return ResponseEntity.status(HttpStatus.CREATED).body(item);
     }
@@ -54,16 +55,18 @@ public class BasketItemController {
 
     // decrement quantity one by one in item
     @PostMapping("/{itemId}/decrement")
-    public ResponseEntity<BasketItem> decrementItemInBasket(@PathVariable("itemId") Long itemId){
-        BasketItem decrementedItem = basketItemService.decrementItemQuantity(itemId);
+    public ResponseEntity<BasketItem> decrementItemInBasket(@PathVariable("basketId") Long basketId,
+                                                            @PathVariable("itemId") Long itemId){
+        BasketItem decrementedItem = basketItemService.decrementItemQuantity(basketId, itemId);
         return ResponseEntity.ok(decrementedItem);
     }
 
     // change items quantity in basket
     @PostMapping("/{itemId}")
-    public ResponseEntity<BasketItem> updateItemQuantityInBasket(@PathVariable("itemId") Long itemId,
+    public ResponseEntity<BasketItem> updateItemQuantityInBasket(@PathVariable("basketId") Long basketId,
+                                                                 @PathVariable("itemId") Long itemId,
                                                                  @RequestParam int quant){
-        BasketItem updatedBasketItem = basketItemService.updateBasketItem(itemId, quant);
+        BasketItem updatedBasketItem = basketItemService.updateBasketItem(basketId, itemId, quant);
         return ResponseEntity.ok(updatedBasketItem);
     }
 
@@ -75,8 +78,9 @@ public class BasketItemController {
 
     // remove item
     @DeleteMapping("/{itemId}")
-    public ResponseEntity<Void> removeItemFromBasket(@PathVariable("itemId") Long itemId){
-        basketItemService.removeItem(itemId);
+    public ResponseEntity<Void> removeItemFromBasket(@PathVariable("basketId") Long basketId,
+                                                     @PathVariable("itemId") Long itemId){
+        basketItemService.removeItemFromBasket(basketId,itemId);
         return ResponseEntity.noContent().build();
     }
 

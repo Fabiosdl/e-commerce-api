@@ -39,7 +39,8 @@ public class Basket {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "basket", // field in BasketItem Class
-            cascade = CascadeType.ALL)
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private final List<BasketItem> basketItems = new ArrayList<>();
 
     @PrePersist

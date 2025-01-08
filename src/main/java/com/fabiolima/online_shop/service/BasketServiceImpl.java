@@ -43,12 +43,23 @@ public class BasketServiceImpl implements BasketService {
 
     @Override
     public List<Basket> getUserBaskets(Long userId) {
+
         User theUser = userService.findUserByUserId(userId);
         return theUser.getBaskets();
     }
 
     @Override
     public Basket getUserBasketById(Long userId, Long basketId) {
+        //check if userId and basketId are valid
+        if(basketId == null)
+            throw new IllegalArgumentException ("Basket id cannot be null");
+        if(userId == null)
+            throw new IllegalArgumentException ("User id cannot be null");
+        if(basketId <= 0L)
+            throw new IllegalArgumentException ("Basket id must be greater than 0");
+        if(userId <= 0L)
+            throw new IllegalArgumentException ("User id must be greater than 0");
+
         // check if the basket exists
         return validateAndFetchBasket(userId, basketId);
     }
@@ -65,6 +76,11 @@ public class BasketServiceImpl implements BasketService {
 
         // persist the updated basket
         return basketRepository.save(theBasket);
+    }
+
+    @Override
+    public Basket updateBasketWhenItemsAreAddedOrModified(Basket basket) {
+        return basketRepository.save(basket);
     }
 
     @Override

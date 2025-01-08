@@ -37,6 +37,11 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product findProductById(Long productId) {
+        //check if userId and basketId are valid
+        if(productId == null)
+            throw new IllegalArgumentException ("Product id cannot be null");
+        if(productId <= 0L)
+            throw new IllegalArgumentException ("Product id must be greater than 0");
         return productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException(String.format("Product with Id %d not found",productId)));
     }

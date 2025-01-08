@@ -42,17 +42,19 @@ class OrderServiceImplTest {
         //creating orders to add to orders list in user entity
         TheOrder order1 = new TheOrder();
         TheOrder order2 = new TheOrder();
+        user.addOrderToUser(order1);
+        user.addOrderToUser(order2);
+
         TheOrder expectedOrder = new TheOrder();
 
         when(userService.findUserByUserId(anyLong())).thenReturn(user);
-        //Simulating saving a child entity by saving its parent
+
+        //Simulating saving the user and adding the expected order
         when(userService.saveUser(user)).thenAnswer(invocationOnMock -> {
-            User expectedUser = invocationOnMock.getArgument(0);
-            //add orders to ordersList. The Last one should be the one the method will return
-            expectedUser.addOrderToUser(order1);
-            expectedUser.addOrderToUser(order2);
-            expectedUser.addOrderToUser(expectedOrder);
-            return expectedUser;
+            User savedUser = invocationOnMock.getArgument(0);
+            //simulate order addition.
+            savedUser.addOrderToUser(expectedOrder);
+            return savedUser;
         });
 
         //when
@@ -250,7 +252,7 @@ class OrderServiceImplTest {
         Executable executable = () -> orderService.cancelOrder(1L,1L);
 
         //then
-        assertThrows(ForbiddenException.class, executable,"Only order with status PENDING can be cancelled");
+        assertThrows(ForbiddenException.class, executable,"Only orders with status PENDING can be cancelled");
         verify(orderRepository,times(1)).findOrderByIdAndUserId(1L,1L);
 
     }

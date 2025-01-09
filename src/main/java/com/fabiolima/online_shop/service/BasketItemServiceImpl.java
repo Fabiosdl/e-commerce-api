@@ -138,7 +138,7 @@ public class BasketItemServiceImpl implements BasketItemService{
         basketItem.setQuantity(newQuantity);
 
         /**
-         * update stock quantity
+         * update stock quantity after ensuring stock availability
          */
         updateProductStock(product, quantityDelta);
 
@@ -150,6 +150,7 @@ public class BasketItemServiceImpl implements BasketItemService{
      * Method to use in case the quantity is provided by pressing a button that increments the quantity by 1
      */
     public BasketItem incrementItemQuantity(Long basketItemId) {
+        validateId(basketItemId);
 
         //Delta -> New Quantity - current Quantity
         int delta = 1;
@@ -173,6 +174,9 @@ public class BasketItemServiceImpl implements BasketItemService{
      * Method in case the quantity is provided by pressing a button that decrements the quantity by 1
      */
     public BasketItem decrementItemQuantity(Long basketId, Long basketItemId) {
+        validateId(basketId);
+        validateId(basketItemId);
+
         //Delta -> New Quantity - current Quantity
         int delta = -1;
 
@@ -199,6 +203,9 @@ public class BasketItemServiceImpl implements BasketItemService{
     @Override
     @Transactional
     public BasketItem removeItemFromBasket(Long basketId, Long basketItemId) {
+        validateId(basketId);
+        validateId(basketItemId);
+
         //retrieve the basket where the item is stored
         Basket basket = basketService.findBasketById(basketId);
         List<BasketItem> listOfItems = basket.getBasketItems();
@@ -274,8 +281,15 @@ public class BasketItemServiceImpl implements BasketItemService{
          * It can be proved by getting the initial stock = 10, minus items in basket = 7
          * which results in a updated stock of 3 units
          */
+        if(product == null)
+            throw new IllegalArgumentException("Product cannot be null");
+
         int currentStock = product.getStock();
         int updatedStock = currentStock - delta;
+
+        if(updatedStock < 0)
+            throw new InsufficientStockException(String.format("Not enough stock available for product '%s'. Available: %d, Requested: %d",
+                    product.getProductName(), product.getStock(), delta));
 
         product.setStock(updatedStock);
         productService.saveProduct(product);

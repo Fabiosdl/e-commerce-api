@@ -55,9 +55,9 @@ public class OrderController {
         TheOrder order = orderService.updateStatusOrder(userId,orderId,status);
 
         /**
-         * As it's a small online shop, the stock quantity will be decremented only after payment
+         * Stock quantity will be replaced if order status is cancelled
          */
-        if(status.equalsIgnoreCase("paid"))
+        if(status.equalsIgnoreCase("cancelled"))
             productService.updateQuantInStock(order);
         return ResponseEntity.ok(order);
     }

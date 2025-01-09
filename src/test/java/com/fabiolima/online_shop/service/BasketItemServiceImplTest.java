@@ -37,11 +37,12 @@ class BasketItemServiceImplTest {
 
 
     @Test
-    void addItemToBasket_ShouldReturnBasketWithAddedItem_WhenItemIsNotInBasketAndStockGreaterThanQuant() {
+    void addItemToBasket_ShouldReturnBasketWithAddedItemAndUpdateStock_WhenItemIsNotInBasketAndStockGreaterThanQuant() {
         //Given
         Long basketId = 1L;
         Long productId = 1L;
         int quantity = 7;
+        int stock = 10;
 
         //create basket, product and item to mock addItemToBasketMethod
         Basket basket = new Basket();
@@ -49,7 +50,7 @@ class BasketItemServiceImplTest {
 
         Product product = Product.builder()
                 .id(productId)
-                .stock(10)
+                .stock(stock)
                 .build();
 
         //mocking the dependency injection methods
@@ -71,12 +72,7 @@ class BasketItemServiceImplTest {
          * when().thenReturn is used when you simply want to return a predefined object without any custom manipulation or logic. It’s a straightforward way to mock the return value of a method without involving side effects or custom logic.
          */
 
-        // Directly modify the real basket in the test
-        doAnswer(invocation -> {
-            Basket basketArg = invocation.getArgument(0);
-            basketArg.addBasketItemToBasket(expectedItem);
-            return null;
-        }).when(basketService).updateBasketWhenItemsAreAddedOrModified(any(Basket.class));
+        when(basketService.updateBasketWhenItemsAreAddedOrModified(any(Basket.class))).thenReturn(basket);
 
         //When
         BasketItem actualItem = basketItemService.addItemToBasket(basketId,productId, quantity);
@@ -85,6 +81,7 @@ class BasketItemServiceImplTest {
         assertNotNull(actualItem);
         assertEquals(productId,actualItem.getProduct().getId());
         assertEquals(quantity,actualItem.getQuantity());
+        assertEquals(stock - quantity, actualItem.getProduct().getStock());
         assertTrue(basket.getBasketItems().contains(actualItem));
         assertEquals(expectedItem.getProduct(), actualItem.getProduct());
         assertEquals(expectedItem.getQuantity(), actualItem.getQuantity());
@@ -95,12 +92,13 @@ class BasketItemServiceImplTest {
     }
 
     @Test
-    void addItemToBasket_ShouldIncrementItemQuantityInBasket_WhenBasketAlreadyHasItem(){
+    void addItemToBasket_ShouldIncrementItemQuantityInBasketAndUpdateStock_WhenBasketAlreadyHasItem(){
 
         //Given
         Long basketId = 1L;
         Long productId = 1L;
         int quantity = 6;
+        int stock = 10;
 
         //create basket, product and item to mock addItemToBasketMethod
         Basket basket = new Basket();
@@ -108,7 +106,7 @@ class BasketItemServiceImplTest {
 
         Product product = Product.builder()
                 .id(productId)
-                .stock(10)
+                .stock(stock)
                 .build();
 
         BasketItem existingItem = new BasketItem();
@@ -130,6 +128,8 @@ class BasketItemServiceImplTest {
         assertEquals(product,actualItem.getProduct());
         //expected quantity 3 + 6 (original quantity + new quantity)
         assertEquals(9, actualItem.getQuantity());
+        //expected stock -> 10 - 6 (initial stock - new quantity)
+        assertEquals(4, actualItem.getProduct().getStock());
 
         verify(basketItemRepository, times(1)).save(existingItem);
         verify(basketService, never()).updateBasketWhenItemsAreAddedOrModified(basket); // No need to update basket
@@ -140,7 +140,9 @@ class BasketItemServiceImplTest {
     void addItemToBasket_ShouldReturnInsufficientStockException_WhenStockIsLessThanQuantity(){
 
         //given
+        Long productId = 1L;
         Product product = new Product();
+        product.setId(productId);
         product.setStock(5);
 
         int quantity = 6;
@@ -149,25 +151,23 @@ class BasketItemServiceImplTest {
         when(productService.findProductById(anyLong())).thenReturn(product);
 
         //when
-        Executable executable = () -> basketItemService.ensureStockAvailable(product,quantity);
+        Executable executable = () -> basketItemService.addItemToBasket(1L,productId,quantity);
 
         //then
         assertThrows(InsufficientStockException.class, executable);
+        //verify(basketItemService,never()).removeItemFromBasket(1L,1L);
 
     }
 
     @ParameterizedTest
     @CsvSource({"-5", "0"})
-    void addItemToBasket_ShouldReturnIllegalArgumentException_WhenQuantityIsZeroOrNegative(int quantity){
+    void addItemToBasket_ShouldReturnInvalidQuantityException_WhenQuantityIsZeroOrNegative(String input){
         //given
-        Product product = new Product();
-        product.setId(1L);
-
-        when(basketService.findBasketById(anyLong())).thenReturn(new Basket());
-        when(productService.findProductById(anyLong())).thenReturn(product);
+        Long productId = 1L;
+        int quantity = Integer.parseInt(input);
 
         //when
-        Executable executable = () -> basketItemService.ensureStockAvailable(product,quantity);
+        Executable executable = () -> basketItemService.addItemToBasket(1L,productId,quantity);
 
         //then
         assertThrows(InvalidQuantityException.class, executable);
@@ -256,11 +256,12 @@ class BasketItemServiceImplTest {
         //Given
         Long basketId = 1L;
         Long basketItemId = 2L;
+        int initialQuantity = 7;
         int newQuantity = 3;
 
         BasketItem item = new BasketItem();
         item.setId(basketItemId);
-        item.setQuantity(newQuantity);
+        item.setQuantity(initialQuantity);
 
         Product product = new Product();
         product.setId(1L);
@@ -271,6 +272,7 @@ class BasketItemServiceImplTest {
         //mocking the called methods
         when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(basketItemRepository.save(item)).thenReturn(item);
+        when(productService.saveProduct(product)).thenReturn(product);
 
         //When
         BasketItem actualItem = basketItemService.updateBasketItem(basketId, basketItemId, newQuantity);
@@ -279,35 +281,50 @@ class BasketItemServiceImplTest {
         assertNotNull(actualItem);
         assertEquals(item.getQuantity(), actualItem.getQuantity());
         assertEquals(item,actualItem);
+        assertEquals(104, actualItem.getProduct().getStock());
 
         verify(basketItemRepository, times(1)).findById(basketItemId);
         verify(basketItemRepository,times(1)).save(item);
+        verify(productService,times(1)).saveProduct(product);
 
     }
 
     @Test
-    void updateBasketItem_ShouldReturnInsufficientStockException_WhenStockIsLessThanQuantity(){
+    void updateBasketItem_ShouldReturnInsufficientStockException_WhenNewQuantityIsGreaterThanCurrentQuantityAndStockIsLessThanQuantity(){
 
         //Given
+        Long basketId = 1L;
+        Long itemId = 1L;
+
+        int initialQuantity = 3;
+        BasketItem item = new BasketItem();
+        item.setQuantity(initialQuantity);
 
         Product product = new Product();
-        product.setStock(5);
+        product.setStock(2);
+        product.setProductName("Test");
 
-        int quantity = 6;
+        //the tested method gets the product from the item
+        //so its paramount that product is set to item
+        item.setProduct(product);
+
+        int newQuantity = 6;
 
         //mocking the called methods
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(new BasketItem()));
+        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
         //when
-        Executable executable = () -> basketItemService.ensureStockAvailable(product,quantity);
+        Executable executable = () -> basketItemService.updateBasketItem(basketId, itemId, newQuantity);
 
         //then
-        assertThrows(InsufficientStockException.class, executable);
+        InsufficientStockException ex = assertThrows(InsufficientStockException.class, executable);
+        assertEquals("Not enough stock available for product 'Test'. Available: 2, Requested: 3",
+                ex.getMessage());
 
     }
 
     @Test
-    void updateBasketItem_ShouldRemoveItemFromBasket_WhenNewQuantityIsZero(){
+    void updateBasketItem_ShouldRemoveItemFromBasketAndUpdateStock_WhenNewQuantityIsZero(){
         //Given
         Long basketId = 1L;
         Long basketItemId = 2L;
@@ -329,14 +346,15 @@ class BasketItemServiceImplTest {
         //mocking methods in updateBasketItem
         when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(basketService.findBasketById(anyLong())).thenReturn(basket);
+        when(productService.saveProduct(product)).thenReturn(product);
 
         //When
         BasketItem actualItem = basketItemService.updateBasketItem(basketId, basketItemId, newQuantity);
 
         //Then
         assertFalse(basket.getBasketItems().contains(actualItem));
-        assertEquals(0,actualItem.getQuantity());
         assertEquals(item,actualItem);//Removed item should be returned by the removeItemFromBasket
+        assertEquals(105,actualItem.getProduct().getStock());//after removing item, the 5 items should go back to stock
 
         verify(basketItemRepository, times(1)).findById(basketItemId);
         verify(basketService, times(1)).findBasketById(basketId);
@@ -345,11 +363,151 @@ class BasketItemServiceImplTest {
     }
 
     @Test
-    void incrementItemQuantity() {
+    void incrementItemQuantity_ShouldReturnItemWithQuantityIncrementedByOne_WhenTheresEnoughStockAvailable() {
+
+        //Given
+        Long itemId = 1L;
+        Long productId = 2L;
+        int quantity = 1;
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setStock(10);
+
+        BasketItem item = new BasketItem();
+        item.setId(itemId);
+        item.setQuantity(quantity);
+        item.setProduct(product);
+
+        //mocking the methods
+        when(basketItemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(basketItemRepository.save(item)).thenReturn(item);
+
+        //When
+        BasketItem actualItem = basketItemService.incrementItemQuantity(itemId);
+
+        //Then
+        assertNotNull(actualItem);
+        assertEquals( quantity + 1, actualItem.getQuantity());
+
     }
 
     @Test
-    void decrementItemQuantity() {
+    void incrementItemQuantity_ShouldThrowInsufficientStockException_WhenTheresEnoughStockAvailable() {
+
+        //Given
+        Long itemId = 1L;
+        Long productId = 2L;
+        int quantity = 10;
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setStock(0);
+
+        BasketItem item = new BasketItem();
+        item.setId(itemId);
+        item.setQuantity(quantity);
+        item.setProduct(product);
+
+        //mocking the methods
+        when(basketItemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        //When
+        Executable executable = () -> basketItemService.incrementItemQuantity(itemId);
+
+        //Then
+        assertThrows(InsufficientStockException.class, executable);
+
+    }
+
+    @Test
+    void decrementItemQuantity_ShouldDecrementItemQuantityByOneAndIncrementStockByOne_WhenItemQuantityIsGreaterThanOne() {
+        //Given
+        Long itemId = 1L;
+        Long productId = 2L;
+        Long basketId = 3L;
+        int initialQuantity = 8;
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setStock(10);
+
+        BasketItem item = new BasketItem();
+        item.setId(itemId);
+        item.setProduct(product);
+        item.setQuantity(initialQuantity);
+
+        //mocking the methods
+        when(basketItemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(basketItemRepository.save(item)).thenReturn(item);
+        when(productService.saveProduct(product)).thenReturn(product);
+
+        //When
+        BasketItem actualItem = basketItemService.decrementItemQuantity(basketId,itemId);
+
+        //Then
+        assertNotNull(actualItem);
+        assertEquals(initialQuantity - 1, actualItem.getQuantity());
+        assertEquals(11,actualItem.getProduct().getStock());
+    }
+
+    @Test
+    void decrementItemQuantity_ShouldRemoveItemFromBasketAndIncrementStockByOne_WhenItemQuantityIsOne(){
+        //Given
+        Long basketId = 1L;
+        Long itemId = 2L;
+        Long productId = 3L;
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setStock(10);
+
+        BasketItem basketItem = new BasketItem();
+        basketItem.setId(itemId);
+        basketItem.setQuantity(1);
+        basketItem.setProduct(product);
+
+        Basket basket = new Basket();
+        basket.setId(basketId);
+        basket.addBasketItemToBasket(basketItem);
+
+        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(basketItem));
+        when(basketService.findBasketById(anyLong())).thenReturn(basket);
+        when(productService.saveProduct(any(Product.class))).thenReturn(product);
+
+        //When
+        BasketItem actualItem = basketItemService.decrementItemQuantity(basketId, itemId);
+
+        //Then
+        assertNotNull(actualItem);
+        assertFalse(basket.getBasketItems().contains(actualItem));
+        assertEquals(11,actualItem.getProduct().getStock());
+
+        verify(basketItemRepository,times(1)).findById(itemId);
+        verify(basketService,times(1)).findBasketById(basketId);
+        verify(productService,times(1)).saveProduct(product);
+        verify(basketItemRepository,never()).save(basketItem);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0","-5"})
+    void decrementItemQuantity_ShouldThrowInvalidQuantityException_WhenItemQuantityBelow1(String input){
+        //Given
+        Long itemId = 1L;
+        int quantity = Integer.parseInt(input);
+
+        BasketItem item = new BasketItem();
+        item.setId(itemId);
+        item.setQuantity(quantity);
+
+        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+
+        //When
+        Executable executable = () -> basketItemService.decrementItemQuantity(anyLong(),itemId);
+
+        //Then
+        assertThrows(InvalidQuantityException.class,executable);
+
     }
 
     @Test

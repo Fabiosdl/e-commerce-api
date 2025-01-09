@@ -78,6 +78,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
+    //give back the product stock if order is cancelled
     public List<Product> updateQuantInStock(TheOrder order) {
         List<Product> updatedProductStock = new ArrayList<>();
 
@@ -86,17 +87,14 @@ public class ProductServiceImpl implements ProductService{
 
         // iterate through the list of items in basket and return its quantities to stock
         for (BasketItem item : theBasket.getBasketItems()) {
-            // retrieve quantity in basket
+            // retrieve quantity of an item in basket
             int quantity = item.getQuantity();
             // retrieve the product used in item
             Product product = item.getProduct();
             // retrieve current quantity in stock
             int currentStock = product.getStock();
             // update stock quantity
-            if (currentStock < quantity) {
-                throw new IllegalStateException("Not enough stock for product: " + product.getProductName());
-            }
-            product.setStock(currentStock - quantity);
+            product.setStock(currentStock + quantity);
             // save product with updated stock quantity
             saveProduct(product);
             updatedProductStock.add(product);

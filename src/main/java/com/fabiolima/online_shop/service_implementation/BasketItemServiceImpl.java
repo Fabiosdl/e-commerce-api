@@ -1,4 +1,4 @@
-package com.fabiolima.online_shop.service;
+package com.fabiolima.online_shop.service_implementation;
 
 import com.fabiolima.online_shop.exceptions.InsufficientStockException;
 import com.fabiolima.online_shop.exceptions.InvalidIdException;
@@ -8,6 +8,9 @@ import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.model.BasketItem;
 import com.fabiolima.online_shop.model.Product;
 import com.fabiolima.online_shop.repository.BasketItemRepository;
+import com.fabiolima.online_shop.service.BasketItemService;
+import com.fabiolima.online_shop.service.BasketService;
+import com.fabiolima.online_shop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class BasketItemServiceImpl implements BasketItemService{
+public class BasketItemServiceImpl implements BasketItemService {
 
     private final BasketItemRepository basketItemRepository;
     private final BasketService basketService;
@@ -259,14 +262,14 @@ public class BasketItemServiceImpl implements BasketItemService{
         return (basketItem.getQuantity() * basketItem.getProduct().getProductPrice());
     }
 
-    protected void validateId(Long id){
+    public void validateId(Long id){
         if(id == null)
             throw new InvalidIdException("The Id cannot be null");
         if(id <= 0)
             throw new InvalidIdException("The Id must be grater than 0");
     }
 
-    protected void updateProductStock(Product product, int delta){
+    public void updateProductStock(Product product, int delta){
 
         /** Example of how the method works
          * initial product stock = 10 units

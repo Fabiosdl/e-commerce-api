@@ -6,6 +6,7 @@ import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.OrderStatus;
 import com.fabiolima.online_shop.repository.OrderRepository;
+import com.fabiolima.online_shop.service_implementation.OrderServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -1,4 +1,4 @@
-package com.fabiolima.online_shop.service;
+package com.fabiolima.online_shop.service_implementation;
 
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
@@ -6,6 +6,9 @@ import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.OrderStatus;
 import com.fabiolima.online_shop.repository.OrderRepository;
+import com.fabiolima.online_shop.service.OrderService;
+import com.fabiolima.online_shop.service.ProductService;
+import com.fabiolima.online_shop.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

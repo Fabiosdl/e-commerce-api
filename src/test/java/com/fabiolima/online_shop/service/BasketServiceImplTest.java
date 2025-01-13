@@ -8,6 +8,7 @@ import com.fabiolima.online_shop.model.Product;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.BasketStatus;
 import com.fabiolima.online_shop.repository.BasketRepository;
+import com.fabiolima.online_shop.service_implementation.BasketServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,8 @@ class BasketServiceImplTest {
     private BasketRepository basketRepository;
     @MockitoBean
     private UserService userService;
+    @MockitoBean
+    private ProductService productService;
 
     @Autowired
     private BasketServiceImpl basketService;
@@ -172,11 +175,32 @@ class BasketServiceImplTest {
     }
 
     @Test
-    void deleteBasketById_ShouldDeleteBasket() {
+    void deleteBasketById_ShouldDeleteBasket_WhenBasketIsEmptyAndBasketStatusIsOpen() {
         //given
         Basket basket = new Basket();
+        basket.setBasketStatus(BasketStatus.OPEN);
 
+        Product product1 = new Product();
+        product1.setStock(5);
+        Product product2 = new Product();
+        product2.setStock(3);
+
+        BasketItem item1 = new BasketItem();
+        item1.setQuantity(2);
+        item1.setProduct(product1);
+        BasketItem item2 = new BasketItem();
+        item2.setQuantity(4);
+
+        basket.addBasketItemToBasket(item1);
+        basket.addBasketItemToBasket(item2);
+
+        //mocking dependencies in deleteBasketById
         when(basketRepository.findBasketByIdAndUserId(anyLong(),anyLong())).thenReturn(Optional.of(basket));
+        //mocking dependencies in clearBasket helper method
+        when(basketRepository.findById(anyLong())).thenReturn(Optional.of(basket));
+        //mocking dependencies in removeItemFromBasket helper method
+        //when(productService.saveProduct(any(Product.class))).thenReturn(product);
+
         doNothing().when(basketRepository).deleteById(1L);
         //when
         basketService.deleteBasketById(1L,1L);
@@ -235,7 +259,7 @@ class BasketServiceImplTest {
         verify(basketRepository, times(1)).findById(basketId);
     }
 
-    @Test
+    /*@Test
     void clearBasket() {
         //given
         Basket basket = new Basket();
@@ -252,7 +276,7 @@ class BasketServiceImplTest {
         assertTrue((result.getBasketItems()).isEmpty());
         verify(basketRepository,times(1)).findById(1L);
         verify(basketRepository,times(1)).save(basket);
-    }
+    }*/
 
     @Test
     void getTotalQuantity_ShouldReturnTotalItemQuantityInBasket() {

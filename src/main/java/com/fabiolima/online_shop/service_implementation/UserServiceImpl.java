@@ -1,4 +1,4 @@
-package com.fabiolima.online_shop.service;
+package com.fabiolima.online_shop.service_implementation;
 
 import com.fabiolima.online_shop.exceptions.BadRequestException;
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
@@ -6,6 +6,7 @@ import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.UserStatus;
 import com.fabiolima.online_shop.repository.UserRepository;
+import com.fabiolima.online_shop.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import java.util.*;
 import static com.fabiolima.online_shop.model.enums.UserStatus.*;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 

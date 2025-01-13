@@ -1,10 +1,12 @@
 package com.fabiolima.online_shop.model;
 
 import com.fabiolima.online_shop.model.enums.BasketStatus;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,14 @@ public class Basket {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private BasketStatus basketStatus;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime lastUpdated; // Automatically updated by Hibernate or DB
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a user can have multiple baskets
                 CascadeType.REFRESH, CascadeType.PERSIST})

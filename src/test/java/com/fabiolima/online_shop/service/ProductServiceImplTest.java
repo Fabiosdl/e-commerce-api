@@ -7,6 +7,7 @@ import com.fabiolima.online_shop.model.BasketItem;
 import com.fabiolima.online_shop.model.Product;
 import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.repository.ProductRepository;
+import com.fabiolima.online_shop.service_implementation.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,8 +41,8 @@ class ProductServiceImplTest {
         Product actual = productService.saveProduct(product);
 
         //then
-        assertEquals(product,actual);
-        verify(productRepository,times(1)).save(product);
+        assertEquals(product, actual);
+        verify(productRepository, times(1)).save(product);
     }
 
     @Test
@@ -55,7 +56,7 @@ class ProductServiceImplTest {
         product2.setId(1L);
         product2.setProductName("Product Two");
 
-        List<Product> productList = List.of(product1,product2);
+        List<Product> productList = List.of(product1, product2);
 
         when(productRepository.findAll()).thenReturn(productList);
 
@@ -115,23 +116,23 @@ class ProductServiceImplTest {
         product.setStock(20);
         product.setCategory("Electronics");
 
-        Object parsedValue = switch (field){
+        Object parsedValue = switch (field) {
             case "productPrice" -> Double.parseDouble(newValue);
             case "stock" -> Integer.parseInt(newValue);
             default -> newValue;
         };
 
-        HashMap<String,Object> map = new HashMap<>();
-        map.put(field,parsedValue);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(field, parsedValue);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 
         //when
-        Product actual = productService.patchUpdateProductById(1L,map);
+        Product actual = productService.patchUpdateProductById(1L, map);
 
         //then
-        switch (field){
+        switch (field) {
             case "productName" -> assertEquals(parsedValue, actual.getProductName());
             case "productDescription" -> assertEquals(parsedValue, actual.getProductDescription());
             case "productPrice" -> assertEquals(parsedValue, actual.getProductPrice());
@@ -149,15 +150,15 @@ class ProductServiceImplTest {
         product.setProductName("Product One");
         product.setProductDescription("Testing Exception");
 
-        HashMap<String,Object> map = new HashMap<>();
-        map.put("productName","Product Two");
-        map.put("test","Testing Exception");
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("productName", "Product Two");
+        map.put("test", "Testing Exception");
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 
         //when
-        Executable exe = () -> productService.patchUpdateProductById(1L,map);
+        Executable exe = () -> productService.patchUpdateProductById(1L, map);
 
         //then
         assertThrows(ForbiddenException.class, exe);
@@ -177,14 +178,14 @@ class ProductServiceImplTest {
         productService.deleteProductById(1L);
 
         //then
-        verify(productRepository,times(1)).deleteById(1L);
+        verify(productRepository, times(1)).deleteById(1L);
     }
 
     @Test
     void updateQuantInStock_ShouldReturnProductWithUpdatedStock() {
         //given
 
-        //setting a product with a stock of 10
+        //setting two products with a stock of 10
         Product product1 = new Product();
         product1.setId(1L);
         product1.setStock(10);
@@ -215,6 +216,8 @@ class ProductServiceImplTest {
         order.setBasket(basket);
         basket.setOrder(order);
 
+        List<Product> expectedProducts = List.of(product1, product2);
+
         //mocking the save method used in updateQuantInStock method
         when(productRepository.save(product1)).thenReturn(product1);
         when(productRepository.save(product2)).thenReturn(product2);
@@ -223,50 +226,13 @@ class ProductServiceImplTest {
         List<Product> updatedProducts = productService.updateQuantInStock(order);
         Product updatedProduct1 = updatedProducts.get(0);
         Product updatedProduct2 = updatedProducts.get(1);
-        int expected1 = 5;
-        int expected2 = 2;
 
         //THEN
-        assertEquals(2,updatedProducts.size());
-        assertEquals(expected1, updatedProduct1.getStock(),"Product stock should be updated to 5");
-        assertEquals(expected2, updatedProduct2.getStock(),"Product stock should be updated to 2");
-        verify(productRepository,times(1)).save(product1);
-        verify(productRepository,times(1)).save(product2);
-    }
-
-
-    @Test
-    void updateQuantInStock_ShouldThrowIllegalStateException_WhenStockIsLessThanQuant() {
-        //given
-
-        //setting a product with a stock of 10
-        Product product1 = new Product();
-        product1.setId(1L);
-        product1.setStock(2);
-
-        //create a list of items and insert in basket and then insert basket into order
-        //as the method asks for the order
-        BasketItem item1 = new BasketItem();
-        item1.setId(1L);
-        item1.setProduct(product1);
-        item1.setQuantity(5);
-
-        Basket basket = new Basket();
-        basket.setId(1L);
-        basket.addBasketItemToBasket(item1);
-
-        TheOrder order = new TheOrder();
-        order.setId(1L);
-        order.setBasket(basket);
-        basket.setOrder(order);
-
-        //mocking the save method used in updateQuantInStock method
-        when(productRepository.save(product1)).thenReturn(product1);
-
-        // WHEN
-        Executable executable = () -> productService.updateQuantInStock(order);
-
-        //THEN
-        assertThrows(IllegalStateException.class, executable,"Product stock is 2 and the required item quantity is 5");
+        assertEquals(2, updatedProducts.size());
+        assertTrue(expectedProducts.containsAll(updatedProducts));
+        assertEquals(15, updatedProduct1.getStock(), "Product stock should be updated to 15 (10 of stock + 5 of returned item");
+        assertEquals(14, updatedProduct2.getStock(), "Product stock should be updated to 14 (8 of stock + 6 of returned item");
+        verify(productRepository, times(1)).save(product1);
+        verify(productRepository, times(1)).save(product2);
     }
 }

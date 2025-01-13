@@ -54,7 +54,7 @@ public class BasketController {
         return ResponseEntity.ok(theBasket);
     }
 
-    @PostMapping("/{basketId}/clear-basket")
+   @PostMapping("/{basketId}/clear-basket")
     public ResponseEntity<Basket> clearBasket(@PathVariable("basketId") Long basketId){
         basketService.clearBasket(basketId);
         return ResponseEntity.noContent().build();

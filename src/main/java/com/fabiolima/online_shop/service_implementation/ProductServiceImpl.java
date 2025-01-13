@@ -1,4 +1,4 @@
-package com.fabiolima.online_shop.service;
+package com.fabiolima.online_shop.service_implementation;
 
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
@@ -7,6 +7,7 @@ import com.fabiolima.online_shop.model.BasketItem;
 import com.fabiolima.online_shop.model.Product;
 import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.repository.ProductRepository;
+import com.fabiolima.online_shop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
@@ -78,8 +79,12 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    //give back the product stock if order is cancelled
+    //give back the item quantity to product stock if order is cancelled
     public List<Product> updateQuantInStock(TheOrder order) {
+
+        if(order == null)
+            throw new IllegalArgumentException("Order cannot be null");
+
         List<Product> updatedProductStock = new ArrayList<>();
 
         // retrieve the basket that originated the order

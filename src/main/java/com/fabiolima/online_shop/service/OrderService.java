@@ -1,7 +1,6 @@
 package com.fabiolima.online_shop.service;
 
 import com.fabiolima.online_shop.model.TheOrder;
-import com.fabiolima.online_shop.model.enums.OrderStatus;
 
 import java.util.List;
 

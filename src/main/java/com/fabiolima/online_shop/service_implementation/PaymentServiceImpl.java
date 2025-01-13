@@ -1,4 +1,4 @@
-package com.fabiolima.online_shop.service;
+package com.fabiolima.online_shop.service_implementation;
 
 import com.fabiolima.online_shop.exceptions.OrderStatusException;
 import com.fabiolima.online_shop.exceptions.PaymentMethodException;
@@ -6,6 +6,8 @@ import com.fabiolima.online_shop.model.Payment;
 import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.model.enums.OrderStatus;
 import com.fabiolima.online_shop.repository.PaymentRepository;
+import com.fabiolima.online_shop.service.OrderService;
+import com.fabiolima.online_shop.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

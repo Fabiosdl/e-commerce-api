@@ -7,8 +7,8 @@ spring:
     username: springstudent
     password: springstudent
 
-  error:
-    include-message: always
+#  error:
+#    include-message: always
 
   paypal:
     client-id: "Ac8zvk-hlrlrO1Gm-dEpIW44OBZrfYDodhyflSx71a1d4CNj0-SvIi1WBh_L7bZRWj_tCvsT3L5rnnux"

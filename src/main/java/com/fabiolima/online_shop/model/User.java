@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -30,16 +31,20 @@ public class User {
     private Long id;
 
     @Column(name = "name")
+    @NotBlank
     @Size(min = 2, max = 40, message = "Name has to have a minimum of 2 characters and a maximum of 40.")
     private String name;
 
-    @Column(name = "email")
+    @Column(name = "email",unique = true,nullable = false)
+    @NotBlank(message = "Email should not be blank.")
     @Email(regexp = "[a-z0-9._%-+]+@[a-z0-9.-]+\\.[a-z]{2,3}",
             flags = Pattern.Flag.CASE_INSENSITIVE)
+
     private String email;
 
     @Column(name = "password")
     @Size(min = 8, message = "Password must contain at least 8 characters")
+    @NotBlank
     private String password;
 
     @Column(name = "address")

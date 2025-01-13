@@ -8,6 +8,8 @@ import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.model.BasketItem;
 import com.fabiolima.online_shop.model.Product;
 import com.fabiolima.online_shop.repository.BasketItemRepository;
+import com.fabiolima.online_shop.service_implementation.BasketItemServiceImpl;
+import com.fabiolima.online_shop.service_implementation.BasketServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,7 +30,7 @@ class BasketItemServiceImplTest {
     @MockitoBean
     private BasketItemRepository basketItemRepository;
     @MockitoBean
-    private BasketService basketService;
+    private BasketServiceImpl basketService;
     @MockitoBean
     private ProductService productService;
 

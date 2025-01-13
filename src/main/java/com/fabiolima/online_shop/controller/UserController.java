@@ -3,6 +3,7 @@ package com.fabiolima.online_shop.controller;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.UserStatus;
 import com.fabiolima.online_shop.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +24,15 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createNewUser(@RequestBody User theUser){
+    public ResponseEntity<User> createNewUser(@RequestBody @Valid User theUser){
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(theUser));
     }
 
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(){
-        return ResponseEntity.ok(userService.findAllUsers());
-    }
+    //@GetMapping
+    //public ResponseEntity<List<User>> getAllUsers(){
+        //return ResponseEntity.ok(userService.findAllUsers());
+    //}
+    //implement pagination
 
     @GetMapping("/active")
     public ResponseEntity<List<User>> getAllActiveUsers(){
@@ -60,4 +62,8 @@ public class UserController {
     public ResponseEntity<User> deleteUserByUserId(@PathVariable Long userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
     }
+
+    //implement spring security
+    //access control
+    //
 }

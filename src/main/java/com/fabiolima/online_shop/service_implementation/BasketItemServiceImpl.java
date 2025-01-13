@@ -65,7 +65,7 @@ public class BasketItemServiceImpl implements BasketItemService {
          * Update product stock
          */
         int delta = quantity;
-        updateProductStock(theProduct, delta);
+        productService.updateProductStock(theProduct, delta);
 
         if (existingItem != null) {
             existingItem.incrementQuantity(quantity);
@@ -134,8 +134,10 @@ public class BasketItemServiceImpl implements BasketItemService {
          */
         if(newQuantity == 0) {
             //item still holds the older quantity, so stock can be updated inside remove
-            //removeItemFromBasket
-            return removeItemFromBasket(basketId, basketItemId);
+
+            Basket basket = basketService.findBasketById(basketId);
+            //removeItemFromBasket method update stock automatically
+            basketService.removeItemFromBasket(basket, basketItemId);
         }
 
         basketItem.setQuantity(newQuantity);
@@ -143,7 +145,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         /**
          * update stock quantity after ensuring stock availability
          */
-        updateProductStock(product, quantityDelta);
+        productService.updateProductStock(product, quantityDelta);
 
         return basketItemRepository.save(basketItem);
     }
@@ -166,7 +168,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
         //if there's enough stock, increment item and decrement stock;
         basketItem.incrementQuantity(1);
-        updateProductStock(product, delta);
+        productService.updateProductStock(product, delta);
 
         return basketItemRepository.save(basketItem);
     }
@@ -191,12 +193,14 @@ public class BasketItemServiceImpl implements BasketItemService {
 
 
         //in case theres only one quantity of an item, the item will be removed from basket
-        if(basketItem.getQuantity() == 1)
+        if(basketItem.getQuantity() == 1){
+            Basket basket = basketService.findBasketById(basketId);
             //removeItemFromBasket method update stock automatically
-            return removeItemFromBasket(basketId, basketItemId);
+            basketService.removeItemFromBasket(basket, basketItemId);
+        }
 
         //update stock
-        updateProductStock(product, delta);
+        productService.updateProductStock(product, delta);
 
         basketItem.decrementQuantity(1);
 
@@ -206,38 +210,11 @@ public class BasketItemServiceImpl implements BasketItemService {
     @Override
     @Transactional
     public BasketItem removeItemFromBasket(Long basketId, Long basketItemId) {
-        validateId(basketId);
-        validateId(basketItemId);
 
         //retrieve the basket where the item is stored
         Basket basket = basketService.findBasketById(basketId);
-        List<BasketItem> listOfItems = basket.getBasketItems();
+        return basketService.removeItemFromBasket(basket,basketItemId);
 
-        //retrieve the item from the basket items list
-        BasketItem itemFromList = listOfItems.stream()
-                .filter(basketItem ->
-                    basketItem.getId().equals(basketItemId))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Basket id %d do not contain Item with id %d",basketId,basketItemId)));
-
-        /**
-         *As per orphanRemoval is enabled in the One-To- Many relationship between basket and item
-         *Hibernate will automatically persist the modification into the database,
-         * both for Basket and BasketItem entity
-         */
-
-        basket.getBasketItems().remove(itemFromList);
-
-        /**
-         * update stock
-         */
-        Product product = itemFromList.getProduct();
-        int delta = - itemFromList.getQuantity();
-        updateProductStock(product, delta);
-
-        //returning removed item so it can be tested in integration test using postman
-        return itemFromList;
     }
 
     @Override
@@ -269,32 +246,4 @@ public class BasketItemServiceImpl implements BasketItemService {
             throw new InvalidIdException("The Id must be grater than 0");
     }
 
-    public void updateProductStock(Product product, int delta){
-
-        /** Example of how the method works
-         * initial product stock = 10 units
-         * Firstly user puts 4 quantity of an item in basket
-         * current product stock = 10 - 4 .: current stock = 6 units
-         * now user wants 7 units INSTEAD of 4 units
-         * delta = new item quantity - current item quantity
-         * delta = 7 - 4 .: delta = 3
-         * updated product stock = current stock - delta
-         * updated stock = 6 - 3 = 3 units.
-         *
-         * It can be proved by getting the initial stock = 10, minus items in basket = 7
-         * which results in a updated stock of 3 units
-         */
-        if(product == null)
-            throw new IllegalArgumentException("Product cannot be null");
-
-        int currentStock = product.getStock();
-        int updatedStock = currentStock - delta;
-
-        if(updatedStock < 0)
-            throw new InsufficientStockException(String.format("Not enough stock available for product '%s'. Available: %d, Requested: %d",
-                    product.getProductName(), product.getStock(), delta));
-
-        product.setStock(updatedStock);
-        productService.saveProduct(product);
-    }
 }

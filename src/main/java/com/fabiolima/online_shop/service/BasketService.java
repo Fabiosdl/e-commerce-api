@@ -1,6 +1,7 @@
 package com.fabiolima.online_shop.service;
 
 import com.fabiolima.online_shop.model.Basket;
+import com.fabiolima.online_shop.model.BasketItem;
 
 import java.util.List;
 public interface BasketService {
@@ -14,8 +15,7 @@ public interface BasketService {
     Basket clearBasket(Long basketId);
     void deleteExpiredBasket();
     Basket findBasketById(Long basketId);
-
     int getTotalQuantity(Long basketId);
-
     double calculateTotalPrice(Long basketId);
+    BasketItem removeItemFromBasket(Basket basket, Long itemId);
 }

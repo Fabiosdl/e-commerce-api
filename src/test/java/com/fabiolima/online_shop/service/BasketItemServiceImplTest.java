@@ -676,7 +676,7 @@ class BasketItemServiceImplTest {
         when(productService.findProductById(anyLong())).thenReturn(product);
 
         //When
-        basketItemService.updateProductStock(product,delta);
+        productService.updateProductStock(product,delta);
 
         //Then
         assertEquals(Integer.parseInt(expected), product.getStock());
@@ -694,7 +694,7 @@ class BasketItemServiceImplTest {
         int delta = 6;
 
         //When
-        Executable executable = () -> basketItemService.updateProductStock(product,delta);
+        Executable executable = () -> productService.updateProductStock(product,delta);
 
         //Then
         InsufficientStockException ex = assertThrows(InsufficientStockException.class, executable);

@@ -12,6 +12,7 @@ public interface ProductService {
     Product findProductById(Long productId);
     Product patchUpdateProductById(Long productId, Map<String,Object> updates);
     Product deleteProductById(Long productId);
-    List<Product> updateQuantInStock(TheOrder order);
+    List<Product> incrementStocksWhenOrderIsCancelled(TheOrder order);
+    void updateProductStock(Product product, int delta);
 
 }

@@ -182,7 +182,7 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void updateQuantInStock_ShouldReturnProductWithUpdatedStock() {
+    void incrementStocksWhenOrderIsCancelled_ShouldReturnProductWithIncrementedStock() {
         //given
 
         //setting two products with a stock of 10
@@ -223,7 +223,7 @@ class ProductServiceImplTest {
         when(productRepository.save(product2)).thenReturn(product2);
 
         // WHEN
-        List<Product> updatedProducts = productService.updateQuantInStock(order);
+        List<Product> updatedProducts = productService.incrementStocksWhenOrderIsCancelled(order);
         Product updatedProduct1 = updatedProducts.get(0);
         Product updatedProduct2 = updatedProducts.get(1);
 

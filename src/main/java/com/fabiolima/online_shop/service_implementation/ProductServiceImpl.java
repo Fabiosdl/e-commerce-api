@@ -1,6 +1,7 @@
 package com.fabiolima.online_shop.service_implementation;
 
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
+import com.fabiolima.online_shop.exceptions.InsufficientStockException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.model.BasketItem;
@@ -80,7 +81,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     //give back the item quantity to product stock if order is cancelled
-    public List<Product> updateQuantInStock(TheOrder order) {
+    public List<Product> incrementStocksWhenOrderIsCancelled(TheOrder order) {
 
         if(order == null)
             throw new IllegalArgumentException("Order cannot be null");
@@ -105,5 +106,35 @@ public class ProductServiceImpl implements ProductService {
             updatedProductStock.add(product);
         }
         return updatedProductStock;
+    }
+
+    @Override
+    public void updateProductStock(Product product, int delta){
+
+        /** Example of how the method works
+         * initial product stock = 10 units
+         * Firstly user puts 4 quantity of an item in basket
+         * current product stock = 10 - 4 .: current stock = 6 units
+         * now user wants 7 units INSTEAD of 4 units
+         * delta = new item quantity - current item quantity
+         * delta = 7 - 4 .: delta = 3
+         * updated product stock = current stock - delta
+         * updated stock = 6 - 3 = 3 units.
+         *
+         * It can be proved by getting the initial stock = 10, minus items in basket = 7
+         * which results in a updated stock of 3 units
+         */
+        if(product == null)
+            throw new IllegalArgumentException("Product cannot be null");
+
+        int currentStock = product.getStock();
+        int updatedStock = currentStock - delta;
+
+        if(updatedStock < 0)
+            throw new InsufficientStockException(String.format("Not enough stock available for product '%s'. Available: %d, Requested: %d",
+                    product.getProductName(), product.getStock(), delta));
+
+        product.setStock(updatedStock);
+        productRepository.save(product);
     }
 }

@@ -4,15 +4,15 @@ import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.model.BasketItem;
+import com.fabiolima.online_shop.model.Product;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.BasketStatus;
 import com.fabiolima.online_shop.repository.BasketRepository;
-import com.fabiolima.online_shop.service.BasketItemService;
 import com.fabiolima.online_shop.service.BasketService;
+import com.fabiolima.online_shop.service.ProductService;
 import com.fabiolima.online_shop.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -28,15 +28,14 @@ public class BasketServiceImpl implements BasketService {
 
     private final BasketRepository basketRepository;
     private final UserService userService;
-    private final BasketItemService basketItemService;
+    private final ProductService productService;
 
     @Autowired
     public BasketServiceImpl (BasketRepository basketRepository,
-                              UserService userService,
-                              @Lazy BasketItemService basketItemService){
+                              UserService userService, ProductService productService){
         this.basketRepository = basketRepository;
         this.userService = userService;
-       this.basketItemService = basketItemService;
+        this.productService = productService;
     }
 
 
@@ -108,7 +107,7 @@ public class BasketServiceImpl implements BasketService {
             throw new ForbiddenException("Cannot delete a checked out basket.");
 
         //if not, clear the basket, giving back to stock all the quantity in items
-        //clearBasket(basketId);
+        clearBasket(basketId);
 
         //delete basket if it is empty
         if (!reference.getBasketItems().isEmpty())
@@ -136,7 +135,7 @@ public class BasketServiceImpl implements BasketService {
             Long itemId = item.getId();
             //this method will remove item from basket, update stock in database, update basket in database and
             //delete items from database
-            //basketItemService.removeItemFromBasket(basketId,itemId);
+            removeItemFromBasket(theBasket,itemId);
         }
         return theBasket;
     }
@@ -145,12 +144,18 @@ public class BasketServiceImpl implements BasketService {
     @Scheduled(fixedRate = 60000) // run every 60 seconds
     public void deleteExpiredBasket() {
 
+        //setting the no activity in basket for 15 minutes
         LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(15);
 
-        List<Basket> expiredBaskets = basketRepository.findAllByLastUpdatedBefore(expirationTime);
+        //get all the open baskets from User
+        List<Basket> expiredBaskets = basketRepository.findByBasketStatusAndLastUpdatedBefore(BasketStatus.OPEN,expirationTime);
 
         if (!expiredBaskets.isEmpty()) {
-            basketRepository.deleteAll(expiredBaskets);
+            //iterate through the list of baskets and clear it by returning its quantity to stock, before deleting
+            for(Basket b : expiredBaskets) {
+                clearBasket(b.getId());
+                basketRepository.deleteAll(expiredBaskets);
+            }
             System.out.println("Deleted expired baskets: " + expiredBaskets.size());
         }
     }
@@ -176,5 +181,38 @@ public class BasketServiceImpl implements BasketService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Basket with Id %d does not belong to the user with Id %d."
                                 ,basketId,userId)));
+    }
+    @Override
+    @Transactional
+    public BasketItem removeItemFromBasket(Basket basket, Long basketItemId) {
+
+        //retrieve the list of items in basket
+        List<BasketItem> listOfItems = basket.getBasketItems();
+
+        //retrieve the item from the basket items list
+        BasketItem itemFromList = listOfItems.stream()
+                .filter(basketItem ->
+                        basketItem.getId().equals(basketItemId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Basket id %d do not contain Item with id %d",basket.getId(),basketItemId)));
+
+        /**
+         *As per orphanRemoval is enabled in the One-To- Many relationship between basket and item
+         *Hibernate will automatically persist the modification into the database,
+         * both for Basket and BasketItem entity
+         */
+
+        basket.getBasketItems().remove(itemFromList);
+
+        /**
+         * update stock
+         */
+        Product product = itemFromList.getProduct();
+        int delta = - itemFromList.getQuantity();
+        productService.updateProductStock(product, delta);
+
+        return itemFromList;
+
     }
 }

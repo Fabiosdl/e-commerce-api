@@ -58,7 +58,7 @@ public class OrderController {
          * Stock quantity will be replaced if order status is cancelled
          */
         if(status.equalsIgnoreCase("cancelled"))
-            productService.updateQuantInStock(order);
+            productService.incrementStocksWhenOrderIsCancelled(order);
         return ResponseEntity.ok(order);
     }
 

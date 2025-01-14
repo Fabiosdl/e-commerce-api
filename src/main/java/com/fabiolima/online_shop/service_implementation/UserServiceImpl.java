@@ -3,12 +3,16 @@ package com.fabiolima.online_shop.service_implementation;
 import com.fabiolima.online_shop.exceptions.BadRequestException;
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
+import com.fabiolima.online_shop.exceptions.UniqueEmailException;
 import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.UserStatus;
 import com.fabiolima.online_shop.repository.UserRepository;
 import com.fabiolima.online_shop.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,35 +32,26 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User saveUser(User theUser) {
-
+        if(userRepository.existsByEmail(theUser.getEmail()))
+            throw new UniqueEmailException("Email address already exist. Please use a new email.");
         return userRepository.save(theUser);
     }
 
     @Override
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+    public Page<User> findAllUsers(int pgNum, int pgSize) {
+        Pageable pageable = PageRequest.of(pgNum,pgSize);
+        return userRepository.findAll(pageable);
     }
 
     @Override
-    public List<User> findAllUsersWithStatus(UserStatus theStatus) {
-        List<User> allUsers = userRepository.findAll();
-        return getUsersWithStatus(theStatus, allUsers);
-    }
+    public Page<User> findAllUsersWithStatus(int pgNum, int pgSize, String status) {
 
-    private List<User> getUsersWithStatus(UserStatus userStatus, List<User> allUsers){
-        List<User> userWithStatus = new ArrayList<>();
-        for (User u : allUsers){
-            if (userStatus.equals(ACTIVE)){
-                if(u.getUserStatus().equals(ACTIVE)){
-                    userWithStatus.add(u);
-                }
-            } else {
-                if(u.getUserStatus().equals(INACTIVE)){
-                    userWithStatus.add(u);
-                }
-            }
-        }
-        return userWithStatus;
+        //validate and transform string into enum
+        UserStatus theStatus = UserStatus.fromString(status);
+
+        Pageable pageable = PageRequest.of(pgNum, pgSize);
+
+        return userRepository.findAllByUserStatus(theStatus, pageable);
     }
 
     @Override

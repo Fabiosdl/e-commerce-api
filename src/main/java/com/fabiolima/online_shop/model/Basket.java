@@ -56,7 +56,7 @@ public class Basket {
     @PrePersist
     public void defaultBasketStatus(){
         if(basketStatus == null)
-            basketStatus = BasketStatus.OPEN;
+            basketStatus = BasketStatus.ACTIVE;
     }
 
     //bidirectional helper method

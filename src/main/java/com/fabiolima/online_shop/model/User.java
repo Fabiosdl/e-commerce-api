@@ -38,7 +38,8 @@ public class User {
     @Column(name = "email",unique = true,nullable = false)
     @NotBlank(message = "Email should not be blank.")
     @Email(regexp = "[a-z0-9._%-+]+@[a-z0-9.-]+\\.[a-z]{2,3}",
-            flags = Pattern.Flag.CASE_INSENSITIVE)
+            flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = "Invalid email format.")
 
     private String email;
 

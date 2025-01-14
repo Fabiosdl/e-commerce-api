@@ -5,6 +5,7 @@ import com.fabiolima.online_shop.model.enums.UserStatus;
 import com.fabiolima.online_shop.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,38 +29,37 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(theUser));
     }
 
-    //@GetMapping
-    //public ResponseEntity<List<User>> getAllUsers(){
-        //return ResponseEntity.ok(userService.findAllUsers());
-    //}
+    @GetMapping
+    public ResponseEntity<Page<User>> getAllUsers(@RequestParam(defaultValue = "0") int pgNum,
+                                                  @RequestParam(defaultValue = "50") int pgSize){
+        return ResponseEntity.ok(userService.findAllUsers(pgNum, pgSize));
+    }
     //implement pagination
 
-    @GetMapping("/active")
-    public ResponseEntity<List<User>> getAllActiveUsers(){
-        return ResponseEntity.ok(userService.findAllUsersWithStatus(UserStatus.ACTIVE));
-    }
+    @GetMapping("/status")
+    public ResponseEntity<Page<User>> getAllActiveUsers(@RequestParam(defaultValue = "0") int pgNum,
+                                                        @RequestParam(defaultValue = "50") int pgSize,
+                                                        @RequestParam("status") String status){
 
-    @GetMapping("/inactive")
-    public ResponseEntity<List<User>> getAllInactiveUsers(){
-        return ResponseEntity.ok(userService.findAllUsersWithStatus(UserStatus.INACTIVE));
+        return ResponseEntity.ok(userService.findAllUsersWithStatus(pgNum,pgSize,status));
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserByUserId(@PathVariable Long userId){
+    public ResponseEntity<User> getUserByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(userService.findUserByUserId(userId));
     }
 
     @PatchMapping("/{userId}")
     public ResponseEntity<User> updateUserByUserId(@RequestBody Map<String, Object> updates,
-                                   @PathVariable Long userId){
+                                   @PathVariable("userId") Long userId){
         return ResponseEntity.ok(userService.patchUpdateUserByUserId(userId,updates));
     }
     @PatchMapping("/{userId}/deactivate")
-    public ResponseEntity<User> deactivateUserByUserId(@PathVariable Long userId){
+    public ResponseEntity<User> deactivateUserByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
     }
     @DeleteMapping("/{userId}")
-    public ResponseEntity<User> deleteUserByUserId(@PathVariable Long userId){
+    public ResponseEntity<User> deleteUserByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
     }
 

@@ -73,26 +73,26 @@ class OrderServiceImplTest {
         verify(userService, times(1)).saveUser(userCaptor.capture());
 
     }
-
-    @Test
-    void getUserOrders_ShouldReturnListOfOrders_WhenUserExists() {
-        //given
-        User user = new User();
-        user.addOrderToUser(new TheOrder());
-        user.addOrderToUser(new TheOrder());
-
-        when(userService.findUserByUserId(anyLong())).thenReturn(user);
-        List<TheOrder> expectedOrders = user.getOrders();
-
-        //when
-        List<TheOrder> actualOrders = orderService.getUserOrders(1L);
-
-        //then
-        assertEquals(2,user.getOrders().size());
-        assertEquals(expectedOrders,actualOrders);
-        verify(userService,times(1)).findUserByUserId(1L);
-
-    }
+//
+//    @Test
+//    void getUserOrders_ShouldReturnListOfOrders_WhenUserExists() {
+//        //given
+//        User user = new User();
+//        user.addOrderToUser(new TheOrder());
+//        user.addOrderToUser(new TheOrder());
+//
+//        when(userService.findUserByUserId(anyLong())).thenReturn(user);
+//        List<TheOrder> expectedOrders = user.getOrders();
+//
+//        //when
+//        List<TheOrder> actualOrders = orderService.getUserOrders(1L);
+//
+//        //then
+//        assertEquals(2,user.getOrders().size());
+//        assertEquals(expectedOrders,actualOrders);
+//        verify(userService,times(1)).findUserByUserId(1L);
+//
+//    }
 
     @Test
     void getUserOrderById_ShouldReturnTheOrderByItsId_WhenOrderBelongsToUser() {

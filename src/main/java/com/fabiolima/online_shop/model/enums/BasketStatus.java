@@ -1,6 +1,7 @@
 package com.fabiolima.online_shop.model.enums;
 
 public enum BasketStatus {
-    OPEN,
+    ACTIVE,
+    INACTIVE,
     CHECKED_OUT;
 }

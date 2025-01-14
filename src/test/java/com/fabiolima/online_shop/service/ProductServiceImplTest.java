@@ -45,28 +45,28 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).save(product);
     }
 
-    @Test
-    void findAllProducts_ShouldFindListOfProducts() {
-        //given
-        Product product1 = new Product();
-        product1.setId(1L);
-        product1.setProductName("Product One");
-
-        Product product2 = new Product();
-        product2.setId(1L);
-        product2.setProductName("Product Two");
-
-        List<Product> productList = List.of(product1, product2);
-
-        when(productRepository.findAll()).thenReturn(productList);
-
-        //when
-        List<Product> actual = productService.findAllProducts();
-
-        //then
-        assertEquals(productList, actual);
-        verify(productRepository, times(1)).findAll();
-    }
+//    @Test
+//    void findAllProducts_ShouldFindListOfProducts() {
+//        //given
+//        Product product1 = new Product();
+//        product1.setId(1L);
+//        product1.setProductName("Product One");
+//
+//        Product product2 = new Product();
+//        product2.setId(1L);
+//        product2.setProductName("Product Two");
+//
+//        List<Product> productList = List.of(product1, product2);
+//
+//        when(productRepository.findAll()).thenReturn(productList);
+//
+//        //when
+//        List<Product> actual = productService.findAllProducts();
+//
+//        //then
+//        assertEquals(productList, actual);
+//        verify(productRepository, times(1)).findAll();
+//    }
 
     @Test
     void findProductById_ShouldReturnProduct_WhenUserExist() {

@@ -3,6 +3,7 @@ package com.fabiolima.online_shop.controller;
 import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.service.BasketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +29,10 @@ public class BasketController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Basket>> getAllUsersBasket(@PathVariable("userId") Long userId){
-        List<Basket> usersBaskets = basketService.getUserBaskets(userId);
+    public ResponseEntity<Page<Basket>> getAllUsersBasket(@PathVariable("userId") Long userId,
+                                                          @RequestParam(defaultValue = "0") int pgNum,
+                                                          @RequestParam(defaultValue = "25") int pgSize){
+        Page<Basket> usersBaskets = basketService.getUserBaskets(pgNum, pgSize, userId);
         return ResponseEntity.ok(usersBaskets);
     }
 

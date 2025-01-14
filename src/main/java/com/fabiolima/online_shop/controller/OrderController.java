@@ -2,10 +2,12 @@ package com.fabiolima.online_shop.controller;
 
 import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.model.User;
+import com.fabiolima.online_shop.model.enums.OrderStatus;
 import com.fabiolima.online_shop.service.OrderService;
 import com.fabiolima.online_shop.service.ProductService;
 import com.fabiolima.online_shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,15 +19,12 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-    private final UserService userService;
     private final ProductService productService;
 
     @Autowired
     public OrderController (OrderService orderService,
-                            UserService userService,
                             ProductService productService){
         this.orderService = orderService;
-        this.userService = userService;
         this.productService = productService;
     }
 
@@ -37,9 +36,21 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TheOrder>> getAllUsersOrders(@PathVariable ("userId") Long userId){
-        User user = userService.findUserByUserId(userId);
-        return ResponseEntity.ok(user.getOrders());
+    public ResponseEntity<Page<TheOrder>> getAllUsersOrders(@RequestParam(defaultValue = "0") int pgNum,
+                                                            @RequestParam(defaultValue = "25") int pgSize,
+                                                            @PathVariable ("userId") Long userId){
+        Page<TheOrder> orders = orderService.getUserOrders(pgNum, pgSize, userId);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<Page<TheOrder>> getUsersOrdersByOrderStatus(@RequestParam(defaultValue = "0") int pgNum,
+                                                                        @RequestParam(defaultValue = "25") int pgSize,
+                                                                        @PathVariable("userId") Long userId,
+                                                                        @RequestParam("status") String status){
+
+        Page<TheOrder> orders = orderService.getUserOrdersByStatus(pgNum, pgSize, userId, status);
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{orderId}")
@@ -69,10 +80,10 @@ public class OrderController {
     }
 
     // Get orders filtered by status
-    @GetMapping("/status")
-    public ResponseEntity<List<TheOrder>> getOrdersByStatus(
-            @PathVariable("userId") Long userId, @RequestParam("status") String status) {
+        /*    @GetMapping("/status")
+    public ResponseEntity<List<TheOrder>> getOrdersByStatus(@PathVariable("userId") Long userId,
+                                                            @RequestParam("status") String status) {
         List<TheOrder> ordersByStatus = orderService.getOrdersByStatus(userId, status);
         return ResponseEntity.ok(ordersByStatus);
-    }
+    }*/
 }

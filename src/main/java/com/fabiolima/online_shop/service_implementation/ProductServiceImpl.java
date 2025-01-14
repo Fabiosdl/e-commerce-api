@@ -10,6 +10,9 @@ import com.fabiolima.online_shop.model.TheOrder;
 import com.fabiolima.online_shop.repository.ProductRepository;
 import com.fabiolima.online_shop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +36,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
+    public Page<Product> findAllProducts(int pgNum, int pgSize) {
+
+        Pageable pageable = PageRequest.of(pgNum, pgSize);
+        return productRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<Product> findProductsByCategory(int pgNum, int pgSize, String category) {
+        return null;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.fabiolima.online_shop.controller;
 import com.fabiolima.online_shop.model.Product;
 import com.fabiolima.online_shop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +29,18 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> allProducts = productService.findAllProducts();
+    public ResponseEntity<Page<Product>> getAllProducts(@RequestParam(defaultValue = "0") int pgNum,
+                                                        @RequestParam(defaultValue = "25") int pgSize) {
+        Page<Product> allProducts = productService.findAllProducts(pgNum, pgSize);
         return ResponseEntity.ok(allProducts);
+    }
+
+    @GetMapping("/category")
+    public ResponseEntity<Page<Product>> getProductsByCategory(@RequestParam(defaultValue = "0") int pgNum,
+                                                               @RequestParam(defaultValue = "25") int pgSize,
+                                                               @RequestParam("category") String category){
+        Page<Product> productsByCategory = productService.findProductsByCategory(pgNum, pgSize, category);
+        return ResponseEntity.ok(productsByCategory);
     }
 
     @GetMapping("/{productId}")

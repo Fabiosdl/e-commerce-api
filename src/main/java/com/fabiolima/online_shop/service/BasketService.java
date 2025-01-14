@@ -2,12 +2,13 @@ package com.fabiolima.online_shop.service;
 
 import com.fabiolima.online_shop.model.Basket;
 import com.fabiolima.online_shop.model.BasketItem;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 public interface BasketService {
 
     Basket saveBasketAndAddToUser(Long userId);
-    List<Basket> getUserBaskets(Long userId);
+    Page<Basket> getUserBaskets(int pgNum, int pgSize, Long userId);
     Basket getUserBasketById(Long userId, Long basketId);
     Basket checkOutBasket(Long userId, Long basketId);
     Basket updateBasketWhenItemsAreAddedOrModified(Basket basket);

@@ -13,6 +13,10 @@ import com.fabiolima.online_shop.service.ProductService;
 import com.fabiolima.online_shop.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -52,14 +56,16 @@ public class BasketServiceImpl implements BasketService {
         //save the user that will cascade to saving the basket
         userService.saveUser(theUser);
 
-        return theUser.getBaskets().getLast();
+        return basket;
     }
 
     @Override
-    public List<Basket> getUserBaskets(Long userId) {
+    public Page<Basket> getUserBaskets(int pgNum, int pgSize, Long userId) {
 
-        User theUser = userService.findUserByUserId(userId);
-        return theUser.getBaskets();
+        Pageable pageable  = PageRequest.of(pgNum, pgSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return basketRepository.findAllByUserId(userId, pageable);
+
     }
 
     @Override
@@ -84,7 +90,7 @@ public class BasketServiceImpl implements BasketService {
         Basket theBasket = validateAndFetchBasket(userId, basketId);
 
         // check if basket status is OPEN and set it to Checked out
-        if(!theBasket.getBasketStatus().equals(BasketStatus.OPEN))
+        if(!theBasket.getBasketStatus().equals(BasketStatus.ACTIVE))
             throw new ForbiddenException("Can only check out an open basket.");
         theBasket.setBasketStatus(BasketStatus.CHECKED_OUT);
 
@@ -112,8 +118,9 @@ public class BasketServiceImpl implements BasketService {
         //delete basket if it is empty
         if (!reference.getBasketItems().isEmpty())
             throw new ForbiddenException("Basket must be empty before deleting it.");
-        basketRepository.deleteById(basketId);
-        return reference;
+        //deactivate basket
+        reference.setBasketStatus(BasketStatus.INACTIVE);
+        return basketRepository.save(reference);
     }
 
     @Override
@@ -127,6 +134,10 @@ public class BasketServiceImpl implements BasketService {
     public Basket clearBasket(Long basketId) {
         //find the basket
         Basket theBasket = findBasketById(basketId);
+
+        //Check if the basket is not to checked-out
+        if(theBasket.getBasketStatus() == BasketStatus.CHECKED_OUT)
+            throw new ForbiddenException("Cannot clear a Checked-out basket");
 
         //get the list of items and pass item by item to removeItemFromBasket method
 
@@ -148,13 +159,13 @@ public class BasketServiceImpl implements BasketService {
         LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(15);
 
         //get all the open baskets from User
-        List<Basket> expiredBaskets = basketRepository.findByBasketStatusAndLastUpdatedBefore(BasketStatus.OPEN,expirationTime);
+        List<Basket> expiredBaskets = basketRepository.findByBasketStatusAndLastUpdatedBefore(BasketStatus.ACTIVE,expirationTime);
 
         if (!expiredBaskets.isEmpty()) {
             //iterate through the list of baskets and clear it by returning its quantity to stock, before deleting
             for(Basket b : expiredBaskets) {
                 clearBasket(b.getId());
-                basketRepository.deleteAll(expiredBaskets);
+                b.setBasketStatus(BasketStatus.INACTIVE);
             }
             System.out.println("Deleted expired baskets: " + expiredBaskets.size());
         }

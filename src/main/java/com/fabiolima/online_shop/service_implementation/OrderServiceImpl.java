@@ -11,6 +11,9 @@ import com.fabiolima.online_shop.service.ProductService;
 import com.fabiolima.online_shop.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -47,10 +50,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<TheOrder> getUserOrders(Long userId) {
+    public Page<TheOrder> getUserOrders(int pgNum, int pgSize, Long userId) {
 
         User theUser = userService.findUserByUserId(userId);
-        return theUser.getOrders();
+        Pageable pageable = PageRequest.of(pgNum, pgSize);
+
+        return orderRepository.findAllByUserId(userId, pageable);
+    }
+
+    @Override
+    public Page<TheOrder> getUserOrdersByStatus(int pgNum, int pgSize, Long userId, String status) {
+        //Check if orderStatus is a valid Enum
+        if (!OrderStatus.isValid(status))
+            throw new IllegalArgumentException(String.format("Invalid order status %s", status));
+        //transform string into enum
+        OrderStatus orderStatus = OrderStatus.fromString(status);
+
+        Pageable pageable = PageRequest.of(pgNum,pgSize);
+
+        return orderRepository.findByOrderStatusAndUserId(orderStatus, userId, pageable);
     }
 
     @Override

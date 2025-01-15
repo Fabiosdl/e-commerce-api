@@ -19,6 +19,6 @@ public enum UserRole {
                 return userRole;
             }
         }
-        throw new IllegalArgumentException(String.format("Invalid order status: %s", role));
+        throw new IllegalArgumentException(String.format("Invalid user status: %s", role));
     }
 }

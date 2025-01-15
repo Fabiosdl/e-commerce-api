@@ -3,7 +3,6 @@ package com.fabiolima.online_shop.model;
 import com.fabiolima.online_shop.model.enums.UserRole;
 import com.fabiolima.online_shop.model.enums.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -40,11 +39,14 @@ public class User {
     @Email(regexp = "[a-z0-9._%-+]+@[a-z0-9.-]+\\.[a-z]{2,3}",
             flags = Pattern.Flag.CASE_INSENSITIVE,
             message = "Invalid email format.")
-
     private String email;
 
     @Column(name = "password")
-    @Size(min = 8, message = "Password must contain at least 8 characters")
+    @Size(min = 8)
+    @Pattern(
+            regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "Password must have at least 8 characters, one uppercase letter, one number, and one special character."
+    )
     @NotBlank
     private String password;
 
@@ -52,12 +54,12 @@ public class User {
     private String address;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private UserRole userRole;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private UserStatus userStatus;
+
+    @ManyToMany
+    @JoinTable
+    private List<Role> roles;
 
     @OneToMany(mappedBy = "user",  //field "user" in Order Class
             cascade = CascadeType.ALL)
@@ -85,9 +87,6 @@ public class User {
     public void defaultUserStatus(){
         if(userStatus == null){
             userStatus = UserStatus.ACTIVE;
-        }
-        if(userRole == null){
-            userRole = UserRole.CUSTOMER;
         }
     }
 }

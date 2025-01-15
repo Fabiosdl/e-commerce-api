@@ -4,7 +4,6 @@ import com.fabiolima.online_shop.model.User;
 import com.fabiolima.online_shop.model.enums.UserStatus;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.Map;
 
 public interface UserService {

@@ -18,6 +18,6 @@ public enum UserStatus {
                 return userStatus;
             }
         }
-        throw new IllegalArgumentException(String.format("Invalid order status: %s", status));
+        throw new IllegalArgumentException(String.format("Invalid user status: %s", status));
     }
 }

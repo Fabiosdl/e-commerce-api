@@ -1,7 +1,6 @@
 package com.fabiolima.online_shop.service;
 
 import com.fabiolima.online_shop.model.User;
-import com.fabiolima.online_shop.model.enums.UserStatus;
 import org.springframework.data.domain.Page;
 
 import java.util.Map;
@@ -9,6 +8,7 @@ import java.util.Map;
 public interface UserService {
 
     User saveUser(User theUser);
+    User addRoleToUser(Long userId, String roleName);
     Page<User> findAllUsers(int pgNum, int pgSize);
     Page<User> findAllUsersWithStatus(int pgNum, int pgSize, String status);
     User findUserByUserId(Long userId);

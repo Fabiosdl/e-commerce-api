@@ -4,8 +4,11 @@ import com.fabiolima.online_shop.exceptions.BadRequestException;
 import com.fabiolima.online_shop.exceptions.ForbiddenException;
 import com.fabiolima.online_shop.exceptions.NotFoundException;
 import com.fabiolima.online_shop.exceptions.UniqueEmailException;
+import com.fabiolima.online_shop.model.Role;
 import com.fabiolima.online_shop.model.User;
+import com.fabiolima.online_shop.model.enums.UserRole;
 import com.fabiolima.online_shop.model.enums.UserStatus;
+import com.fabiolima.online_shop.repository.RoleRepository;
 import com.fabiolima.online_shop.repository.UserRepository;
 import com.fabiolima.online_shop.service.UserService;
 import jakarta.transaction.Transactional;
@@ -23,10 +26,12 @@ import static com.fabiolima.online_shop.model.enums.UserStatus.*;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository){
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository){
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -35,6 +40,28 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsByEmail(theUser.getEmail()))
             throw new UniqueEmailException("Email address already exist. Please use a new email.");
         return userRepository.save(theUser);
+    }
+
+    @Override
+    public User addRoleToUser(Long userId, String roleName) {
+        //fetch user
+        User user = findUserByUserId(userId);
+
+        //transform role name from string to enum
+        UserRole name = UserRole.fromString(roleName);
+
+        //fetch the role
+        Role role = roleRepository.findByName(name);
+
+        if (role == null) {
+            throw new NotFoundException("Role not found");
+        }
+
+        //add role to user
+        user.addRoleToUser(role);
+
+        //save user
+        return userRepository.save(user);
     }
 
     @Override

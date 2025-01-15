@@ -9,9 +9,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Builder
@@ -57,9 +62,21 @@ public class User {
     @Column(name = "status")
     private UserStatus userStatus;
 
-    @ManyToMany
-    @JoinTable
-    private List<Role> roles;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime lastUpdated; // Automatically updated by Hibernate or DB
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinTable(
+            name = "user_roles", //join table name
+            joinColumns = @JoinColumn(name = "user_id"), // foreign key in the join table for user
+            inverseJoinColumns = @JoinColumn(name = "role_id") // foreign key in the join table for role
+    )
+    private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "user",  //field "user" in Order Class
             cascade = CascadeType.ALL)
@@ -81,6 +98,16 @@ public class User {
     public void addBasketToUser(Basket theBasket){ //bi-directional method
         baskets.add(theBasket);
         theBasket.setUser(this);
+    }
+
+    public void addRoleToUser(Role role){
+        roles.add(role);
+        role.getUsers().add(this);
+    }
+
+    public void removeRoleFromUser(Role role){
+        roles.remove(role);
+        role.getUsers().remove(this);
     }
 
     @PrePersist

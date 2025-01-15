@@ -48,15 +48,26 @@ public class UserController {
         return ResponseEntity.ok(userService.findUserByUserId(userId));
     }
 
+    @PostMapping("/{userId}/roles/{roleName}")
+    public ResponseEntity<User> addRoleToUser(
+            @PathVariable Long userId,
+            @PathVariable String roleName
+    ) {
+        User updatedUser = userService.addRoleToUser(userId, roleName);
+        return ResponseEntity.ok(updatedUser);
+    }
+
     @PatchMapping("/{userId}")
     public ResponseEntity<User> updateUserByUserId(@RequestBody Map<String, Object> updates,
                                    @PathVariable("userId") Long userId){
         return ResponseEntity.ok(userService.patchUpdateUserByUserId(userId,updates));
     }
+
     @PatchMapping("/{userId}/deactivate")
     public ResponseEntity<User> deactivateUserByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
     }
+
     @DeleteMapping("/{userId}")
     public ResponseEntity<User> deleteUserByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));

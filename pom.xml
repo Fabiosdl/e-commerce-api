@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.fabiolima</groupId>
-	<artifactId>online-shop</artifactId>
+	<artifactId>e-commerce-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>online-shop</name>
+	<name>e-commerce-api</name>
 	<description>Online-Shop API</description>
 	<url/>
 	<licenses>
@@ -39,6 +39,10 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -2,6 +2,7 @@ package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
+import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.TheOrder;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.model.enums.OrderStatus;
@@ -59,7 +60,7 @@ class OrderServiceImplTest {
         });
 
         //when
-        TheOrder actualOrder = orderService.createOrderAndAddToUser(1L,expectedOrder);
+        TheOrder actualOrder = orderService.createOrderAndAddToUser(new Basket());
 
         //then
         assertAll(

@@ -2,10 +2,7 @@ package com.fabiolima.e_commerce.service_implementation;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.BasketItem;
-import com.fabiolima.e_commerce.model.Product;
-import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.model.*;
 import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketService;
@@ -90,21 +87,6 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public Basket checkOutBasket(Long userId, Long basketId) {
-        // check if the basket belongs to user
-        Basket theBasket = validateAndFetchBasket(userId, basketId);
-
-        // check if basket status is OPEN and set it to Checked out
-        if(!theBasket.getBasketStatus().equals(BasketStatus.ACTIVE))
-            throw new ForbiddenException("Can only check out an open basket.");
-        theBasket.setBasketStatus(BasketStatus.CHECKED_OUT);
-        //after setting basket as checkout transform it into an order
-
-        // persist the updated basket
-        return basketRepository.save(theBasket);
-    }
-
-    @Override
     public Basket updateBasketWhenItemsAreAddedOrModified(Basket basket) {
         return basketRepository.save(basket);
     }
@@ -170,6 +152,7 @@ public class BasketServiceImpl implements BasketService {
         if (!expiredBaskets.isEmpty()) {
             //iterate through the list of baskets and clear it by returning its quantity to stock, before deleting
             for(Basket b : expiredBaskets) {
+                //remove all items from the basket
                 clearBasket(b.getId());
                 b.setBasketStatus(BasketStatus.INACTIVE);
             }
@@ -191,7 +174,7 @@ public class BasketServiceImpl implements BasketService {
                 .mapToDouble(basketItem -> basketItem.getQuantity() * basketItem.getProduct().getProductPrice())
                 .sum();
     }
-
+    @Override
     public Basket validateAndFetchBasket(Long userId, Long basketId){
 
         return basketRepository.findBasketByIdAndUserId(basketId, userId)
@@ -226,6 +209,7 @@ public class BasketServiceImpl implements BasketService {
          * update stock
          */
         Product product = itemFromList.getProduct();
+        //delta = new quantity - current quantity -> delta = 0 - current quantity
         int delta = - itemFromList.getQuantity();
         productService.updateProductStock(product, delta);
 

@@ -1,11 +1,13 @@
 package com.fabiolima.e_commerce.service_implementation;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
+import com.fabiolima.e_commerce.exceptions.InvalidQuantityException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
-import com.fabiolima.e_commerce.model.TheOrder;
-import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.model.*;
+import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.model.enums.OrderStatus;
 import com.fabiolima.e_commerce.repository.OrderRepository;
+import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.ProductService;
 import com.fabiolima.e_commerce.service.UserService;
@@ -25,28 +27,70 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final UserService userService;
+    private final BasketService basketService;
 
     @Autowired
     public OrderServiceImpl (OrderRepository orderRepository,
                              UserService userService,
-                             ProductService productService){
+                             ProductService productService, BasketService basketService){
         this.orderRepository = orderRepository;
         this.userService = userService;
+        this.basketService = basketService;
     }
 
     @Override
     @Transactional
-    public TheOrder createOrderAndAddToUser(Long userId, TheOrder theOrder) {
-        // fetch the user
-        User theUser = userService.findUserByUserId(userId);
+    public TheOrder convertBasketToOrder(Long userId, Long basketId) {
+        //1-Basket Validation
 
-        // use helper method to add order to user
-        theUser.addOrderToUser(theOrder);
+        // check if the basket belongs to user
+        Basket theBasket = basketService.validateAndFetchBasket(userId, basketId);
 
-        // persist user with its new order. The order will also be persisted due to the bidirectional helper method
-        userService.saveUser(theUser);
+        //check if the basket is empty
+        if(theBasket.getBasketItems().isEmpty())
+            throw new InvalidQuantityException("The current basket is empty.");
 
-        return theOrder;
+        // check if basket status is ACTIVE and set it to Checked out
+        if(!theBasket.getBasketStatus().equals(BasketStatus.ACTIVE))
+            throw new ForbiddenException("Can only check out an ACTIVE basket.");
+
+        //2-Create the Order add to user and persist it to databases
+
+        TheOrder order = createOrderAndAddToUser(theBasket);
+
+        //3- Set basket status as CHECKED_OUT
+        theBasket.setBasketStatus(BasketStatus.CHECKED_OUT);
+
+        //4- Create a new basket to the user
+        basketService.createBasketAndAddToUser(theBasket.getUser());
+
+        return order;
+    }
+
+    @Override
+    @Transactional
+    public TheOrder createOrderAndAddToUser(Basket basket) {
+
+        // create new order based on the basket
+        TheOrder order = new TheOrder();
+        order.setUser(basket.getUser());
+        order.setBasket(basket);
+        order.setTotalPrice(basketService.calculateTotalPrice(basket.getId()));
+
+        //transform basket items into order items and store it in TheOrder
+        double totalPrice = 0.0;
+        for(BasketItem bi : basket.getBasketItems()){
+            order.addOrderItemToOrder(OrderItem.builder()
+                            .productId(bi.getProduct().getId())
+                            .productName(bi.getProduct().getProductName())
+                            .quantity(bi.getQuantity())
+                            .price(bi.getProduct().getProductPrice())
+                    .build());
+            totalPrice += bi.getProduct().getProductPrice() * bi.getQuantity();
+        }
+        // retrieve total cost
+        order.setTotalPrice(totalPrice);
+        return orderRepository.save(order);
     }
 
     @Override

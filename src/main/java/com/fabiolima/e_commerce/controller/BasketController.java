@@ -1,6 +1,7 @@
 package com.fabiolima.e_commerce.controller;
 
 import com.fabiolima.e_commerce.model.Basket;
+import com.fabiolima.e_commerce.model.TheOrder;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.UserService;
@@ -46,12 +47,12 @@ public class BasketController {
         return ResponseEntity.ok(theBasket);
     }
 
-    @PatchMapping("/{basketId}/checkout")
-    public ResponseEntity<Basket> checkoutBasket(@PathVariable("userId") Long userId,
+/*    @PatchMapping("/{basketId}/checkout")
+    public ResponseEntity<TheOrder> convertBasketToOrder(@PathVariable("userId") Long userId,
                                                  @PathVariable("basketId") Long basketId){
-        Basket theBasket = basketService.checkOutBasket(userId, basketId);
-        return ResponseEntity.ok(theBasket);
-    }
+        TheOrder order = basketService.convertBasketToOrder(userId, basketId);
+        return ResponseEntity.ok(order);
+    }*/
 
     @DeleteMapping("/{basketId}")
     public ResponseEntity<Basket> inactivateBasket(@PathVariable("userId") Long userId,

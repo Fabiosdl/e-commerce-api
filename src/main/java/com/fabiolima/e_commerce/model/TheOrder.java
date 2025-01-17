@@ -5,6 +5,8 @@ import com.fabiolima.e_commerce.model.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
@@ -35,6 +37,10 @@ public class TheOrder {
     @Column(name = "total_price")
     private double totalPrice;
 
+    @Column(name = "order_list")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderItem> items;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
     private PaymentStatus paymentStatus;
@@ -42,6 +48,12 @@ public class TheOrder {
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
     private OrderStatus orderStatus;
+
+    //bidirectional helper method
+    public void addOrderItemToOrder(OrderItem orderItem){
+        items.add(orderItem);
+        orderItem.setOrder(this);
+    }
 
     @PrePersist
     public void defaultOrderAndPaymentStatus(){

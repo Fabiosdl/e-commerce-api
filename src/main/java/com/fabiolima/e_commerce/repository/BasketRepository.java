@@ -5,6 +5,7 @@ import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -20,4 +21,7 @@ public interface BasketRepository extends JpaRepository<Basket,Long> {
     Page<Basket> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
 
     List<Basket> findByBasketStatusAndLastUpdatedBefore(BasketStatus basketStatus, LocalDateTime time);
+
+    @Query("SELECT b FROM Basket b WHERE b.user.id = :userId AND b.basketStatus = :status")
+    Optional<Basket> findActiveBasketByUserId(@Param("userId") Long userId, @Param("status") BasketStatus status);
 }

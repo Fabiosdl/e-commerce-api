@@ -53,6 +53,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             Long userId = theUser.getId();
             redirectURL = "/user/"+userId;
             //creates a basket for the user
+
             basketService.createBasketAndAddToUser(theUser);
 
         } else if (theUser.getRoles().stream().anyMatch(role -> role.getName().toString().equalsIgnoreCase("ROLE_ADMIN"))) {

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * clearBasket must be used in case the user wants to keep the basket open, but want to delete all items in it.
@@ -45,20 +46,19 @@ public class BasketServiceImpl implements BasketService {
     @Transactional
     public Basket createBasketAndAddToUser(User theUser) {
 
+        // Initialize the baskets collection
+        //Hibernate.initialize(theUser.getBaskets());
+
         //check if user already has an open basket
-        if(!theUser.getBaskets().isEmpty()){
-            Basket existingBasket = theUser.getBaskets().getFirst();
-            if (existingBasket.getBasketStatus().equals(BasketStatus.ACTIVE))
-                return existingBasket;
-        }
+        Optional<Basket> existingBasket = basketRepository.findActiveBasketByUserId(theUser.getId(),BasketStatus.ACTIVE);
+        if (existingBasket.isPresent())
+            return existingBasket.get();
+
         //add basket to the user (addBasketToUser is a bidirectional helper method)
         Basket basket = new Basket();
         theUser.addBasketToUser(basket);
 
-        //save the user that will cascade to saving the basket
-        userService.saveUser(theUser);
-
-        return basket;
+        return basketRepository.save(basket);
     }
 
     @Override

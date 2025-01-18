@@ -7,8 +7,7 @@ import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
-import com.fabiolima.e_commerce.service.UserService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,15 +30,12 @@ import java.util.Optional;
 public class BasketServiceImpl implements BasketService {
 
     private final BasketRepository basketRepository;
-    private final UserService userService;
     private final ProductService productService;
 
     @Autowired
     public BasketServiceImpl (BasketRepository basketRepository,
-                              UserService userService,
                               ProductService productService){
         this.basketRepository = basketRepository;
-        this.userService = userService;
         this.productService = productService;
     }
 
@@ -142,7 +138,8 @@ public class BasketServiceImpl implements BasketService {
 
     @Override
     @Scheduled(fixedRate = 60000) // run every 60 seconds
-    public void clearExpiredBasket() {
+    @Transactional
+    public void clearExpiredBasketAndAddNewOne() {
 
         //setting the no activity in basket for 1 day
         LocalDateTime expirationTime = LocalDateTime.now().minusDays(1);
@@ -155,9 +152,14 @@ public class BasketServiceImpl implements BasketService {
             for(Basket b : expiredBaskets) {
                 //remove all items from the basket
                 clearBasket(b.getId());
+
+                //deactivate basket
                 b.setBasketStatus(BasketStatus.INACTIVE);
+
+                //Add new basket to user
+                createBasketAndAddToUser(b.getUser());
             }
-            System.out.println("Deleted expired baskets: " + expiredBaskets.size());
+            System.out.println("Deactivated expired baskets: " + expiredBaskets.size());
         }
     }
 

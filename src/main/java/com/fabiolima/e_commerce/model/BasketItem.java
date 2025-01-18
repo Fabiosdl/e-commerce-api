@@ -23,13 +23,11 @@ public class BasketItem {
 
     @ManyToOne
     @JoinColumn(name = "basket_id")
-    //@JsonBackReference
     private Basket basket;
 
     @NotNull
     @ManyToOne
     @JoinColumn(name = "product_id")
-    //@JsonBackReference
     private Product product;
 
     @Column(name = "quantity")
@@ -47,5 +45,4 @@ public class BasketItem {
             this.quantity -= amount;
         }
     }
-
 }

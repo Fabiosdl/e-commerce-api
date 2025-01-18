@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -31,6 +32,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     }
 
     @Override
+    @Transactional // This ensures that when I retrieve the User, the baskets collection is initialized and no lazy loading is required.
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
 
@@ -54,6 +56,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             redirectURL = "/user/"+userId;
             //creates a basket for the user
 
+            //method that requires the Transactional wrap
             basketService.createBasketAndAddToUser(theUser);
 
         } else if (theUser.getRoles().stream().anyMatch(role -> role.getName().toString().equalsIgnoreCase("ROLE_ADMIN"))) {

@@ -9,6 +9,7 @@ import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
 import com.fabiolima.e_commerce.service.UserService;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,7 +48,7 @@ public class BasketServiceImpl implements BasketService {
     public Basket createBasketAndAddToUser(User theUser) {
 
         // Initialize the baskets collection
-        //Hibernate.initialize(theUser.getBaskets());
+        Hibernate.initialize(theUser.getBaskets());
 
         //check if user already has an open basket
         Optional<Basket> existingBasket = basketRepository.findActiveBasketByUserId(theUser.getId(),BasketStatus.ACTIVE);

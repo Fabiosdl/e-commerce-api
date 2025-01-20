@@ -4,6 +4,7 @@ import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.TheOrder;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.service.BasketService;
+import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,11 +18,13 @@ public class BasketController {
 
     private final BasketService basketService;
     private final UserService userService;
+    private final OrderService orderService;
 
     @Autowired
-    public BasketController(BasketService basketService, UserService userService){
+    public BasketController(BasketService basketService, UserService userService, OrderService orderService){
         this.basketService = basketService;
         this.userService = userService;
+        this.orderService = orderService;
     }
 
     @PostMapping()
@@ -47,12 +50,12 @@ public class BasketController {
         return ResponseEntity.ok(theBasket);
     }
 
-/*    @PatchMapping("/{basketId}/checkout")
+    @PatchMapping("/{basketId}/checkout")
     public ResponseEntity<TheOrder> convertBasketToOrder(@PathVariable("userId") Long userId,
                                                  @PathVariable("basketId") Long basketId){
-        TheOrder order = basketService.convertBasketToOrder(userId, basketId);
+        TheOrder order = orderService.convertBasketToOrder(userId, basketId);
         return ResponseEntity.ok(order);
-    }*/
+    }
 
     @DeleteMapping("/{basketId}")
     public ResponseEntity<Basket> inactivateBasket(@PathVariable("userId") Long userId,

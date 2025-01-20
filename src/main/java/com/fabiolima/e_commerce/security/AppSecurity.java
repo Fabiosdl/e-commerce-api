@@ -67,6 +67,7 @@ public class AppSecurity {
                                 .requestMatchers("/user/**").hasRole("CUSTOMER")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/register/**").permitAll()
+                                .requestMatchers("/basket/**").hasRole("CUSTOMER")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form ->

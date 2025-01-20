@@ -32,7 +32,7 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /usr/src/app
 
 # copy over the built artifact from the maven image
-COPY --from=stage1 /usr/src/app/target/online-shop-0.0.1-SNAPSHOT.jar limaonlineshop.jar
+COPY --from=stage1 /usr/src/app/target/e-commerce-api-0.0.1-SNAPSHOT.jar lima-ecommerce-api.jar
 
 # Specify the entry point
-ENTRYPOINT ["java", "-jar", "limaonlineshop.jar"]
+ENTRYPOINT ["java", "-jar", "lima-ecommerce-api.jar"]

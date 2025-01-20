@@ -1,6 +1,6 @@
 services:
-  bank_api_service:
-    #image: limaonlineshopapp
+  ecommerce_api:
+    #image: lima-ecommerce-api
     build: .
     #build: the first time that i run docker-compose it will build the image.
     #it will automatically rebuild the image(Dockerfile) if i make changes in the application
@@ -10,10 +10,10 @@ services:
     networks:
       - mynetwork
     environment:
-      - spring.datasource.url=jdbc:mysql://mysqldb:3306/mobilebankapp?allowPublicKeyRetrieval=true
+      - spring.datasource.url=jdbc:mysql://mysqldb:3306/online-shop?allowPublicKeyRetrieval=true
       - spring.datasource.username=fabiolima
       - spring.datasource.password=fabiolima123
-      - springdoc.swagger-ui.path=/limaonlineshop-ui.html
+      - springdoc.swagger-ui.path=/limaecommerce-ui.html
 
     depends_on:
       - mysqldb

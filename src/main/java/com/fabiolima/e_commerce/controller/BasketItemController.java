@@ -22,7 +22,7 @@ public class BasketItemController {
 
     // add item to basket
     @PostMapping
-    public ResponseEntity<BasketItem> createBasketItem(@PathVariable("basketId") Long basketId,
+    public ResponseEntity<BasketItem> addItemToBasket(@PathVariable("basketId") Long basketId,
                                                        @RequestParam Long productId,
                                                        @RequestParam int quant){
 

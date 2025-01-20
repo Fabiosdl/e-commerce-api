@@ -16,11 +16,9 @@ public class LoginRequest {
             message = "Invalid email format.")
     private String email;
 
-    @Size(min = 8)
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
-            message = "Password must have at least 8 characters, one uppercase letter, one number, and one special character."
-    )
+
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "Password must have at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.")
     @NotBlank
     private String password;
 }

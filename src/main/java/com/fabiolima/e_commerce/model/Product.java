@@ -1,5 +1,6 @@
 package com.fabiolima.e_commerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,6 +39,7 @@ public class Product {
     private String category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
     private final List<BasketItem> basketItemList = new ArrayList<>();
 
     public void addProductInBasketItem(BasketItem theBasketItem){

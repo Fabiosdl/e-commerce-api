@@ -3,6 +3,7 @@ package com.fabiolima.e_commerce.controller;
 import com.fabiolima.e_commerce.dto.RegistrationRequest;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class RegistrationController {
     }
 
     @PostMapping
-    public ResponseEntity<String> registerUser(@RequestBody RegistrationRequest registrationRequest) {
+    public ResponseEntity<String> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) {
         // Use the UserService to register the user
         try {
             User user = userService.registerUser(registrationRequest);

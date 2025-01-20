@@ -1,5 +1,6 @@
 package com.fabiolima.e_commerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public class BasketItem {
 
     @ManyToOne
     @JoinColumn(name = "basket_id")
+    @JsonIgnore
     private Basket basket;
 
     @NotNull

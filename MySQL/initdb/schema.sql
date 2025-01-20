@@ -1,11 +1,11 @@
-DROP SCHEMA IF EXISTS `ONLINE-SHOP`;
+DROP SCHEMA IF EXISTS `online_shop`;
 
-CREATE SCHEMA `ONLINE-SHOP`;
+CREATE SCHEMA `online_shop`;
 
-USE `ONLINE-SHOP`;
+USE `online_shop`;
 
 -- User Table
-CREATE TABLE User (
+CREATE TABLE `user` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -17,22 +17,22 @@ CREATE TABLE User (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Role Table
-CREATE TABLE Roles (
+CREATE TABLE `role` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE user_roles (
+CREATE TABLE `user_roles` (
     user_id INT NOT NULL,
     role_id INT NOT NULL,
     PRIMARY KEY (user_id, role_id),
     KEY fk_user_role_idx (user_id),
-    CONSTRAINT fk_user_role FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
-    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES Roles(id) ON DELETE CASCADE
+    CONSTRAINT fk_user_role FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE,
+    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES `roles`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Product Table
-CREATE TABLE Product (
+CREATE TABLE `product` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -41,38 +41,38 @@ CREATE TABLE Product (
     category VARCHAR(100) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Basket (Cart) Table
-CREATE TABLE Basket (
+CREATE TABLE `basket` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     status VARCHAR(30) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    KEY FK_USER_idx (user_id),
-    CONSTRAINT FK_USER FOREIGN KEY (user_id) REFERENCES User(id)
+    KEY fk_user_idx (user_id),
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES `user`(id)
         ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- BasketItem Table
-CREATE TABLE Basket_Item (
+CREATE TABLE `basket_item` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     basket_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    KEY FK_BASKET_idx (basket_id),
-    KEY FK_PRODUCT_idx (product_id),
-    CONSTRAINT FK_BASKET FOREIGN KEY (basket_id) REFERENCES Basket(id)
+    KEY fk_basket_idx (basket_id),
+    KEY fk_product_idx (product_id),
+    CONSTRAINT fk_basket FOREIGN KEY (basket_id) REFERENCES `basket`(id)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_PRODUCT FOREIGN KEY (product_id) REFERENCES Product(id)
+    CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES `product`(id)
         ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Order Table
-CREATE TABLE The_Order (
+CREATE TABLE `order` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     basket_id INT NOT NULL,
@@ -81,16 +81,16 @@ CREATE TABLE The_Order (
     order_status VARCHAR(30) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    KEY FK_ORDER_USER_idx (user_id),
-    KEY FK_ORDER_BASKET_idx (basket_id),
-    CONSTRAINT FK_ORDER_USER FOREIGN KEY (user_id) REFERENCES User(id)
+    KEY fk_order_user_idx (user_id),
+    KEY fk_order_basket_idx (basket_id),
+    CONSTRAINT fk_order_user FOREIGN KEY (user_id) REFERENCES `user`(id)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_ORDER_BASKET FOREIGN KEY (basket_id) REFERENCES Basket(id)
+    CONSTRAINT fk_order_basket FOREIGN KEY (basket_id) REFERENCES `basket`(id)
         ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- OrderItem Table
-CREATE TABLE Order_Item (
+CREATE TABLE `order_item` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
     product_id INT NOT NULL,
@@ -99,31 +99,34 @@ CREATE TABLE Order_Item (
     quantity INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    KEY FK_ORDER_idx (order_id),
-    KEY FK_PRODUCT_ORDER_idx (product_id),
-    CONSTRAINT FK_ORDER FOREIGN KEY (order_id) REFERENCES the_order(id)
+    KEY fk_order_idx (order_id),
+    KEY fk_product_order_idx (product_id),
+    CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES `order`(id)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT FK_PRODUCT_ORDER FOREIGN KEY (product_id) REFERENCES Product(id)
+    CONSTRAINT fk_product_order FOREIGN KEY (product_id) REFERENCES `product`(id)
         ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Payment Table
-CREATE TABLE Payment (
+CREATE TABLE `payment` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
     payment_method VARCHAR(255) NOT NULL,
     status VARCHAR(20) NOT NULL,
     transaction_id VARCHAR(255),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    KEY FK_PAYMENT_ORDER_idx (order_id),
-    CONSTRAINT FK_PAYMENT_ORDER FOREIGN KEY (order_id) REFERENCES The_Order(id)
+    KEY fk_payment_order_idx (order_id),
+    CONSTRAINT fk_payment_order FOREIGN KEY (order_id) REFERENCES `order`(id)
         ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO roles (name) VALUES ('CUSTOMER');
-INSERT INTO roles (name) VALUES ('ADMIN');
+-- Insert Sample Roles
+INSERT INTO `role` (name) VALUES ('CUSTOMER');
+INSERT INTO `role` (name) VALUES ('ADMIN');
+INSERT INTO `role` (name) VALUES ('GUEST');
 
-INSERT INTO products (name, description, price, stock, category) VALUES
+-- Insert Sample Products
+INSERT INTO `product` (name, description, price, stock, category) VALUES
 ('Wireless Noise-Canceling Headphones', 'Premium over-ear headphones with advanced noise-canceling technology, 30-hour battery life, and a comfortable fit.', 199.99, 120, 'Electronics'),
 ('Ergonomic Office Chair', 'Adjustable height, lumbar support, and breathable mesh backrest for all-day comfort.', 149.99, 50, 'Furniture'),
 ('Stainless Steel Water Bottle (1L)', 'Insulated water bottle keeps drinks cold for 24 hours or hot for 12 hours, made with eco-friendly materials.', 24.99, 300, 'Outdoor'),

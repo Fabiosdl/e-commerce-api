@@ -88,8 +88,10 @@ public class OrderServiceImpl implements OrderService {
                     .build());
             totalPrice += bi.getProduct().getProductPrice() * bi.getQuantity();
         }
+        //truncate totalPrice to 2 digits after decimal
+        double truncatedPrice = Math.floor(totalPrice * 100)/100;
         // retrieve total cost
-        order.setTotalPrice(totalPrice);
+        order.setTotalPrice(Math.floor(truncatedPrice));
         return orderRepository.save(order);
     }
 

@@ -5,7 +5,7 @@ import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.BasketItem;
 import com.fabiolima.e_commerce.model.Product;
-import com.fabiolima.e_commerce.model.TheOrder;
+import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.repository.ProductRepository;
 import com.fabiolima.e_commerce.service_implementation.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -211,7 +211,7 @@ class ProductServiceImplTest {
         basket.addBasketItemToBasket(item1);
         basket.addBasketItemToBasket(item2);
 
-        TheOrder order = new TheOrder();
+        Order order = new Order();
         order.setId(1L);
         order.setBasket(basket);
         basket.setOrder(order);

@@ -3,7 +3,7 @@ package com.fabiolima.e_commerce.service_implementation;
 import com.fabiolima.e_commerce.exceptions.OrderStatusException;
 import com.fabiolima.e_commerce.exceptions.PaymentMethodException;
 import com.fabiolima.e_commerce.model.Payment;
-import com.fabiolima.e_commerce.model.TheOrder;
+import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.model.enums.OrderStatus;
 import com.fabiolima.e_commerce.repository.PaymentRepository;
 import com.fabiolima.e_commerce.service.OrderService;
@@ -28,14 +28,14 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment processPayment(Long orderId, String paymentMethod) {
 
         // check and fetch if the order exists
-        TheOrder theOrder = orderService.findOrderById(orderId);
+        Order order = orderService.findOrderById(orderId);
 
         // check if the order can be paid
-        if(OrderStatus.PAID.equals(theOrder.getOrderStatus()))
+        if(OrderStatus.PAID.equals(order.getOrderStatus()))
             throw new OrderStatusException("Order is already paid.");
 
         // validate order status
-        if(!OrderStatus.PENDING.equals(theOrder.getOrderStatus()))
+        if(!OrderStatus.PENDING.equals(order.getOrderStatus()))
             throw new OrderStatusException("Order is not eligible for payment");
 
         // validate payment method

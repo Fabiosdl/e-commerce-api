@@ -29,7 +29,7 @@ public class Role {
     @Column(name = "name")
     private UserRole name;
 
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "roles")
     @JsonIgnore
     private Set<User> users = new HashSet<>();
 }

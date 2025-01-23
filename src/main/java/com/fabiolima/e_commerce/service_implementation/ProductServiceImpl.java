@@ -6,7 +6,7 @@ import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.BasketItem;
 import com.fabiolima.e_commerce.model.Product;
-import com.fabiolima.e_commerce.model.TheOrder;
+import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.repository.ProductRepository;
 import com.fabiolima.e_commerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     //give back the item quantity to product stock if order is cancelled
-    public List<Product> incrementStocksWhenOrderIsCancelled(TheOrder order) {
+    public List<Product> incrementStocksWhenOrderIsCancelled(Order order) {
 
         if(order == null)
             throw new IllegalArgumentException("Order cannot be null");

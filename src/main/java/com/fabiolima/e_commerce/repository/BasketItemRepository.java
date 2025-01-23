@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
+@Repository//optional (only for jpa is optional)
 public interface BasketItemRepository extends JpaRepository<BasketItem,Long> {
 
     Optional<BasketItem> findByBasketAndProduct(@Param("basket") Basket basket, @Param("product") Product product);

@@ -2,10 +2,13 @@ package com.fabiolima.e_commerce.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,13 +16,24 @@ import java.util.Map;
 public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<?> handleNotFound(NotFoundException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> handleNotFound(NotFoundException ex, WebRequest request){
+        //homework -> create a class errorsDetails instead of using map.
+
+        Map<String,Object> errorsDetails = new HashMap<>();
+        errorsDetails.put("timestamp: " , LocalDateTime.now());
+        errorsDetails.put("message: " , ex.getMessage());
+        errorsDetails.put("details: " , request.getDescription(false));
+
+        return new ResponseEntity<>(errorsDetails, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<?> handleBadRequest(BadRequestException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        Map<String,Object> errorsDetails = new HashMap<>();
+        errorsDetails.put("timestamp: " , LocalDateTime.now());
+        errorsDetails.put("message: " , ex.getMessage());
+        errorsDetails.put("details: " , ex.getCause());
+        return new ResponseEntity<>(errorsDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ForbiddenException.class)
@@ -62,6 +76,11 @@ public class GlobalControllerExceptionHandler {
         Map<String,String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(),error.getDefaultMessage()));
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CustomAccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDeniedException(CustomAccessDeniedException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
 }

@@ -43,6 +43,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         System.out.println("userName=" + userName);
 
         User theUser = userRepository.findByEmail(userName);
+        Long userId = theUser.getId();
 
         // now place in the session
         HttpSession session = request.getSession();
@@ -52,10 +53,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String redirectURL = "";
 
         if (theUser.getRoles().stream().anyMatch(role -> role.getName().toString().equalsIgnoreCase("ROLE_CUSTOMER"))) {
-            Long userId = theUser.getId();
+
             redirectURL = "/user/"+userId;
             //creates a basket for the user
-
             //method that requires the Transactional wrap
             basketService.createBasketAndAddToUser(theUser);
 
@@ -67,8 +67,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         if (redirectURL.isEmpty()) {
             redirectURL = "/";
         }
-
         response.sendRedirect(request.getContextPath() + redirectURL);
-
     }
 }

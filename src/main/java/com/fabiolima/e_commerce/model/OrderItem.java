@@ -21,7 +21,7 @@ public class OrderItem {
     @ManyToOne
     @JoinColumn(name = "order_id")
     @JsonIgnore
-    private TheOrder order;
+    private Order order;
 
     @Column(name = "product_id")
     private Long productId;

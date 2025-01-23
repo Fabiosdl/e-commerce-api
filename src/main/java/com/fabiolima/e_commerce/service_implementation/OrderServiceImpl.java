@@ -40,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public TheOrder convertBasketToOrder(Long userId, Long basketId) {
+    public Order convertBasketToOrder(Long userId, Long basketId) {
         //1-Basket Validation
 
         // check if the basket belongs to user
@@ -56,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
 
         //2-Create the Order add to user and persist it to databases
 
-        TheOrder order = createOrderAndAddToUser(theBasket);
+        Order order = createOrderAndAddToUser(theBasket);
 
         //3- Set basket status as CHECKED_OUT
         theBasket.setBasketStatus(BasketStatus.CHECKED_OUT);
@@ -69,10 +69,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public TheOrder createOrderAndAddToUser(Basket basket) {
+    public Order createOrderAndAddToUser(Basket basket) {
 
         // create new order based on the basket
-        TheOrder order = new TheOrder();
+        Order order = new Order();
         order.setUser(basket.getUser());
         order.setBasket(basket);
         order.setTotalPrice(basketService.calculateTotalPrice(basket.getId()));
@@ -96,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<TheOrder> getUserOrders(int pgNum, int pgSize, Long userId) {
+    public Page<Order> getUserOrders(int pgNum, int pgSize, Long userId) {
 
         User theUser = userService.findUserByUserId(userId);
         Pageable pageable = PageRequest.of(pgNum, pgSize);
@@ -105,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<TheOrder> getUserOrdersByStatus(int pgNum, int pgSize, Long userId, String status) {
+    public Page<Order> getUserOrdersByStatus(int pgNum, int pgSize, Long userId, String status) {
         //Check if orderStatus is a valid Enum
         if (!OrderStatus.isValid(status))
             throw new IllegalArgumentException(String.format("Invalid order status %s", status));
@@ -118,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public TheOrder getUserOrderById(Long userId, Long orderId) {
+    public Order getUserOrderById(Long userId, Long orderId) {
 
         // validate and fetch the order
         return validateAndFetchOrder(userId,orderId);
@@ -126,27 +126,27 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public TheOrder updateStatusOrder(Long userId, Long orderId, String orderStatus) {
+    public Order updateStatusOrder(Long userId, Long orderId, String orderStatus) {
 
         //Check if orderStatus is a valid Enum
         if (!OrderStatus.isValid(orderStatus))
             throw new IllegalArgumentException(String.format("Invalid order status %s", orderStatus));
 
         //validate and fetch order
-        TheOrder theOrder = validateAndFetchOrder(userId, orderId);
+        Order order = validateAndFetchOrder(userId, orderId);
 
         // set new status to order depending on the current Status
-        String currentStatus = theOrder.getOrderStatus().toString();
+        String currentStatus = order.getOrderStatus().toString();
         switch (currentStatus){
             case "PENDING" : if(orderStatus.equalsIgnoreCase("PAID"))
-                                theOrder.setOrderStatus(OrderStatus.fromString(orderStatus));
+                                order.setOrderStatus(OrderStatus.fromString(orderStatus));
                             else if(orderStatus.equalsIgnoreCase("CANCELLED"))
                                 throw new ForbiddenException("Please, use the method cancelOrder to cancel an order.");
                             else
                                 throw new ForbiddenException("Current Status PENDING can only be updated to PAID. To update to Cancel use method cancelOrder.");
                             break;
             case "PAID" :   if(orderStatus.equalsIgnoreCase("COMPLETED"))
-                                theOrder.setOrderStatus(OrderStatus.fromString(orderStatus));
+                                order.setOrderStatus(OrderStatus.fromString(orderStatus));
                             else
                                 throw new ForbiddenException("Current Status PAID can only be updated to COMPLETED.");
                             break;
@@ -154,27 +154,27 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //persist new order
-        return orderRepository.save(theOrder);
+        return orderRepository.save(order);
     }
 
     @Override
-    public TheOrder cancelOrder(Long userId, Long orderId) {
+    public Order cancelOrder(Long userId, Long orderId) {
         //retrieve order
-        TheOrder theOrder = validateAndFetchOrder(userId, orderId);
+        Order order = validateAndFetchOrder(userId, orderId);
         //retrieve current status of order
-        OrderStatus currentStatus = theOrder.getOrderStatus();
+        OrderStatus currentStatus = order.getOrderStatus();
 
         //check if its possible to cancel order
         if (Objects.requireNonNull(currentStatus) == OrderStatus.PENDING) {
-            theOrder.setOrderStatus(OrderStatus.CANCELLED);
+            order.setOrderStatus(OrderStatus.CANCELLED);
         } else {
             throw new ForbiddenException("Only orders with status PENDING can be cancelled");
         }
-        return orderRepository.save(theOrder);
+        return orderRepository.save(order);
     }
 
     @Override
-    public List<TheOrder> getOrdersByStatus(Long userId, String status) {
+    public List<Order> getOrdersByStatus(Long userId, String status) {
 
         //Check if orderStatus is a valid Enum
         if (!OrderStatus.isValid(status))
@@ -186,11 +186,11 @@ public class OrderServiceImpl implements OrderService {
         User theUser = userService.findUserByUserId(userId);
 
         // get the full List of orders
-        List<TheOrder> orderList = theUser.getOrders();
+        List<Order> orderList = theUser.getOrders();
 
         // add only the orders with designated status
-        List<TheOrder> selectedOrder = new ArrayList<>();
-        for(TheOrder o : orderList){
+        List<Order> selectedOrder = new ArrayList<>();
+        for(Order o : orderList){
             if(o.getOrderStatus().equals(orderStatus)){
                 selectedOrder.add(o);
             }
@@ -199,13 +199,13 @@ public class OrderServiceImpl implements OrderService {
         return selectedOrder;
     }
     @Override
-    public TheOrder findOrderById(Long orderId){
+    public Order findOrderById(Long orderId){
 
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(String.format("Order with Id %d not found.", orderId)));
     }
 
-    private TheOrder validateAndFetchOrder(Long userId, Long orderId){
+    private Order validateAndFetchOrder(Long userId, Long orderId){
 
         return orderRepository.findOrderByIdAndUserId(orderId,userId)
                 .orElseThrow(() -> new NotFoundException(String.format(

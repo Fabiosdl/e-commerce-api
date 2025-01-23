@@ -2,7 +2,6 @@ package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.BasketItem;
-import com.fabiolima.e_commerce.model.TheOrder;
 import com.fabiolima.e_commerce.model.User;
 import org.springframework.data.domain.Page;
 

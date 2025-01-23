@@ -3,7 +3,7 @@ package com.fabiolima.e_commerce.service;
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.TheOrder;
+import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.model.enums.OrderStatus;
 import com.fabiolima.e_commerce.repository.OrderRepository;
@@ -42,12 +42,12 @@ class OrderServiceImplTest {
 
         User user = new User();
         //creating orders to add to orders list in user entity
-        TheOrder order1 = new TheOrder();
-        TheOrder order2 = new TheOrder();
+        Order order1 = new Order();
+        Order order2 = new Order();
         user.addOrderToUser(order1);
         user.addOrderToUser(order2);
 
-        TheOrder expectedOrder = new TheOrder();
+        Order expectedOrder = new Order();
 
         when(userService.findUserByUserId(anyLong())).thenReturn(user);
 
@@ -60,7 +60,7 @@ class OrderServiceImplTest {
         });
 
         //when
-        TheOrder actualOrder = orderService.createOrderAndAddToUser(new Basket());
+        Order actualOrder = orderService.createOrderAndAddToUser(new Basket());
 
         //then
         assertAll(
@@ -98,12 +98,12 @@ class OrderServiceImplTest {
     @Test
     void getUserOrderById_ShouldReturnTheOrderByItsId_WhenOrderBelongsToUser() {
         //given
-        TheOrder order = new TheOrder();
+        Order order = new Order();
 
         when(orderRepository.findOrderByIdAndUserId(anyLong(),anyLong())).thenReturn(Optional.of(order));
 
         //when
-        TheOrder actualOrder = orderService.getUserOrderById(1L,1L);
+        Order actualOrder = orderService.getUserOrderById(1L,1L);
 
         //then
         assertEquals(order,actualOrder);
@@ -133,7 +133,7 @@ class OrderServiceImplTest {
         //given
 
         //create new order
-        TheOrder expected = new TheOrder();
+        Order expected = new Order();
         //set currentStatus to expected order
         expected.setOrderStatus(OrderStatus.valueOf(currentStatus));
 
@@ -144,7 +144,7 @@ class OrderServiceImplTest {
         when(orderRepository.save(expected)).thenReturn(expected);
 
         //when
-        TheOrder actual = orderService.updateStatusOrder(1L,1L, newStatus);
+        Order actual = orderService.updateStatusOrder(1L,1L, newStatus);
 
         //then
         //I'm allowing newStatus to uppercase to mimic the enum method
@@ -168,7 +168,7 @@ class OrderServiceImplTest {
         //given
 
         //create new order
-        TheOrder expected = new TheOrder();
+        Order expected = new Order();
         //set currentStatus to expected order
         expected.setOrderStatus(OrderStatus.valueOf(currentStatus));
 
@@ -202,7 +202,7 @@ class OrderServiceImplTest {
 
         //given
         User user = new User();
-        TheOrder order = new TheOrder();
+        Order order = new Order();
         order.setOrderStatus(PENDING);
         user.addOrderToUser(order);
 
@@ -218,7 +218,7 @@ class OrderServiceImplTest {
     @Test
     void cancelOrder_ShouldReturnOrderWithStatusCancelled_WhenCurrentStatusIsPending() {
         //given
-        TheOrder expected = new TheOrder();
+        Order expected = new Order();
         expected.setOrderStatus(PENDING);
 
         when(orderRepository.findOrderByIdAndUserId(anyLong(),anyLong()))
@@ -226,7 +226,7 @@ class OrderServiceImplTest {
         when(orderRepository.save(any())).thenReturn(expected);
 
         //when
-        TheOrder actual = orderService.cancelOrder(1L,1L);
+        Order actual = orderService.cancelOrder(1L,1L);
 
         //then
         assertNotNull(actual);
@@ -244,7 +244,7 @@ class OrderServiceImplTest {
     })
     void cancelOrder_ShouldThrowForbiddenException_WhenCurrentStatusIsNotPending(String currentStatus) {
         //given
-        TheOrder expected = new TheOrder();
+        Order expected = new Order();
         expected.setOrderStatus(OrderStatus.valueOf(currentStatus));
 
         when(orderRepository.findOrderByIdAndUserId(anyLong(),anyLong()))
@@ -273,35 +273,35 @@ class OrderServiceImplTest {
         User user = new User();
 
         //add different orders with different status to a user to create a list of orders with different status
-        TheOrder order1 = new TheOrder();
+        Order order1 = new Order();
         order1.setOrderStatus(CANCELLED);
         user.addOrderToUser(order1);
 
-        TheOrder order2 = new TheOrder();
+        Order order2 = new Order();
         order2.setOrderStatus(PENDING);
         user.addOrderToUser(order2);
 
-        TheOrder order3 = new TheOrder();
+        Order order3 = new Order();
         order3.setOrderStatus(PENDING);
         user.addOrderToUser(order3);
 
-        TheOrder order4 = new TheOrder();
+        Order order4 = new Order();
         order4.setOrderStatus(PAID);
         user.addOrderToUser(order4);
 
-        TheOrder order5 = new TheOrder();
+        Order order5 = new Order();
         order5.setOrderStatus(PAID);
         user.addOrderToUser(order5);
 
-        TheOrder order6 = new TheOrder();
+        Order order6 = new Order();
         order6.setOrderStatus(PAID);
         user.addOrderToUser(order6);
 
-        TheOrder order7 = new TheOrder();
+        Order order7 = new Order();
         order7.setOrderStatus(COMPLETED);
         user.addOrderToUser(order7);
 
-        TheOrder order8 = new TheOrder();
+        Order order8 = new Order();
         order8.setOrderStatus(COMPLETED);
         user.addOrderToUser(order8);
 
@@ -309,12 +309,12 @@ class OrderServiceImplTest {
         when(userService.findUserByUserId(anyLong())).thenReturn(user);
 
         // extract a list from user get orders just with the desired status
-        List<TheOrder> expected = user.getOrders().stream().filter(
+        List<Order> expected = user.getOrders().stream().filter(
                 order -> order.getOrderStatus() == OrderStatus.fromString(status))
                 .toList();
 
         //when
-        List<TheOrder> actual = orderService.getOrdersByStatus(1L,status);
+        List<Order> actual = orderService.getOrdersByStatus(1L,status);
 
         //then
         assertNotNull(actual);
@@ -327,12 +327,12 @@ class OrderServiceImplTest {
     @Test
     void findOrderById_ShouldReturnOrder() {
         //given
-        TheOrder order = new TheOrder();
+        Order order = new Order();
 
         when(orderRepository.findById(anyLong())).thenReturn(Optional.of(order));
 
         //when
-        TheOrder actualOrder = orderService.findOrderById(1L);
+        Order actualOrder = orderService.findOrderById(1L);
 
         //then
         assertEquals(order,actualOrder);

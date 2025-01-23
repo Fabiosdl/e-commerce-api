@@ -4,8 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,11 +17,12 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import javax.sql.DataSource;
 
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 public class AppSecurity {
 
     //query to spring boot find the user/role customized table
     @Bean
-    public UserDetailsManager userDetailsManager(DataSource dataSource){
+    public UserDetailsManager userDetailsManager(DataSource dataSource){ //replace this method
 
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
@@ -30,7 +31,6 @@ public class AppSecurity {
         jdbcUserDetailsManager.setAuthoritiesByUsernameQuery("SELECT email, role FROM user WHERE email = ?");
 
         return jdbcUserDetailsManager;
-
     }
 
     //AuthenticationManager bean
@@ -64,10 +64,10 @@ public class AppSecurity {
 
                 .authorizeHttpRequests( configurer ->
                         configurer
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                                 .requestMatchers("/user/**").hasRole("CUSTOMER")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/register/**").permitAll()
-                                .requestMatchers("/basket/**").hasRole("CUSTOMER")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form ->

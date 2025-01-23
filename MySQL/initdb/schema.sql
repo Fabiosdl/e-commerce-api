@@ -1,8 +1,8 @@
-DROP SCHEMA IF EXISTS `online_shop`;
+DROP SCHEMA IF EXISTS `e-commerce`;
 
-CREATE SCHEMA `online_shop`;
+CREATE SCHEMA `e-commerce`;
 
-USE `online_shop`;
+USE `e-commerce`;
 
 -- User Table
 CREATE TABLE `user` (
@@ -28,7 +28,7 @@ CREATE TABLE `user_roles` (
     PRIMARY KEY (user_id, role_id),
     KEY fk_user_role_idx (user_id),
     CONSTRAINT fk_user_role FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE,
-    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES `roles`(id) ON DELETE CASCADE
+    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES `role`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Product Table
@@ -121,9 +121,9 @@ CREATE TABLE `payment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insert Sample Roles
-INSERT INTO `role` (name) VALUES ('CUSTOMER');
-INSERT INTO `role` (name) VALUES ('ADMIN');
-INSERT INTO `role` (name) VALUES ('GUEST');
+INSERT INTO `role` (name) VALUES ('ROLE_CUSTOMER');
+INSERT INTO `role` (name) VALUES ('ROLE_ADMIN');
+INSERT INTO `role` (name) VALUES ('ROLE_GUEST');
 
 -- Insert Sample Products
 INSERT INTO `product` (name, description, price, stock, category) VALUES

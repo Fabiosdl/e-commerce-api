@@ -3,9 +3,7 @@ package com.fabiolima.e_commerce.model;
 import com.fabiolima.e_commerce.model.enums.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -71,7 +69,7 @@ public class User {
     @OneToMany(mappedBy = "user",  //field "user" in Order Class
             cascade = CascadeType.ALL)
     @JsonIgnore
-    private final List<TheOrder> orders = new ArrayList<>();
+    private final List<Order> orders = new ArrayList<>();
     //it's final to reassure that the orders list belongs to the user
 
     @ToString.Exclude
@@ -80,9 +78,9 @@ public class User {
     @JsonIgnore
     private final List<Basket> baskets = new ArrayList<>();
 
-    public void addOrderToUser(TheOrder theOrder){ //bi-directional method
-        orders.add(theOrder);
-        theOrder.setUser(this);
+    public void addOrderToUser(Order order){ //bi-directional method
+        orders.add(order);
+        order.setUser(this);
     }
 
     public void addBasketToUser(Basket theBasket){ //bi-directional method

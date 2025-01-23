@@ -1,7 +1,7 @@
 package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.model.Product;
-import com.fabiolima.e_commerce.model.TheOrder;
+import com.fabiolima.e_commerce.model.Order;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -14,7 +14,7 @@ public interface ProductService {
     Product findProductById(Long productId);
     Product patchUpdateProductById(Long productId, Map<String,Object> updates);
     Product deleteProductById(Long productId);
-    List<Product> incrementStocksWhenOrderIsCancelled(TheOrder order);
+    List<Product> incrementStocksWhenOrderIsCancelled(Order order);
     void updateProductStock(Product product, int delta);
 
 }

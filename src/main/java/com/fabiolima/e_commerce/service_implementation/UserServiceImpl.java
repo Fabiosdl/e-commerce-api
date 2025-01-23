@@ -11,6 +11,7 @@ import com.fabiolima.e_commerce.repository.UserRepository;
 import com.fabiolima.e_commerce.service.UserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Email;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ import java.util.*;
 import static com.fabiolima.e_commerce.model.enums.UserStatus.*;
 
 @Service
+@Slf4j //logging framework slf4j vs log4j vs log4j2 vs logback logging level
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -36,9 +38,12 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    //generate a log file from my code
     @Override
     public User saveUser(User theUser) {
+        log.info("user has been successfully created");
         return userRepository.save(theUser);
+
     }
 
     @Override
@@ -57,12 +62,13 @@ public class UserServiceImpl implements UserService {
         user.setEmail(registrationRequest.getEmail());
         user.setPassword(encryptedPassword);
 
-        Role role = roleRepository.findByName(UserRole.ROLE_CUSTOMER);
+        Optional<Role> role = roleRepository.findByName(UserRole.ROLE_CUSTOMER);
 
-        if(role == null)
+        if(role.isEmpty()) {
+            log.info("Role could not be found");
             throw new NotFoundException("Role not found");
-
-        user.addRoleToUser(role);
+        }
+        user.addRoleToUser(role.get());
 
         return userRepository.save(user);
     }
@@ -76,14 +82,14 @@ public class UserServiceImpl implements UserService {
         UserRole name = UserRole.fromString(roleName);
 
         //fetch the role
-        Role role = roleRepository.findByName(name);
+        Optional<Role> role = roleRepository.findByName(name);
 
-        if (role == null) {
+        if (role.isEmpty()) {
             throw new NotFoundException("Role not found");
         }
 
         //add role to user
-        user.addRoleToUser(role);
+        user.addRoleToUser(role.get());
 
         //save user
         return userRepository.save(user);

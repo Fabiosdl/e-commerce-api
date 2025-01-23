@@ -28,11 +28,6 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping
-    public ResponseEntity<User> createNewUser(@RequestBody @Valid User theUser){
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(theUser));
-    }
-
     @Operation(summary = "Returns user initial page")
     @GetMapping("/{userId}")
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
@@ -40,6 +35,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findUserByUserId(userId));
     }
 
+    @Operation(summary = "Update user details")
     @PatchMapping("/{userId}")
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
     public ResponseEntity<User> updateUserByUserId(@RequestBody Map<String, Object> updates,
@@ -47,6 +43,7 @@ public class UserController {
         return ResponseEntity.ok(userService.patchUpdateUserByUserId(userId,updates));
     }
 
+    @Operation(summary = "Deactivate user, preserving its data")
     @PatchMapping("/{userId}/deactivate")
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
     public ResponseEntity<User> deactivateUserByUserId(@PathVariable("userId") Long userId){

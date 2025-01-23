@@ -9,25 +9,24 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class UserAuthenticationService {
+public class OrderAuthenticationService {
 
     private final UserRepository userRepository;
 
-    public UserAuthenticationService(UserRepository userRepository) {
+    public OrderAuthenticationService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public boolean isOwner(Long urlId, Authentication authentication){
+    public boolean isOwner(Long urlOrderId, Authentication authentication ){
+
         String email = authentication.getName();
 
         Optional<User> optional = userRepository.findByEmail(email);
         if(optional.isEmpty())
             throw new NotFoundException(String.format("User with email %s not found.",email));
-
         User authenticatedUser = optional.get();
 
-        Long authenticatedUserId = authenticatedUser.getId();
-
-        return authenticatedUserId.equals(urlId);
+        return authenticatedUser.getOrders().stream().anyMatch(order -> order.getId().equals(urlOrderId));
     }
+
 }

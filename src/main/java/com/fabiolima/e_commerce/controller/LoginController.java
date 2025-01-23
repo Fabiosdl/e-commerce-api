@@ -1,6 +1,7 @@
 package com.fabiolima.e_commerce.controller;
 
 import com.fabiolima.e_commerce.dto.LoginRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,7 @@ public class LoginController {
         this.authenticationManager = authenticationManager;
     }
 
+    @Operation(summary = "Used for login. It uses user email as username")
     @PostMapping
     public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
         try {

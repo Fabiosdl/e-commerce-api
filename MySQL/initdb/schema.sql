@@ -124,6 +124,7 @@ CREATE TABLE `payment` (
 INSERT INTO `role` (name) VALUES ('ROLE_CUSTOMER');
 INSERT INTO `role` (name) VALUES ('ROLE_ADMIN');
 INSERT INTO `role` (name) VALUES ('ROLE_GUEST');
+INSERT INTO `role` (name) VALUES ('ROLE_VENDOR');
 
 -- Insert Sample Products
 INSERT INTO `product` (name, description, price, stock, category) VALUES

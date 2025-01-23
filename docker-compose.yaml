@@ -27,7 +27,7 @@ services:
     networks:
       - mynetwork
     environment:
-      MYSQL_DATABASE: online-shop
+      MYSQL_DATABASE: e-commerce
       MYSQL_USER: fabiolima
       MYSQL_PASSWORD: fabiolima123
       MYSQL_ROOT_PASSWORD: fabiolimaR123

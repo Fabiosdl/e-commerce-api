@@ -24,4 +24,5 @@ public interface BasketRepository extends JpaRepository<Basket,Long> {
 
     @Query("SELECT b FROM Basket b WHERE b.user.id = :userId AND b.basketStatus = :status")
     Optional<Basket> findActiveBasketByUserId(@Param("userId") Long userId, @Param("status") BasketStatus status);
+
 }

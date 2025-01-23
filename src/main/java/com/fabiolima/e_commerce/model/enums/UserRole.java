@@ -1,7 +1,7 @@
 package com.fabiolima.e_commerce.model.enums;
 
 public enum UserRole {
-    ROLE_CUSTOMER, ROLE_ADMIN;
+    ROLE_CUSTOMER, ROLE_ADMIN, ROLE_VENDOR, ROLE_GUEST;
 
     // Utility method for validation
     public static boolean isValid(String role) {

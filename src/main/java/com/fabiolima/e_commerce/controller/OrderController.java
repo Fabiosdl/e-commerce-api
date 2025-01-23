@@ -3,6 +3,7 @@ package com.fabiolima.e_commerce.controller;
 import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user/{userId}/order")
-@PreAuthorize("@userAuthenticationService.isOwner(userId, authentication)")
+@PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
 public class OrderController {
 
     private final OrderService orderService;
@@ -24,13 +25,7 @@ public class OrderController {
         this.productService = productService;
     }
 
-    @PostMapping //the front end will pass all the payload of an order, including basketId, address and total price
-    public ResponseEntity<Order> createNewOrder(@PathVariable ("userId") Long userId,
-                                                @RequestBody Order order){
-        return null; //ResponseEntity.status(HttpStatus.CREATED)
-                //.body(orderService.createOrderAndAddToUser(userId, order));
-    }
-
+    @Operation(summary = "It retrieves all users orders")
     @GetMapping
     public ResponseEntity<Page<Order>> getAllUsersOrders(@RequestParam(defaultValue = "0") int pgNum,
                                                          @RequestParam(defaultValue = "25") int pgSize,
@@ -39,6 +34,7 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @Operation(summary = "It retrieves all users orders depending on its status")
     @GetMapping("/status")
     public ResponseEntity<Page<Order>> getUsersOrdersByOrderStatus(@RequestParam(defaultValue = "0") int pgNum,
                                                                    @RequestParam(defaultValue = "25") int pgSize,
@@ -49,13 +45,17 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @Operation(summary = "Retrieve users order by its id")
     @GetMapping("/{orderId}")
+    @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
     public ResponseEntity<Order> getUsersOrderByOrderId(@PathVariable ("userId") Long userId,
                                                         @PathVariable ("orderId") Long orderId){
         return ResponseEntity.ok(orderService.getUserOrderById(userId,orderId));
     }
 
+    @Operation(summary = "Update order status")
     @PatchMapping("/{orderId}/status")
+    @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable ("userId") Long userId,
                                                    @PathVariable ("orderId") Long orderId,
                                                    @RequestParam ("status") String status){
@@ -69,17 +69,11 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
+    @Operation(summary = "To cancel an order if its current status is pending")
     @DeleteMapping("/{orderId}/cancel")
+    @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
     public ResponseEntity<Order> cancelOrder(@PathVariable ("userId") Long userId,
                                              @PathVariable ("orderId") Long orderId){
         return ResponseEntity.ok(orderService.cancelOrder(userId,orderId));
     }
-
-    // Get orders filtered by status
-        /*    @GetMapping("/status")
-    public ResponseEntity<List<TheOrder>> getOrdersByStatus(@PathVariable("userId") Long userId,
-                                                            @RequestParam("status") String status) {
-        List<TheOrder> ordersByStatus = orderService.getOrdersByStatus(userId, status);
-        return ResponseEntity.ok(ordersByStatus);
-    }*/
 }

@@ -10,7 +10,6 @@ import com.fabiolima.e_commerce.repository.RoleRepository;
 import com.fabiolima.e_commerce.repository.UserRepository;
 import com.fabiolima.e_commerce.service.UserService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Email;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

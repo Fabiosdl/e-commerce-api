@@ -2,6 +2,7 @@ package com.fabiolima.e_commerce.controller;
 
 import com.fabiolima.e_commerce.model.BasketItem;
 import com.fabiolima.e_commerce.service.BasketItemService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/basket/{basketId}/item")
-@PreAuthorize("@AuthenticationFromBasketService.isOwner(basketId, authentication)")
 public class BasketItemController {
 
 
@@ -22,8 +22,9 @@ public class BasketItemController {
         this.basketItemService = basketItemService;
     }
 
-    // add item to basket
+    @Operation(summary = "Add items to basket")
     @PostMapping
+    @PreAuthorize("@authenticationFromBasketService.isOwner(#basketId, authentication)")
     public ResponseEntity<BasketItem> addItemToBasket(@PathVariable("basketId") Long basketId,
                                                        @RequestParam Long productId,
                                                        @RequestParam int quant){
@@ -32,13 +33,13 @@ public class BasketItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(item);
     }
 
-    // get all items in a basket
+    @Operation(summary = "Retrieve all items in a basket")
     @GetMapping
     public ResponseEntity<List<BasketItem>> getAllItemsInBasket(@PathVariable("basketId") Long basketId){
         return ResponseEntity.ok(basketItemService.getItemsByBasket(basketId));
     }
 
-    // get item in basket
+    @Operation(summary = "Retrieve item by its id")
     @GetMapping("/{itemId}")
     public ResponseEntity<BasketItem> getItemById(@PathVariable("basketId") Long basketId,
                                                   @PathVariable("itemId") Long itemId){
@@ -49,6 +50,7 @@ public class BasketItemController {
     * then @PostMapping aligns better with thw API design, as the operation is more than just updating a field
     * */
     // increment quantity one by one in item
+    @Operation(summary = "Increment the item quantity by the value of One in basket and decrement product stock")
     @PostMapping("/{itemId}/increment")
     public ResponseEntity<BasketItem> incrementItemInBasket(@PathVariable("itemId") Long itemId){
         BasketItem incrementedItem = basketItemService.incrementItemQuantity(itemId);
@@ -56,6 +58,7 @@ public class BasketItemController {
     }
 
     // decrement quantity one by one in item
+    @Operation(summary = "Decrement the item quantity by the value of One in basket and increment product stock")
     @PostMapping("/{itemId}/decrement")
     public ResponseEntity<BasketItem> decrementItemInBasket(@PathVariable("basketId") Long basketId,
                                                             @PathVariable("itemId") Long itemId){
@@ -64,6 +67,8 @@ public class BasketItemController {
     }
 
     // change items quantity in basket
+    @Operation(summary = "Update item quantity defined by customer. " +
+            "Useful if website allows user to manually set the quantity. It also update product stock")
     @PostMapping("/{itemId}")
     public ResponseEntity<BasketItem> updateItemQuantityInBasket(@PathVariable("basketId") Long basketId,
                                                                  @PathVariable("itemId") Long itemId,
@@ -73,12 +78,14 @@ public class BasketItemController {
     }
 
     // get the total item price
+    @Operation(summary = "Retrieve the total price of an item")
     @GetMapping("/{itemId}/total-price")
     public ResponseEntity<Double> getTotalItemPrice(@PathVariable("itemId") Long itemId){
         return ResponseEntity.ok(basketItemService.calculateItemTotalPrice(itemId));
     }
 
     // remove item
+    @Operation(summary = "Remove item from basket, and update product stock")
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> removeItemFromBasket(@PathVariable("basketId") Long basketId,
                                                      @PathVariable("itemId") Long itemId){

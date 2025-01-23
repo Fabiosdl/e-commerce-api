@@ -1,7 +1,9 @@
 package com.fabiolima.e_commerce.security;
 
 import java.io.IOException;
+import java.util.Optional;
 
+import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.repository.UserRepository;
@@ -42,7 +44,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         System.out.println("userName=" + userName);
 
-        User theUser = userRepository.findByEmail(userName);
+        Optional<User> optional = userRepository.findByEmail(userName);
+        if(optional.isEmpty())
+            throw new NotFoundException(String.format("User with email %s not found.",userName));
+        User theUser = optional.get();
         Long userId = theUser.getId();
 
         // now place in the session

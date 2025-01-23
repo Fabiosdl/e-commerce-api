@@ -1,4 +1,3 @@
-/*
 package com.fabiolima.e_commerce.controller;
 
 import com.fabiolima.e_commerce.dto.LoginRequest;
@@ -35,4 +34,3 @@ public class LoginController {
         }
     }
 }
-*/

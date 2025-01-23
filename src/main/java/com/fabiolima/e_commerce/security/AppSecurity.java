@@ -62,9 +62,10 @@ public class AppSecurity {
         http
                 .csrf(AbstractHttpConfigurer::disable)  // Disable CSRF protection for REST APIs
 
-                .authorizeHttpRequests( configurer ->
-                        configurer
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                .authorizeHttpRequests( authorizeRequests ->
+                        authorizeRequests
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
                                 .requestMatchers("/user/**").hasRole("CUSTOMER")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/register/**").permitAll()
@@ -73,7 +74,7 @@ public class AppSecurity {
                 .formLogin(form ->
                         form
                                 //.loginPage("/login")
-                                .loginProcessingUrl("/authenticateTheUser")
+                                //.loginProcessingUrl("/authenticateTheUser")
                                 .successHandler(customAuthenticationSuccessHandler)
                                 .permitAll()
                 )

@@ -3,6 +3,7 @@ package com.fabiolima.e_commerce.controller;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.repository.UserRepository;
 import com.fabiolima.e_commerce.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,13 +33,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(theUser));
     }
 
-    @GetMapping("/dashboard")
-    public ResponseEntity<User> getUserDashboard(Authentication authentication) {
-        String email = authentication.getName();
-        User authenticatedUser = userRepository.findByEmail(email);
-        return ResponseEntity.ok(authenticatedUser); // Return user details to populate the dashboard
-    }
-
+    @Operation(summary = "Returns user initial page")
     @GetMapping("/{userId}")
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
     public ResponseEntity<User> getUserByUserId(@PathVariable("userId") Long userId){

@@ -36,12 +36,6 @@ public class BasketController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBasket);
     }
 
-    @GetMapping("/{basketId}")
-    public ResponseEntity<Basket> getBasketById(@PathVariable("userId") Long userId,
-                                                @PathVariable("basketId") Long basketId){
-        Basket theBasket = basketService.getUserBasketById(userId,basketId);
-        return ResponseEntity.ok(theBasket);
-    }
 
     @PatchMapping("/{basketId}/checkout")
     public ResponseEntity<Order> convertBasketToOrder(@PathVariable("userId") Long userId,

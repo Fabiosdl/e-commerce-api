@@ -40,36 +40,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order convertBasketToOrder(Long userId, Long basketId) {
-        //1-Basket Validation
-
-        // check if the basket belongs to user
-        Basket theBasket = basketService.validateAndFetchBasket(userId, basketId);
-
-        //check if the basket is empty
-        if(theBasket.getBasketItems().isEmpty())
-            throw new InvalidQuantityException("The current basket is empty.");
-
-        // check if basket status is ACTIVE and set it to Checked out
-        if(!theBasket.getBasketStatus().equals(BasketStatus.ACTIVE))
-            throw new ForbiddenException("Can only check out an ACTIVE basket.");
-
-        //2-Create the Order add to user and persist it to databases
-
-        Order order = createOrderAndAddToUser(theBasket);
-
-        //3- Set basket status as CHECKED_OUT
-        theBasket.setBasketStatus(BasketStatus.CHECKED_OUT);
-
-        //4- Create a new basket to the user
-        basketService.createBasketAndAddToUser(theBasket.getUser());
-
-        return order;
-    }
-
-    @Override
-    @Transactional
-    public Order createOrderAndAddToUser(Basket basket) {
+    public Order convertBasketToOrder(Basket basket) {
 
         // create new order based on the basket
         Order order = new Order();
@@ -81,10 +52,10 @@ public class OrderServiceImpl implements OrderService {
         double totalPrice = 0.0;
         for(BasketItem bi : basket.getBasketItems()){
             order.addOrderItemToOrder(OrderItem.builder()
-                            .productId(bi.getProduct().getId())
-                            .productName(bi.getProduct().getProductName())
-                            .quantity(bi.getQuantity())
-                            .price(bi.getProduct().getProductPrice())
+                    .productId(bi.getProduct().getId())
+                    .productName(bi.getProduct().getProductName())
+                    .quantity(bi.getQuantity())
+                    .price(bi.getProduct().getProductPrice())
                     .build());
             totalPrice += bi.getProduct().getProductPrice() * bi.getQuantity();
         }
@@ -92,6 +63,23 @@ public class OrderServiceImpl implements OrderService {
         double truncatedPrice = Math.floor(totalPrice * 100)/100;
         // retrieve total cost
         order.setTotalPrice(Math.floor(truncatedPrice));
+        return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order createOrderAndAddToUser(Long userId, Basket basket) {
+
+        //1 - Retrieve the User
+        User user = userService.findUserByUserId(userId);
+
+        //2 - Convert basket to order
+        Order order = convertBasketToOrder(basket);
+
+        //3 - Link order to user
+        order.setUser(user);
+
+        //4 - persist new order attached to user
         return orderRepository.save(order);
     }
 

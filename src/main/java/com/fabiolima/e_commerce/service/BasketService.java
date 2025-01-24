@@ -14,6 +14,7 @@ public interface BasketService {
     Basket deactivateBasketById(Long userId, Long basketId);
     Basket clearBasket(Long basketId);
     void clearExpiredBasketAndAddNewOne();
+    Basket checkoutBasket(Long userId, Long basketId);
     Basket findBasketById(Long basketId);
     int getTotalQuantity(Long basketId);
     double calculateTotalPrice(Long basketId);

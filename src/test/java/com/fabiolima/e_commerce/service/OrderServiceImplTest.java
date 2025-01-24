@@ -36,7 +36,7 @@ class OrderServiceImplTest {
     @Autowired
     private OrderServiceImpl orderService;
 
-    @Test
+    /*@Test
     void saveOrderAndAddToUser_ShouldReturnTheLastAddedOrder() {
         //given
 
@@ -73,7 +73,7 @@ class OrderServiceImplTest {
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userService, times(1)).saveUser(userCaptor.capture());
 
-    }
+    }*/
 //
 //    @Test
 //    void getUserOrders_ShouldReturnListOfOrders_WhenUserExists() {

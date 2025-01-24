@@ -24,7 +24,7 @@ public class BasketItemController {
 
     @Operation(summary = "Add items to basket")
     @PostMapping
-    @PreAuthorize("@authenticationFromBasketService.isOwner(#basketId, authentication)")
+    @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
     public ResponseEntity<BasketItem> addItemToBasket(@PathVariable("basketId") Long basketId,
                                                        @RequestParam Long productId,
                                                        @RequestParam int quant){

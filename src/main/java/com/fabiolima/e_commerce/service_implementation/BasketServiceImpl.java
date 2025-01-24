@@ -1,6 +1,7 @@
 package com.fabiolima.e_commerce.service_implementation;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
+import com.fabiolima.e_commerce.exceptions.InvalidQuantityException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.*;
 import com.fabiolima.e_commerce.model.enums.BasketStatus;
@@ -44,7 +45,7 @@ public class BasketServiceImpl implements BasketService {
     public Basket createBasketAndAddToUser(User theUser) {
 
         // Initialize the baskets collection
-        Hibernate.initialize(theUser.getBaskets());
+        Hibernate. initialize(theUser.getBaskets());
 
         //check if user already has an open basket
         Optional<Basket> existingBasket = basketRepository.findActiveBasketByUserId(theUser.getId(),BasketStatus.ACTIVE);
@@ -161,6 +162,29 @@ public class BasketServiceImpl implements BasketService {
             }
             System.out.println("Deactivated expired baskets: " + expiredBaskets.size());
         }
+    }
+
+    @Override
+    public Basket checkoutBasket(Long userId, Long basketId) {
+
+        //1-Retrieve the basket
+        Basket basket = getUserBasketById(userId, basketId);
+
+        //2-Check if the basket is empty
+        if(basket.getBasketItems().isEmpty())
+            throw new InvalidQuantityException("The current basket is empty.");
+
+        //3-Check if basket status is ACTIVE and set it to Checked out
+        if(!basket.getBasketStatus().equals(BasketStatus.ACTIVE))
+            throw new ForbiddenException("Can only check out an ACTIVE basket.");
+
+        //4-Change the status
+        basket.setBasketStatus(BasketStatus.CHECKED_OUT);
+
+        //5- Create a new basket to the user
+        createBasketAndAddToUser(basket.getUser());
+
+        return basketRepository.save(basket);
     }
 
     @Override

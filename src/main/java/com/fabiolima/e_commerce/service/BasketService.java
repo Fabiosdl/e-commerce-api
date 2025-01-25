@@ -18,6 +18,6 @@ public interface BasketService {
     Basket findBasketById(Long basketId);
     int getTotalQuantity(Long basketId);
     double calculateTotalPrice(Long basketId);
-    BasketItem removeItemFromBasket(Basket basket, Long itemId);
+    BasketItem removeItemFromBasket(Basket basket, BasketItem item);
     Basket validateAndFetchBasket(Long userId, Long basketId);
 }

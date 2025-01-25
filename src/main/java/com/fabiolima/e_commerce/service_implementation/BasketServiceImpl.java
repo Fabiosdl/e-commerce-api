@@ -8,6 +8,7 @@ import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,7 @@ import java.util.Optional;
  * deleteBasket must be used in case the user wants to delete the basket
  */
 
+@Slf4j
 @Service
 public class BasketServiceImpl implements BasketService {
 
@@ -121,18 +124,30 @@ public class BasketServiceImpl implements BasketService {
         //find the basket
         Basket theBasket = findBasketById(basketId);
 
-        //Check if the basket is not to checked-out
+        //Check if the basket is not checked-out
         if(theBasket.getBasketStatus() == BasketStatus.CHECKED_OUT)
             throw new ForbiddenException("Cannot clear a Checked-out basket");
 
         //get the list of items and pass item by item to removeItemFromBasket method
+        Iterator<BasketItem> listOfItem = theBasket.getBasketItems().iterator();
+        while(listOfItem.hasNext()){
 
-        List<BasketItem> listOfItem = theBasket.getBasketItems();
-        for(BasketItem item : listOfItem){
-            Long itemId = item.getId();
-            //this method will remove item from basket, update stock in database, update basket in database and
-            //delete items from database
-            removeItemFromBasket(theBasket,itemId);
+            BasketItem item = listOfItem.next();
+            /**
+             *As per orphanRemoval is enabled in the One-To- Many relationship between basket and item
+             *Hibernate will automatically persist the modification into the database,
+             * both for Basket and BasketItem entity
+             */
+
+            listOfItem.remove();
+
+            /**
+             * update stock
+             */
+            Product product = item.getProduct();
+            //delta = new quantity - current quantity -> delta = 0 - current quantity
+            int delta = - item.getQuantity();
+            productService.updateProductStock(product, delta);
         }
         return theBasket;
     }
@@ -165,6 +180,7 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
+    @Transactional
     public Basket checkoutBasket(Long userId, Long basketId) {
 
         //1-Retrieve the basket
@@ -182,8 +198,10 @@ public class BasketServiceImpl implements BasketService {
         basket.setBasketStatus(BasketStatus.CHECKED_OUT);
 
         //5- Create a new basket to the user
-        createBasketAndAddToUser(basket.getUser());
+        User user = basket.getUser();
+        Basket newBasket = createBasketAndAddToUser(user);
 
+        log.info("basket {} is checked-out and a new basket, id {} has been created to user {} - {}", basketId, user.getId(), newBasket.getId(), user.getName());
         return basketRepository.save(basket);
     }
 
@@ -211,18 +229,15 @@ public class BasketServiceImpl implements BasketService {
     }
     @Override
     @Transactional
-    public BasketItem removeItemFromBasket(Basket basket, Long basketItemId) {
+    public BasketItem removeItemFromBasket(Basket basket, BasketItem item) {
 
         //retrieve the list of items in basket
         List<BasketItem> listOfItems = basket.getBasketItems();
 
-        //retrieve the item from the basket items list
-        BasketItem itemFromList = listOfItems.stream()
-                .filter(basketItem ->
-                        basketItem.getId().equals(basketItemId))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Basket id %d do not contain Item with id %d",basket.getId(),basketItemId)));
+        //Confirm that the item belongs to basket
+        if(!listOfItems.contains(item))
+            throw new NotFoundException(
+                        String.format("Basket id %d do not contain Item with id %d",basket.getId(),item.getId()));
 
         /**
          *As per orphanRemoval is enabled in the One-To- Many relationship between basket and item
@@ -230,17 +245,16 @@ public class BasketServiceImpl implements BasketService {
          * both for Basket and BasketItem entity
          */
 
-        basket.getBasketItems().remove(itemFromList);
+        basket.getBasketItems().remove(item);
 
         /**
          * update stock
          */
-        Product product = itemFromList.getProduct();
+        Product product = item.getProduct();
         //delta = new quantity - current quantity -> delta = 0 - current quantity
-        int delta = - itemFromList.getQuantity();
+        int delta = - item.getQuantity();
         productService.updateProductStock(product, delta);
 
-        return itemFromList;
-
+        return item;
     }
 }

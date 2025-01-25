@@ -25,14 +25,12 @@ public class BasketController {
     private final BasketService basketService;
     private final UserService userService;
     private final OrderService orderService;
-    private final OrderController orderController;
 
     @Autowired
-    public BasketController(BasketService basketService, UserService userService, OrderService orderService, OrderController orderController){
+    public BasketController(BasketService basketService, UserService userService, OrderService orderService){
         this.basketService = basketService;
         this.userService = userService;
         this.orderService = orderService;
-        this.orderController = orderController;
     }
 
     @Operation(summary = "Retrieve basket by its id")
@@ -67,7 +65,7 @@ public class BasketController {
         //2 - Generate the order from basket and add to user
         Order order = orderService.createOrderAndAddToUser(userId, basket);
 
-        //apply entity model to the order object
+        //apply entity model to the basket object
         EntityModel<Basket> entityModel = EntityModel.of(basket);
 
         //create a link to the basket that now has status CHECKED_OUT
@@ -91,8 +89,8 @@ public class BasketController {
     @PostMapping("/{basketId}/clear-basket")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
     public ResponseEntity<Basket> clearBasket(@PathVariable("basketId") Long basketId){
-        basketService.clearBasket(basketId);
-        return ResponseEntity.noContent().build();
+        Basket basket = basketService.clearBasket(basketId);
+        return ResponseEntity.ok(basket);
     }
 
     @Operation(summary = "Retrieve the total amount of items in a basket")

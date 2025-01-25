@@ -24,7 +24,6 @@ public class ManageBasketController {
         this.orderService = orderService;
     }
 
-
     @Operation(summary = "Retrieve all the baskets of an user")
     @GetMapping("/{adminId}/user/{userId}")
     public ResponseEntity<Page<Basket>> getAllUsersBasket(@PathVariable("userId") Long userId,

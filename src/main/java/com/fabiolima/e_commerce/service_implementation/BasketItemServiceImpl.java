@@ -137,7 +137,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
             Basket basket = basketService.findBasketById(basketId);
             //removeItemFromBasket method update stock automatically
-            basketService.removeItemFromBasket(basket, basketItemId);
+            basketService.removeItemFromBasket(basket, basketItem);
         }
 
         basketItem.setQuantity(newQuantity);
@@ -192,11 +192,11 @@ public class BasketItemServiceImpl implements BasketItemService {
             throw new InvalidQuantityException("Cannot decrement quantity below 0.");
 
 
-        //in case theres only one quantity of an item, the item will be removed from basket
+        //in case there's only one quantity of an item, the item will be removed from basket
         if(basketItem.getQuantity() == 1){
             Basket basket = basketService.findBasketById(basketId);
             //removeItemFromBasket method update stock automatically
-            basketService.removeItemFromBasket(basket, basketItemId);
+            basketService.removeItemFromBasket(basket, basketItem);
         }
 
         //update stock
@@ -213,7 +213,8 @@ public class BasketItemServiceImpl implements BasketItemService {
 
         //retrieve the basket where the item is stored
         Basket basket = basketService.findBasketById(basketId);
-        return basketService.removeItemFromBasket(basket,basketItemId);
+        BasketItem item = getItemById(basketItemId);
+        return basketService.removeItemFromBasket(basket,item);
 
     }
 

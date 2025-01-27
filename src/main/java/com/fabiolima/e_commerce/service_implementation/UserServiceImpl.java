@@ -2,12 +2,15 @@ package com.fabiolima.e_commerce.service_implementation;
 
 import com.fabiolima.e_commerce.dto.RegistrationRequest;
 import com.fabiolima.e_commerce.exceptions.*;
+import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.Role;
 import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.model.enums.UserRole;
 import com.fabiolima.e_commerce.model.enums.UserStatus;
 import com.fabiolima.e_commerce.repository.RoleRepository;
 import com.fabiolima.e_commerce.repository.UserRepository;
+import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +32,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final BasketService basketService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,BCryptPasswordEncoder passwordEncoder ){ //
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder, BasketService basketService){ //
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.basketService = basketService;
     }
 
     //generate a log file from my code
@@ -164,9 +169,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User deactivateUserByUserId(Long userId) {
+        //1- Retrieve the user
         User theUser = findUserByUserId(userId);
+
+        //2-Check if the user is active
         if(theUser.getUserStatus().equals(INACTIVE))
             throw new ForbiddenException("Cannot complete operation. User status is already INACTIVE");
+
+        //3-Deactivate active basket if any
+        Optional<Basket> basket = theUser.getBaskets().stream()
+                .filter(basket1 -> basket1.getBasketStatus().equals(BasketStatus.ACTIVE))
+                .findFirst();
+        basket.ifPresent(value -> basketService.deactivateBasketById(theUser.getId(), value.getId()));
+
+        //4-Deactivate User
         theUser.setUserStatus(INACTIVE);
         return saveUser(theUser);
     }

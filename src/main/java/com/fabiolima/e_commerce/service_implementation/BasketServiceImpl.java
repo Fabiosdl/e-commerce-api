@@ -5,6 +5,7 @@ import com.fabiolima.e_commerce.exceptions.InvalidQuantityException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.*;
 import com.fabiolima.e_commerce.model.enums.BasketStatus;
+import com.fabiolima.e_commerce.model.enums.UserStatus;
 import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
@@ -94,21 +95,23 @@ public class BasketServiceImpl implements BasketService {
 
     @Override
     public Basket deactivateBasketById(Long userId, Long basketId) {
-        // validate basket
+        //1 - Validate basket
         Basket reference = validateAndFetchBasket(userId, basketId);
 
-        //check if its status is checked_out
+        //2 - Check if its status is checked_out
         if(reference.getBasketStatus() == BasketStatus.CHECKED_OUT)
             throw new ForbiddenException("Cannot delete a checked out basket.");
 
-        //if not, clear the basket, giving back to stock all the quantity in items
+        //3 - If not, clear the basket, giving back to stock all the quantity in items
         clearBasket(basketId);
 
-        //delete basket if it is empty
+        //4 - Clear basket if it is empty
         if (!reference.getBasketItems().isEmpty())
             throw new ForbiddenException("Basket must be empty before deleting it.");
-        //inactivate basket
+
+        //5 - Inactivate basket
         reference.setBasketStatus(BasketStatus.INACTIVE);
+
         return basketRepository.save(reference);
     }
 
@@ -172,8 +175,10 @@ public class BasketServiceImpl implements BasketService {
                 //deactivate basket
                 b.setBasketStatus(BasketStatus.INACTIVE);
 
-                //Add new basket to user
-                createBasketAndAddToUser(b.getUser());
+                //Add new basket to user if user is active.
+                User user = b.getUser();
+                if(user.getUserStatus().equals(UserStatus.ACTIVE))
+                    createBasketAndAddToUser(b.getUser());
             }
             System.out.println("Deactivated expired baskets: " + expiredBaskets.size());
         }

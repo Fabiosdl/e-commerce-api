@@ -1,6 +1,7 @@
 package com.fabiolima.e_commerce.model;
 
 import com.fabiolima.e_commerce.model.enums.BasketStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -41,6 +42,7 @@ public class Basket {
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a user can have multiple baskets
                 CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id") //column in the database that will join user to basket
+    @JsonIgnore
     private User user;
 
     @ToString.Exclude

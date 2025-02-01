@@ -20,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
@@ -217,12 +219,17 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public double calculateTotalPrice(Long basketId) {
+    public BigDecimal calculateTotalPrice(Long basketId) {
 
         Basket theBasket = findBasketById(basketId);
-        return theBasket.getBasketItems().stream()
-                .mapToDouble(basketItem -> basketItem.getQuantity() * basketItem.getProduct().getProductPrice())
-                .sum();
+        // Stream through basket items and calculate the total
+        BigDecimal totalPrice = theBasket.getBasketItems().stream()
+                // Map each basket item to its price (quantity * product price)
+                .map(basketItem -> BigDecimal.valueOf(basketItem.getQuantity())
+                        .multiply(basketItem.getProduct().getProductPrice()).setScale(2, RoundingMode.HALF_UP))
+                // Reduce the BigDecimal stream to a single sum
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                return totalPrice;
     }
     @Override
     public Basket validateAndFetchBasket(Long userId, Long basketId){

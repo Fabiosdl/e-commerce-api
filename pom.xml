@@ -69,12 +69,6 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.paypal.sdk/rest-api-sdk -->
-		<dependency>
-			<groupId>com.paypal.sdk</groupId>
-			<artifactId>paypal-core</artifactId>
-			<version>1.7.2</version>
-		</dependency>
 		<dependency>
 			<groupId>com.paypal.sdk</groupId>
 			<artifactId>checkout-sdk</artifactId>
@@ -101,6 +95,7 @@
 			<artifactId>lombok</artifactId>
 			<version>1.18.34</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

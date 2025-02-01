@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class Product {
     private String productDescription;
 
     @Column(name = "price")
-    private double productPrice;
+    private BigDecimal productPrice;
 
     @Column(name = "stock")
     private int stock;

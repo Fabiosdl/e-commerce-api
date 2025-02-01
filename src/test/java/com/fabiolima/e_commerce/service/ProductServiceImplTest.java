@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -112,7 +113,7 @@ class ProductServiceImplTest {
         product.setId(1L);
         product.setProductName("Product One");
         product.setProductDescription("Test");
-        product.setProductPrice(10.00);
+        product.setProductPrice(new BigDecimal("10.00"));
         product.setStock(20);
         product.setCategory("Electronics");
 

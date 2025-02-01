@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -642,7 +643,7 @@ class BasketItemServiceImplTest {
     void calculateItemTotalPrice_ShouldReturnTotalPriceOfItem_WhenItemQuantityAndProductAreValid() {
         //Given
         int quantity = 5;
-        double price = 4.5;
+        BigDecimal price = new BigDecimal(4.5);
         Long itemId = 1L;
 
         Product product = new Product();
@@ -656,10 +657,10 @@ class BasketItemServiceImplTest {
         when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
         //When
-        Double totalPrice = basketItemService.calculateItemTotalPrice(itemId);
+        BigDecimal totalPrice = basketItemService.calculateItemTotalPrice(itemId);
 
         //Then
-        assertEquals(quantity * price, totalPrice);
+        assertEquals(BigDecimal.valueOf(quantity).multiply(price), totalPrice);
     }
 
     @ParameterizedTest

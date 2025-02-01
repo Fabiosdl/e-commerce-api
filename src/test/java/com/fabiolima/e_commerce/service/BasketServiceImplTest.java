@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -299,9 +300,9 @@ class BasketServiceImplTest {
         basket.setId(1L);
 
         Product product1 = new Product();
-        product1.setProductPrice(15.00);
+        product1.setProductPrice(new BigDecimal("15"));
         Product product2 = new Product();
-        product2.setProductPrice(17.34);
+        product2.setProductPrice(new BigDecimal("17.34"));
 
         BasketItem item1 = new BasketItem();
         item1.setProduct(product1);
@@ -315,10 +316,11 @@ class BasketServiceImplTest {
 
         when(basketRepository.findById(anyLong())).thenReturn(Optional.of(basket));
 
-        Double expected = 15.00 * 3 + 17.34 * 2;
+        BigDecimal expected = new BigDecimal("15.00").multiply(new BigDecimal("3"))
+                .add(new BigDecimal("17.34").multiply(new BigDecimal("2")));
 
         //when
-        Double actual = basketService.calculateTotalPrice(1L);
+        BigDecimal actual = basketService.calculateTotalPrice(1L);
 
         //then
         assertEquals(expected, actual);

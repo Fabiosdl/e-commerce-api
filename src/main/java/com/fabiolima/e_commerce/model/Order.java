@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "paypal_order_id",unique = true)
+    private String paypalOrderId;
+
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id") //a user can place multiple orders
@@ -35,11 +39,11 @@ public class Order {
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a basket becomes an order
             CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "basket_id", unique = true, nullable = false) //order is the owning side of the relationship
-    @JsonIgnore
+    //@JsonIgnore
     private Basket basket;                                           //and it's entity holds the basket foreign key
 
     @Column(name = "total_price")
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
     @Column(name = "order_list")
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)

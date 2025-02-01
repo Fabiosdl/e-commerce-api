@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -59,9 +60,9 @@ public class AppSecurity {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
 
-        http
-                .csrf(AbstractHttpConfigurer::disable)  // Disable CSRF protection for REST APIs
+        http.csrf(AbstractHttpConfigurer::disable);
 
+        http
                 .authorizeHttpRequests( authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/swagger-ui/**").permitAll()
@@ -80,6 +81,7 @@ public class AppSecurity {
                 )
                 .logout(logout -> logout.permitAll()
                 );
+
 
 
         return http.build();

@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
                 case "productName" : theProduct.setProductName((String) value); break;
                 case "productDescription" : theProduct.setProductDescription((String) value); break;
-                case "productPrice" : theProduct.setProductPrice((Double) value); break;
+                case "productPrice" : theProduct.setProductPrice(new BigDecimal(value.toString())); break;
                 case "stock" : theProduct.setStock((Integer) value); break;
                 case "category" : theProduct.setCategory((String) value); break;
                 default: throw new ForbiddenException("Field not found or not allowed to update");

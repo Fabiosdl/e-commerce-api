@@ -2,7 +2,6 @@ package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
-import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.model.enums.OrderStatus;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -128,8 +126,8 @@ class OrderServiceImplTest {
             "PAID, CoMpLeTeD",
     }) /*currentStatus will always be uppercase, because it comes from the Enum OrderStatus
     which is all in uppercase*/
-    void updateStatusOrder_ShouldReturnOrderWithNewStatus_WhenUpdateIsAllowed(String currentStatus,
-                                                                                 String newStatus) {
+    void updateStatusOrder_ShouldReturnOrderWithNewStatus_WhenUpdateIsAllowedStatus(String currentStatus,
+                                                                                    String newStatus) {
         //given
 
         //create new order
@@ -144,7 +142,7 @@ class OrderServiceImplTest {
         when(orderRepository.save(expected)).thenReturn(expected);
 
         //when
-        Order actual = orderService.updateStatusOrder(1L,1L, newStatus);
+        Order actual = orderService.updateOrderStatus(1L,1L, newStatus);
 
         //then
         //I'm allowing newStatus to uppercase to mimic the enum method
@@ -162,9 +160,9 @@ class OrderServiceImplTest {
             "COMPLETED, PENDING, Current Status COMPLETED cannot be updated.",
             "CANCELLED, PENDING, Current Status CANCELLED cannot be updated."
     })
-    void updateStatusOrder_ShouldThrowForbiddenException_WhenUpdateIsNotAllowed(String currentStatus,
-                                                                              String newStatus,
-                                                                              String exceptionMessage) {
+    void updateStatusOrder_ShouldThrowForbiddenException_WhenUpdateIsNotAllowedStatus(String currentStatus,
+                                                                                      String newStatus,
+                                                                                      String exceptionMessage) {
         //given
 
         //create new order
@@ -176,7 +174,7 @@ class OrderServiceImplTest {
         when(orderRepository.findOrderByIdAndUserId(anyLong(),anyLong())).thenReturn(Optional.of(expected));
 
         //when
-        Executable executable = () -> orderService.updateStatusOrder(1L,1L, newStatus);
+        Executable executable = () -> orderService.updateOrderStatus(1L,1L, newStatus);
 
         //then
         assertThrows(ForbiddenException.class, executable, exceptionMessage);
@@ -188,17 +186,17 @@ class OrderServiceImplTest {
             "Test2",
             "afafadfa"
     })
-    void updateStatusOrder_ShouldThrowIllegalArguments_WhenNewStatusIsInvalid(String newStatus) {
+    void updateStatusOrder_ShouldThrowIllegalArguments_WhenNewIsInvalidStatus(String newStatus) {
 
         //when
-        Executable executable = () -> orderService.updateStatusOrder(1L,1L, newStatus);
+        Executable executable = () -> orderService.updateOrderStatus(1L,1L, newStatus);
 
         //then
         assertThrows(IllegalArgumentException.class, executable, "Invalid order status " + newStatus);
     }
 
     @Test
-    void updateStatusOrder_ShouldThrowForbiddenException_WhenUpdatingFromPendingToCancelled() {
+    void updateOrder_Status_ShouldThrowForbiddenException_WhenUpdatingFromPendingToCancelled() {
 
         //given
         User user = new User();
@@ -209,7 +207,7 @@ class OrderServiceImplTest {
         when(orderRepository.findOrderByIdAndUserId(anyLong(),anyLong())).thenReturn(Optional.of(order));
 
         //when
-        Executable executable = () -> orderService.updateStatusOrder(1L,1L, "cancelled");
+        Executable executable = () -> orderService.updateOrderStatus(1L,1L, "cancelled");
 
         //then
         assertThrows(ForbiddenException.class, executable, "Please, use the method cancelOrder to cancel an order.");

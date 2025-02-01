@@ -18,6 +18,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalPrice(basketService.calculateTotalPrice(basket.getId()));
 
         //transform basket items into order items and store it in TheOrder
-        double totalPrice = 0.0;
+        BigDecimal totalPrice = BigDecimal.ZERO;
         for(BasketItem bi : basket.getBasketItems()){
             order.addOrderItemToOrder(OrderItem.builder()
                     .productId(bi.getProduct().getId())
@@ -57,12 +59,12 @@ public class OrderServiceImpl implements OrderService {
                     .quantity(bi.getQuantity())
                     .price(bi.getProduct().getProductPrice())
                     .build());
-            totalPrice += bi.getProduct().getProductPrice() * bi.getQuantity();
+            BigDecimal itemTotal = bi.getProduct().getProductPrice()
+                    .multiply(new BigDecimal(bi.getQuantity()));  // Multiply by quantity (int)
+            totalPrice = totalPrice.add(itemTotal);  // Accumulate total price
         }
-        //truncate totalPrice to 2 digits after decimal
-        double truncatedPrice = Math.floor(totalPrice * 100)/100;
         // retrieve total cost
-        order.setTotalPrice(Math.floor(truncatedPrice));
+        order.setTotalPrice(totalPrice);
         return orderRepository.save(order);
     }
 
@@ -114,7 +116,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order updateStatusOrder(Long userId, Long orderId, String orderStatus) {
+    public Order updateOrderStatus(Long userId, Long orderId, String orderStatus) {
 
         //Check if orderStatus is a valid Enum
         if (!OrderStatus.isValid(orderStatus))

@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
@@ -103,7 +105,7 @@ public class BasketController {
     @Operation(summary = "Retrieves the total price of a basket")
     @GetMapping("{basketId}/total-price")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<Double> getTotalBasketPrice(@PathVariable("basketId") Long basketId){
+    public ResponseEntity<BigDecimal> getTotalBasketPrice(@PathVariable("basketId") Long basketId){
         return ResponseEntity.ok(basketService.calculateTotalPrice(basketId));
     }
 }

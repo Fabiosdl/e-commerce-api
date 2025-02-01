@@ -3,6 +3,7 @@ package com.fabiolima.e_commerce.service;
 import com.fabiolima.e_commerce.model.BasketItem;
 import com.fabiolima.e_commerce.model.Product;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface BasketItemService {
@@ -18,5 +19,5 @@ public interface BasketItemService {
 
     void ensureStockAvailable(Product product, int quantity);
 
-    double calculateItemTotalPrice(Long basketItemId);
+    BigDecimal calculateItemTotalPrice(Long basketItemId);
 }

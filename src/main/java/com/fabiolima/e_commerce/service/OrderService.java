@@ -12,7 +12,7 @@ public interface OrderService {
     Page<Order> getUserOrders(int pgNum, int pgSize, Long userId);
     Page<Order> getUserOrdersByStatus(int pgNum, int pgSize, Long userId, String orderStatus);
     Order getUserOrderById(Long userId, Long orderId);
-    Order updateStatusOrder(Long userId, Long orderId, String orderStatus);
+    Order updateOrderStatus(Long userId, Long orderId, String orderStatus);
     Order cancelOrder(Long userId, Long orderId);
     List<Order> getOrdersByStatus(Long userId, String status);
     Order findOrderById(Long orderId);

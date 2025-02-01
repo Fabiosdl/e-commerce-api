@@ -59,7 +59,7 @@ public class OrderController {
     public ResponseEntity<Order> updateOrderStatus(@PathVariable ("userId") Long userId,
                                                    @PathVariable ("orderId") Long orderId,
                                                    @RequestParam ("status") String status){
-        Order order = orderService.updateStatusOrder(userId,orderId,status);
+        Order order = orderService.updateOrderStatus(userId,orderId,status);
 
         /**
          * Stock quantity will be replaced if order status is cancelled

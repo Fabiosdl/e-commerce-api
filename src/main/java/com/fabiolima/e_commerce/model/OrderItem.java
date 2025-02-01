@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,7 +30,7 @@ public class OrderItem {
     @Column(name = "product_name")
     private String productName;
     @Column(name = "product_price")
-    private Double price;
+    private BigDecimal price;
     @Column(name = "quantity")
     private Integer quantity;
 

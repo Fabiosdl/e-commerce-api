@@ -5,6 +5,8 @@ import com.fabiolima.e_commerce.model.BasketItem;
 import com.fabiolima.e_commerce.model.User;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
+
 public interface BasketService {
 
     Basket createBasketAndAddToUser(User user);
@@ -17,7 +19,7 @@ public interface BasketService {
     Basket checkoutBasket(Long userId, Long basketId);
     Basket findBasketById(Long basketId);
     int getTotalQuantity(Long basketId);
-    double calculateTotalPrice(Long basketId);
+    BigDecimal calculateTotalPrice(Long basketId);
     BasketItem removeItemFromBasket(Basket basket, BasketItem item);
     Basket validateAndFetchBasket(Long userId, Long basketId);
 }

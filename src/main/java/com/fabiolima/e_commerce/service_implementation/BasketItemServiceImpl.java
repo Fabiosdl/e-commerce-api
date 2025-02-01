@@ -1,12 +1,10 @@
 package com.fabiolima.e_commerce.service_implementation;
 
-import com.fabiolima.e_commerce.exceptions.InsufficientStockException;
-import com.fabiolima.e_commerce.exceptions.InvalidIdException;
-import com.fabiolima.e_commerce.exceptions.InvalidQuantityException;
-import com.fabiolima.e_commerce.exceptions.NotFoundException;
+import com.fabiolima.e_commerce.exceptions.*;
 import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.BasketItem;
 import com.fabiolima.e_commerce.model.Product;
+import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.repository.BasketItemRepository;
 import com.fabiolima.e_commerce.service.BasketItemService;
 import com.fabiolima.e_commerce.service.BasketService;
@@ -15,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -46,6 +46,10 @@ public class BasketItemServiceImpl implements BasketItemService {
 
         // fetch the basket
         Basket theBasket = basketService.findBasketById(basketId);
+
+        // check if the basket is active
+        if(!theBasket.getBasketStatus().equals(BasketStatus.ACTIVE))
+            throw new ForbiddenException("Can only insert items in a ACTIVE basket");
 
         // fetch product
         Product theProduct = productService.findProductById(productId);
@@ -234,10 +238,13 @@ public class BasketItemServiceImpl implements BasketItemService {
 
 
     @Override
-    public double calculateItemTotalPrice(Long basketItemId) {
+    public BigDecimal calculateItemTotalPrice(Long basketItemId) {
         validateId(basketItemId);
         BasketItem basketItem = getItemById(basketItemId);
-        return (basketItem.getQuantity() * basketItem.getProduct().getProductPrice());
+        BigDecimal itemQuantity = BigDecimal.valueOf(basketItem.getQuantity());
+        BigDecimal totalPrice = itemQuantity.multiply(basketItem.getProduct().getProductPrice());
+
+        return totalPrice.setScale(2, RoundingMode.HALF_UP);
     }
 
     public void validateId(Long id){

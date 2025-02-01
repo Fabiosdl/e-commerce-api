@@ -4,6 +4,8 @@ import com.fabiolima.e_commerce.model.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
@@ -35,6 +37,6 @@ public class Payment {
     private String transactionId;
 
     @Column(name = "amount")
-    private Double amount;
+    private BigDecimal amount;
 
 }

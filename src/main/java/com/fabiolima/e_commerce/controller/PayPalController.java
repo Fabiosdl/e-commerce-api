@@ -2,6 +2,7 @@ package com.fabiolima.e_commerce.controller;
 
 import com.fabiolima.e_commerce.service_implementation.PaypalService;
 import com.paypal.orders.Order;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class PayPalController {
         this.paypalService = paypalService;
     }
 
+    @Operation(summary = "Creates a paypal order and request the user to approve it")
     @PostMapping("/create")
     public String createOrder(@RequestBody com.fabiolima.e_commerce.model.Order entityOrder){
         return paypalService.createOrder(entityOrder);
@@ -29,8 +31,9 @@ public class PayPalController {
      * Use this to execute the payment:
      */
 
+    @Operation(summary = "Captures the created order by its Id")
     @PostMapping("/capture")
-    public ResponseEntity<Order> captureOrder(@RequestParam String orderId) {
+    public ResponseEntity<String> captureOrder(@RequestParam String orderId) {
         return ResponseEntity.ok(paypalService.captureOrder(orderId));
     }
 }

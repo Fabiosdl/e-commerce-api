@@ -15,10 +15,11 @@ public class RegistrationController {
     private final UserService userService;
 
     public RegistrationController(UserService userService) {
+
         this.userService = userService;
     }
 
-    @Operation(summary = "Used to register a new customer")
+    @Operation(summary = "Registers a new customer")
     @PostMapping
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) {
         // Use the UserService to register the user

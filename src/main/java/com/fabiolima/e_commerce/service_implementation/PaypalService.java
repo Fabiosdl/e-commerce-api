@@ -96,7 +96,7 @@ public class PaypalService {
 
     }
 
-    public Order captureOrder(String orderId) {
+    public String captureOrder(String orderId) {
 
         try {
             //create capture request
@@ -105,7 +105,7 @@ public class PaypalService {
 
             //execute capture request
             HttpResponse<Order> response = payPalHttpClient.execute(request);
-            log.info("PayPal Response: {}", response.result());
+            log.info("PayPal Response: Order id {} is COMPLETED", response.result().id());
 
             if("COMPLETED".equalsIgnoreCase(response.result().status())){
                 //retrieve system order from paypal id
@@ -117,7 +117,7 @@ public class PaypalService {
                 entityOrderService.updateOrderStatus(userId, systemOrderId, "PAID");
 
             }
-            return response.result();
+            return String.format("Paypal Order id: %s is COMPLETED", response.result().id());
 
         } catch (IOException e) {
             log.error("Error capturing order: {}", e.getMessage());

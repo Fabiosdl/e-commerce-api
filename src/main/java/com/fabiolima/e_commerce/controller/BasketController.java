@@ -56,7 +56,7 @@ public class BasketController {
     /**
      * Making user of HATEOAS to bind a link to get the order originated when the basket has become CHECKED_OUT
      */
-    @Operation(summary = "Checks-out a basket and creates a new order to user")
+    @Operation(summary = "Checks-out a basket and creates an order for payment")
     @PatchMapping("/{basketId}/checkout")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
     public ResponseEntity<EntityModel<Basket>> convertBasketToOrder(@PathVariable("userId") Long userId,

@@ -1,4 +1,4 @@
-package com.fabiolima.e_commerce.paypal;
+package com.fabiolima.e_commerce.configuration;
 
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;

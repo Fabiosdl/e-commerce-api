@@ -59,8 +59,8 @@ It integrates MySQL for data storage and uses Docker for containerization to sim
 
 2. **Login Credentials**:
    - On the login page, enter the following credentials (as specified in the `docker-compose.yml` file):
-     - **Username**: `ecommerce_admin`
-     - **Password**: `ecommerce123`
+     - **Username**: `fabiolima`
+     - **Password**: `fabiolima123`
 
 3. **View the Database Schema**:
    - Once logged in, you will see the schema `ecommerce_db`, which stores the application's data.

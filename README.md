@@ -1,8 +1,12 @@
 # e-Commerce-API
 
-An online shopping API developed with Spring Boot, providing RESTful API services. 
-The API allows users to browse products, manage their baskets, complete orders, and process payments via PayPal. 
-It integrates MySQL for data storage and uses Docker for containerization to simplify deployment and scalability. 
+A complete e-Commerce API that allows users to browse products, add them to a basket, checkout, and pay using PayPal.
+
+The API is secured with Spring Security for authentication and authorization. When a user logs in, a basket is automatically created if one does not already exist.
+If it’s the user’s first time, they must register, with built-in input validation to prevent unwanted scripts.
+
+Each time a product is selected, stock levels update in real time. If a user abandons their basket, it is saved for 24 hours before being deactivated, restoring item quantities.
+When a user confirms their basket, an order is generated with all the details, including items, quantity, and total price. Payments are processed via PayPal integration.
 
 ## Key Technologies:
 - **Spring Boot** for the backend API

@@ -5,9 +5,11 @@ import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/register")
 public class RegistrationController {
@@ -25,6 +27,7 @@ public class RegistrationController {
         // Use the UserService to register the user
         try {
             User user = userService.registerUser(registrationRequest);
+            log.info("User registered successfully: {}", user.getEmail());
             return ResponseEntity.ok("User registered successfully.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error registering user: " + e.getMessage());

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.User;
-import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.repository.UserRepository;
 import com.fabiolima.e_commerce.service.BasketService;
 import jakarta.servlet.ServletException;
@@ -13,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -20,8 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 /**
- * This class is to direct the url after tle login is successful
+ * This class is to direct the url after tle login is successful. It also conveniently creates a basket after user login
  */
+@Slf4j
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -38,40 +39,42 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
 
-        System.out.println("In customAuthenticationSuccessHandler");
-
         String userName = authentication.getName();
+        log.info("User {} has been successfully authenticated", userName);
 
-        System.out.println("userName=" + userName);
-
+        // Retrieve the user by email
         Optional<User> optional = userRepository.findByEmail(userName);
-        if(optional.isEmpty())
-            throw new NotFoundException(String.format("User with email %s not found.",userName));
+        if (optional.isEmpty()) {
+            throw new NotFoundException(String.format("User with email %s not found.", userName));
+        }
         User theUser = optional.get();
         Long userId = theUser.getId();
 
-        // now place in the session
+        // Place user in the session
         HttpSession session = request.getSession();
         session.setAttribute("user", theUser);
 
-        // check what is the role of the user
-        String redirectURL = "";
+        // Create basket if user is a customer
+        boolean isCustomer = theUser.getRoles().stream()
+                .anyMatch(role -> role.getName().toString().equalsIgnoreCase("ROLE_CUSTOMER"));
 
-        if (theUser.getRoles().stream().anyMatch(role -> role.getName().toString().equalsIgnoreCase("ROLE_CUSTOMER"))) {
-
-            redirectURL = "/user/"+userId;
-            //creates a basket for the user
-            //method that requires the Transactional wrap
+        if (isCustomer) {
             basketService.createBasketAndAddToUser(theUser);
-
-        } else if (theUser.getRoles().stream().anyMatch(role -> role.getName().toString().equalsIgnoreCase("ROLE_ADMIN"))) {
-            redirectURL = "/admin/dashboard";
         }
 
-        // Default redirect if no roles match
-        if (redirectURL.isEmpty()) {
-            redirectURL = "/";
-        }
-        response.sendRedirect(request.getContextPath() + redirectURL);
+        // Return response to frontend
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        String jsonResponse = String.format(
+                "{\"message\": \"Login successful\", \"userId\": %d, \"role\": \"%s\"}",
+                userId,
+                isCustomer ? "CUSTOMER" : "ADMIN"
+        );
+
+        response.getWriter().write(jsonResponse);
+        response.getWriter().flush();
     }
+
 }

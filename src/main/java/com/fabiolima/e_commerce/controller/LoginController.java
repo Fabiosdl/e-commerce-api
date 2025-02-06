@@ -20,16 +20,15 @@ public class LoginController {
 
     @Operation(summary = "Used for login. It uses user email as username")
     @PostMapping
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<String> loginUser(@RequestParam String email,
+                                            @RequestParam String password) {
+        //spring security uses header content-type = application/x-www-form-urlencoded, which requires the use of @RequestParam
+        //in case of jwt, that uses header content-type = application/json, should use @RequestBody
         try {
             // Authenticate the user using the AuthenticationManager
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getEmail(),
-                            loginRequest.getPassword()
-                    )
+                    new UsernamePasswordAuthenticationToken(email, password)
             );
-            // Here, you can generate a JWT token if needed
             return ResponseEntity.ok("User logged in successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid credentials.");

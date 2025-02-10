@@ -81,7 +81,7 @@ public class BasketController {
     @Operation(summary = "Deactivate a basket if user don't update it for 1 day, giving back all items to product stock")
     @DeleteMapping("/{basketId}")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<Basket> inactivateBasket(@PathVariable("userId") Long userId,
+    public ResponseEntity<Basket> deactivateBasket(@PathVariable("userId") Long userId,
                                                @PathVariable("basketId") Long basketId) {
         Basket theBasket = basketService.deactivateBasketById(userId, basketId);
         return ResponseEntity.ok(theBasket);

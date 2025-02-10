@@ -9,9 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Slf4j
 @RestController
-@RequestMapping("/register")
 public class RegistrationController {
 
     private final UserService userService;
@@ -22,15 +23,16 @@ public class RegistrationController {
     }
 
     @Operation(summary = "Registers a new customer")
-    @PostMapping
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) {
+    @PostMapping("/api/auth/register")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) {
         // Use the UserService to register the user
         try {
             User user = userService.registerUser(registrationRequest);
             log.info("User registered successfully: {}", user.getEmail());
-            return ResponseEntity.ok("User registered successfully.");
+            return ResponseEntity.ok(Map.of("message", "User registered successfully."));
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error registering user: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error registering user: " + e.getMessage()));
         }
     }
 }

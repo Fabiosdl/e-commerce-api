@@ -25,7 +25,7 @@ The request is sent to /login (handled by Spring Security).
 CSRF token is included for security.
 
 2️⃣ Spring Security Handles Authentication (/login)
-Your Spring Security filter chain intercepts the request. The AuthenticationManager and CustomUserDetailsService process the credentials.
+Spring Security filter chain intercepts the request. The AuthenticationManager and CustomUserDetailsService process the credentials.
 
 🔹 LoginController (Entry Point)
 

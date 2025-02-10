@@ -1,5 +1,6 @@
 package com.fabiolima.e_commerce.security.authentication;
 
+import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.repository.UserRepository;
@@ -28,6 +29,9 @@ public class UserAuthenticationService {
 
         Long authenticatedUserId = authenticatedUser.getId();
 
-        return authenticatedUserId.equals(urlId);
+        if(!authenticatedUserId.equals(urlId))
+            throw new ForbiddenException(String.format("User do not have access to this resource. User id doesn't match with url id"));
+
+        return true;
     }
 }

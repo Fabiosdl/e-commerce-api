@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -18,25 +19,24 @@ import java.util.Map;
 @RestController
 public class LoginController {
 
-    private final AuthenticationManager authenticationManager;
     private final com.fabiolima.e_commerce.repository.UserRepository userRepository;
     private final BasketService basketService;
 
     @Autowired
-    public LoginController(AuthenticationManager authenticationManager, com.fabiolima.e_commerce.repository.UserRepository userRepository, BasketService basketService) {
-        this.authenticationManager = authenticationManager;
+    public LoginController( com.fabiolima.e_commerce.repository.UserRepository userRepository, BasketService basketService) {
+
         this.userRepository = userRepository;
         this.basketService = basketService;
     }
 
     @Operation(summary = "Used for login. It uses user email as username")
     @PostMapping("/api/auth/login")
-    public ResponseEntity<Map<String, Object>> loginUser(@RequestParam String email,
-                                                         @RequestParam String password) {
+    public ResponseEntity<Map<String, Object>> loginUser() {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, password)
-            );
+
+            /// Retrieve the authenticated user from the SecurityContext. Spring Security automatically do the basic authorization.
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
 
              /**After successful authentication, create a basket and get the user details
              passing them to the frontend*/
@@ -55,7 +55,4 @@ public class LoginController {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials."));
         }
     }
-
-
-
 }

@@ -55,4 +55,25 @@ public class LoginController {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials."));
         }
     }
+
+    /**
+     *  Example Flow for Login Request
+     * Frontend sends a POST request to /api/auth/login with the credentials (email and password).
+     *
+     * Spring Security’s filter chain intercepts the request:
+     *
+     * The UsernamePasswordAuthenticationFilter sees that the request is a POST to /api/auth/login
+     * and triggers the authentication process.
+     *
+     * Authentication Process:
+     *
+     * The filter extracts the username (email) and password from the request.
+     * It creates a UsernamePasswordAuthenticationToken with the credentials and sends it to the AuthenticationManager.
+     * AuthenticationManager:
+     *
+     * The AuthenticationManager delegates the authentication task to a DaoAuthenticationProvider, which uses the UserDetailsService to fetch the user from the database.
+     * The PasswordEncoder (e.g., BCryptPasswordEncoder) compares the entered password to the stored password hash in the database.
+     * If successful, Spring Security stores the authenticated user in the SecurityContext.
+     * Response: Once authentication is successful, Spring Security processes the response as configured (e.g., sending a session cookie or continuing with the request).
+     */
 }

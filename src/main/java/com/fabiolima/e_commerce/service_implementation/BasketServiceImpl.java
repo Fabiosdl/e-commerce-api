@@ -200,7 +200,7 @@ public class BasketServiceImpl implements BasketService {
                 if(user.getUserStatus().equals(UserStatus.ACTIVE))
                     createBasketAndAddToUser(b.getUser());
             }
-            System.out.println("Deactivated expired baskets: " + expiredBaskets.size());
+            log.info("{} Expired Baskets have been deleted", expiredBaskets.size());
         }
     }
 

@@ -1,19 +1,17 @@
 package com.fabiolima.e_commerce.security;
 
 import com.fabiolima.e_commerce.repository.UserRepository;
-import jakarta.servlet.Filter;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +22,6 @@ import org.springframework.security.web.csrf.*;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,21 +29,16 @@ import java.util.List;
 @Slf4j
 @Configuration
 @EnableWebSecurity
+
 public class SecurityConfig {
 
     private final UserRepository userRepository;
+    private final CsrfTokenAuthenticationFilter csrfTokenAuthenticationFilter;
 
-    public SecurityConfig(UserRepository userRepository) {
+    @Autowired
+    public SecurityConfig(UserRepository userRepository, CsrfTokenAuthenticationFilter csrfTokenAuthenticationFilter) {
         this.userRepository = userRepository;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService())
-                .passwordEncoder(passwordEncoder());
-        return authenticationManagerBuilder.build();
+        this.csrfTokenAuthenticationFilter = csrfTokenAuthenticationFilter;
     }
 
     @Bean
@@ -63,11 +55,10 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(requestHandler)
                         .ignoringRequestMatchers("/api/auth/register/**","/api/auth/login")
                 )
-                .addFilterAfter(logCsrfTokenFilter(), CsrfFilter.class) // Log CSRF token after it is created
-                .addFilterBefore(logIncomingCsrfTokenFilter(), CsrfFilter.class)
-//                .sessionManagement(session ->
-//                        session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)// if using JWT change to STATELESS
-//                )
+                //.addFilterAfter(csrfTokenAuthenticationFilter, CsrfTokenAuthenticationFilter.class) // Log CSRF token after it is created
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)// if using JWT change to STATELESS
+                )
                 .authorizeHttpRequests( authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
@@ -76,11 +67,19 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/product").permitAll()
                                 .anyRequest().authenticated()
-                ).formLogin(form -> form.loginPage("/api/auth/login").permitAll());
-
+                );
         SecurityFilterChain chain = http.build();
         log.info("Configured security filter chain: {}",chain);
         return chain;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService userDetails, BCryptPasswordEncoder passwordEncoder){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetails);
+        provider.setPasswordEncoder(passwordEncoder);
+
+        return new ProviderManager(provider);
     }
 
     @Bean
@@ -119,44 +118,4 @@ public class SecurityConfig {
         return source;
     }
 
-
-    /// Below are 2 methods to check if the csrf token was sent correctly and received correctly
-    @Bean
-    public Filter logIncomingCsrfTokenFilter() {
-        return new OncePerRequestFilter() {
-            @Override
-            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, jakarta.servlet.FilterChain filterChain)
-                    throws IOException, jakarta.servlet.ServletException {
-
-                String incomingCsrfToken = request.getHeader("X-XSRF-TOKEN");
-
-                if (incomingCsrfToken != null) {
-                    log.info("📥 CSRF Token Received from Client: {}", incomingCsrfToken);
-                } else {
-                    log.warn("⚠️ No CSRF Token Received in Request");
-                }
-
-                filterChain.doFilter(request, response);
-            }
-        };
-    }
-
-    @Bean
-    public Filter logCsrfTokenFilter() {
-        return new OncePerRequestFilter() {
-            @Override
-            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, jakarta.servlet.FilterChain filterChain)
-                    throws IOException, jakarta.servlet.ServletException {
-
-                CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-                if (csrfToken != null) {
-                    log.info("🔑 CSRF Token Sent to Client: {}", csrfToken.getToken());
-                } else {
-                    log.warn("⚠️ No CSRF Token Found in Request");
-                }
-
-                filterChain.doFilter(request, response);
-            }
-        };
-    }
 }

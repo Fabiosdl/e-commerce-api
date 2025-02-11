@@ -31,16 +31,20 @@ public class LoginController {
 
     @Operation(summary = "Used for login. It uses user email as username")
     @PostMapping("/api/auth/login")
-    public ResponseEntity<Map<String, Object>> loginUser(@RequestParam String email,
-                                                         @RequestParam String password) {
+    public ResponseEntity<Map<String, Object>> loginUser(@RequestBody Map<String,Object> loginRequest) {
         try {
+
+            ///  Get credentials and authenticate user
+            String username = (String)loginRequest.get("username");
+            String password = (String)loginRequest.get("password");
+
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, password)
+                    new UsernamePasswordAuthenticationToken(username, password)
             );
 
              /**After successful authentication, create a basket and get the user details
              passing them to the frontend*/
-            com.fabiolima.e_commerce.model.User user = userRepository.findByEmail(email).orElseThrow();
+            com.fabiolima.e_commerce.model.User user = userRepository.findByEmail(username).orElseThrow();
 
             Basket basket = basketService.createBasketAndAddToUser(user);
             log.info("Basket with id: {} has been created to user id: {}",basket.getId(),user.getId());

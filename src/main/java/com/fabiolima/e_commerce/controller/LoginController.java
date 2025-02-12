@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -31,12 +32,11 @@ public class LoginController {
 
     @Operation(summary = "Used for login. It uses user email as username")
     @PostMapping("/api/auth/login")
-    public ResponseEntity<Map<String, Object>> loginUser(@RequestParam String email,
-                                                         @RequestParam String password) {
+    public ResponseEntity<Map<String, Object>> loginUser() {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, password)
-            );
+            /// Retrieve the authenticated user from the SecurityContext. Spring Security automatically do the basic authorization.
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
 
              /**After successful authentication, create a basket and get the user details
              passing them to the frontend*/

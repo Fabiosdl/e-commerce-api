@@ -67,7 +67,8 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/product").permitAll()
                                 .anyRequest().authenticated()
-                );
+                )
+                .httpBasic(Customizer.withDefaults());
         SecurityFilterChain chain = http.build();
         log.info("Configured security filter chain: {}",chain);
         return chain;

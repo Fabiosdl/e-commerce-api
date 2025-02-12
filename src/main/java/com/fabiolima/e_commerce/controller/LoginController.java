@@ -19,13 +19,11 @@ import java.util.Map;
 @RestController
 public class LoginController {
 
-    private final AuthenticationManager authenticationManager;
     private final com.fabiolima.e_commerce.repository.UserRepository userRepository;
     private final BasketService basketService;
 
     @Autowired
-    public LoginController(AuthenticationManager authenticationManager, com.fabiolima.e_commerce.repository.UserRepository userRepository, BasketService basketService) {
-        this.authenticationManager = authenticationManager;
+    public LoginController( com.fabiolima.e_commerce.repository.UserRepository userRepository, BasketService basketService) {
         this.userRepository = userRepository;
         this.basketService = basketService;
     }
@@ -34,7 +32,7 @@ public class LoginController {
     @PostMapping("/api/auth/login")
     public ResponseEntity<Map<String, Object>> loginUser() {
         try {
-            /// Retrieve the authenticated user from the SecurityContext. Spring Security automatically do the basic authorization.
+            /// Retrieve the authenticated user from the SecurityContext.
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String email = authentication.getName();
 

@@ -10,6 +10,7 @@ import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,26 +119,6 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public void deleteBasketById(Long userId, Long basketId) {
-        //1 - Validate basket
-        Basket reference = validateAndFetchBasket(userId, basketId);
-
-        //2 - Check if its status is checked_out
-        if(reference.getBasketStatus() == BasketStatus.CHECKED_OUT)
-            throw new ForbiddenException("Cannot delete a checked out basket.");
-
-        //3 - If not, clear the basket, giving back to stock all the quantity in items
-        clearBasket(basketId);
-
-        //4 - check if basket is empty before deleting it
-        if (!reference.getBasketItems().isEmpty())
-            throw new ForbiddenException("Basket must be empty before deleting it.");
-
-        //5 - Delete basket
-        basketRepository.delete(reference);
-    }
-
-    @Override
     public Basket findBasketById(Long basketId) {
         return basketRepository.findById(basketId)
                 .orElseThrow(() -> new NotFoundException(String.format("Basket with Id %d not found",basketId)));
@@ -180,7 +161,7 @@ public class BasketServiceImpl implements BasketService {
     @Override
     @Scheduled(fixedRate = 60000) // run every 60 seconds
     @Transactional
-    public void clearExpiredBasketAndAddNewOne() {
+    public void deleteExpiredBasketAndAddNewOne() {
 
         //setting the no activity in basket for 1 day
         LocalDateTime expirationTime = LocalDateTime.now().minusDays(1);
@@ -192,8 +173,12 @@ public class BasketServiceImpl implements BasketService {
             //iterate through the list of baskets and clear it by returning its quantity to stock, before deleting
             for(Basket b : expiredBaskets) {
 
-                //delete basket
-                deleteBasketById(b.getUser().getId(), b.getId());
+                // clear the basket, giving back to stock all the quantity in items
+                clearBasket(b.getId());
+
+                //delete basket in databases
+                basketRepository.delete(b);
+                basketRepository.flush();// ensure delete is persisted
 
                 //Add new basket to user if user is active.
                 User user = b.getUser();

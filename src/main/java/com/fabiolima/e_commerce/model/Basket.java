@@ -45,7 +45,8 @@ public class Basket {
     private User user;
 
     @ToString.Exclude
-    @OneToOne(mappedBy = "basket", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "basket",
+            cascade = CascadeType.ALL)
     @JsonIgnore
     private Order order;
 

@@ -33,12 +33,10 @@ import java.util.List;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-    private final CsrfTokenAuthenticationFilter csrfTokenAuthenticationFilter;
 
     @Autowired
-    public SecurityConfig(UserRepository userRepository, CsrfTokenAuthenticationFilter csrfTokenAuthenticationFilter) {
+    public SecurityConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.csrfTokenAuthenticationFilter = csrfTokenAuthenticationFilter;
     }
 
     @Bean
@@ -55,7 +53,6 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(requestHandler)
                         .ignoringRequestMatchers("/api/auth/register/**","/api/auth/login")
                 )
-                //.addFilterAfter(csrfTokenAuthenticationFilter, CsrfTokenAuthenticationFilter.class) // Log CSRF token after it is created
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)// if using JWT change to STATELESS
                 )
@@ -68,10 +65,9 @@ public class SecurityConfig {
                                 .requestMatchers("/product").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults());
-        SecurityFilterChain chain = http.build();
-        log.info("Configured security filter chain: {}",chain);
-        return chain;
+                .httpBasic(Customizer.withDefaults()); //for basic authentication
+
+        return http.build();
     }
 
     @Bean
@@ -108,7 +104,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173")); // Frontend URL
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         corsConfiguration.setAllowCredentials(true);  // Allows cookies/credentials
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "x-xsrf-token"));
         corsConfiguration.setExposedHeaders(List.of("Authorization")); // Allow frontend to read Authorization header

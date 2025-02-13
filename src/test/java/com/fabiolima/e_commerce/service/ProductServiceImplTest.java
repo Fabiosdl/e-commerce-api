@@ -7,7 +7,7 @@ import com.fabiolima.e_commerce.model.BasketItem;
 import com.fabiolima.e_commerce.model.Product;
 import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.repository.ProductRepository;
-import com.fabiolima.e_commerce.service_implementation.ProductServiceImpl;
+import com.fabiolima.e_commerce.service.implementation.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;

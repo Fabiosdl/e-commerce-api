@@ -9,7 +9,6 @@ import java.util.Map;
 public interface UserService {
 
     User saveUser(User theUser);
-    User registerUser(RegistrationRequest registrationRequest);
     User addRoleToUser(Long userId, String roleName);
     Page<User> findAllUsers(int pgNum, int pgSize);
     Page<User> findAllUsersWithStatus(int pgNum, int pgSize, String status);

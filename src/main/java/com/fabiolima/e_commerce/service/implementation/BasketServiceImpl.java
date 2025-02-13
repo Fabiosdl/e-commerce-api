@@ -1,4 +1,4 @@
-package com.fabiolima.e_commerce.service_implementation;
+package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.InvalidQuantityException;
@@ -10,7 +10,6 @@ import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;

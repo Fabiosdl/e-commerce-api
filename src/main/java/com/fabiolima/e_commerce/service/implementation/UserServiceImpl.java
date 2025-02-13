@@ -1,6 +1,5 @@
-package com.fabiolima.e_commerce.service_implementation;
+package com.fabiolima.e_commerce.service.implementation;
 
-import com.fabiolima.e_commerce.dto.RegistrationRequest;
 import com.fabiolima.e_commerce.exceptions.*;
 import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.Role;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -31,14 +29,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final BasketService basketService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder, BasketService basketService){ //
+    public UserServiceImpl(UserRepository userRepository,
+                           RoleRepository roleRepository,
+                           BasketService basketService){ //
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
         this.basketService = basketService;
     }
 
@@ -48,33 +46,6 @@ public class UserServiceImpl implements UserService {
         log.info("user has been successfully created");
         return userRepository.save(theUser);
 
-    }
-
-    @Override
-    public User registerUser(RegistrationRequest registrationRequest) {
-
-        //check if user already exists
-        if(userRepository.existsByEmail(registrationRequest.getEmail()))
-            throw new UniqueEmailException("Email address already exist. Please use a new email.");
-
-        //create and save new user
-
-        String encryptedPassword = passwordEncoder.encode(registrationRequest.getPassword());
-
-        User user = new User();
-        user.setName(registrationRequest.getName());
-        user.setEmail(registrationRequest.getEmail());
-        user.setPassword(encryptedPassword);
-
-        Optional<Role> role = roleRepository.findByName(UserRole.ROLE_CUSTOMER);
-
-        if(role.isEmpty()) {
-            log.info("Role could not be found");
-            throw new NotFoundException("Role not found");
-        }
-        user.addRoleToUser(role.get());
-
-        return userRepository.save(user);
     }
 
     @Override

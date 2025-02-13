@@ -5,7 +5,7 @@ import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.model.enums.UserStatus;
 import com.fabiolima.e_commerce.repository.UserRepository;
-import com.fabiolima.e_commerce.service_implementation.UserServiceImpl;
+import com.fabiolima.e_commerce.service.implementation.UserServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;

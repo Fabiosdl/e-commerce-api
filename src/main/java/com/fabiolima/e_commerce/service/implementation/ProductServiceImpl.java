@@ -1,4 +1,4 @@
-package com.fabiolima.e_commerce.service_implementation;
+package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.InsufficientStockException;

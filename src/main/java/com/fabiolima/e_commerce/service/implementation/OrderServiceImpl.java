@@ -1,10 +1,8 @@
-package com.fabiolima.e_commerce.service_implementation;
+package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
-import com.fabiolima.e_commerce.exceptions.InvalidQuantityException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.*;
-import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.model.enums.OrderStatus;
 import com.fabiolima.e_commerce.repository.OrderRepository;
 import com.fabiolima.e_commerce.service.BasketService;
@@ -19,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

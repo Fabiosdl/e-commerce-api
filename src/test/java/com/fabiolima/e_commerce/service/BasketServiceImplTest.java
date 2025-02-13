@@ -5,7 +5,7 @@ import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.*;
 import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.repository.BasketRepository;
-import com.fabiolima.e_commerce.service_implementation.BasketServiceImpl;
+import com.fabiolima.e_commerce.service.implementation.BasketServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.ArgumentCaptor;

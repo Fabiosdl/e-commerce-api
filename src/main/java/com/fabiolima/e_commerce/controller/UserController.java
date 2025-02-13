@@ -5,6 +5,7 @@ import com.fabiolima.e_commerce.repository.UserRepository;
 import com.fabiolima.e_commerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -28,11 +29,13 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @Operation(summary = "Returns user initial page")
+    @Operation(summary = "Returns user's data")
     @GetMapping("/{userId}")
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
     public ResponseEntity<User> getUserByUserId(@PathVariable("userId") Long userId){
-        return ResponseEntity.ok(userService.findUserByUserId(userId));
+        User user = userService.findUserByUserId(userId);
+        log.info("User: {}", user.toString());
+        return ResponseEntity.ok(user);
     }
 
     @Operation(summary = "Update user details")

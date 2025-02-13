@@ -1,7 +1,6 @@
 package com.fabiolima.e_commerce.controller;
 
-import com.fabiolima.e_commerce.service_implementation.PaypalService;
-import com.paypal.orders.Order;
+import com.fabiolima.e_commerce.service.implementation.PaypalService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

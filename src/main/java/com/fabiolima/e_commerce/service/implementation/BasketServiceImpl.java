@@ -9,6 +9,7 @@ import com.fabiolima.e_commerce.model.enums.UserStatus;
 import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
+import com.fabiolima.e_commerce.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.hibernate.Hibernate;
@@ -210,7 +211,7 @@ public class BasketServiceImpl implements BasketService {
         User user = basket.getUser();
         Basket newBasket = createBasketAndAddToUser(user);
 
-        log.info("basket {} is checked-out and a new basket, id {} has been created to user {} - {}", basketId, user.getId(), newBasket.getId(), user.getName());
+        log.info("basket {} is checked-out and a new basket of id {} has been created to user {} - {}", basketId, newBasket.getId(), user.getId(), user.getName());
         return basketRepository.save(basket);
     }
 
@@ -241,6 +242,20 @@ public class BasketServiceImpl implements BasketService {
                         String.format("Basket with Id %d does not belong to the user with Id %d."
                                 ,basketId,userId)));
     }
+
+    @Override
+    public Basket returnNewestActiveBasket(User user) {
+
+        Optional<Basket> activeBasket = user.getBaskets().stream()
+                .filter(basket -> BasketStatus.ACTIVE.equals(basket.getBasketStatus()))
+                .findFirst();  // Optional<Basket>
+
+        if (activeBasket.isEmpty())
+            throw new NotFoundException("No active basket has been found");
+
+        return activeBasket.get();
+    }
+
     @Override
     @Transactional
     public BasketItem removeItemFromBasket(Basket basket, BasketItem item) {

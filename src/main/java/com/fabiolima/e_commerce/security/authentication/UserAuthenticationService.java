@@ -3,11 +3,13 @@ package com.fabiolima.e_commerce.security.authentication;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class UserAuthenticationService {
 
@@ -27,6 +29,8 @@ public class UserAuthenticationService {
         User authenticatedUser = optional.get();
 
         Long authenticatedUserId = authenticatedUser.getId();
+
+        log.info("Is user id from the url the same as the authenticated user ? {}", urlId.equals(authenticatedUser.getId()));
 
         return authenticatedUserId.equals(urlId);
     }

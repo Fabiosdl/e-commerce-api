@@ -20,7 +20,6 @@ import java.util.*;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 
 @Entity
 @Table(name = "user")
@@ -102,5 +101,19 @@ public class User {
         if(userStatus == null){
             userStatus = UserStatus.ACTIVE;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", address='" + address + '\'' +
+                ", userStatus=" + userStatus +
+                ", createdAt=" + createdAt +
+                ", lastUpdated=" + lastUpdated +
+                '}';
     }
 }

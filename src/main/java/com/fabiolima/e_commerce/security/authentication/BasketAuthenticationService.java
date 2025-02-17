@@ -38,7 +38,7 @@ public class BasketAuthenticationService {
             throw new NotFoundException(String.format("User with email %s not found.",email));
         User authenticatedUser = optional.get();
 
-        log.info("Is basket id from authenticated user ? " + expectedUser.getId().equals(authenticatedUser.getId()));
+        log.info("Is basket id from authenticated user ? {}", expectedUser.getId().equals(authenticatedUser.getId()));
 
         //return if they are the same or not
         return expectedUser.getId().equals(authenticatedUser.getId());

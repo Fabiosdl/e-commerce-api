@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 
 @Entity
 @Table(name = "basket")
@@ -68,4 +67,16 @@ public class Basket {
         theBasketItem.setBasket(this);
     }
 
+    @Override
+    public String toString() {
+        return "Basket{" +
+                "id=" + id +
+                ", basketStatus=" + basketStatus +
+                ", createdAt=" + createdAt +
+                ", lastUpdated=" + lastUpdated +
+                ", user=" + user +
+                ", order=" + order +
+                ", basketItems=" + basketItems +
+                '}';
+    }
 }

@@ -14,14 +14,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 public class ManageBasketController {
     private final BasketService basketService;
-    private final UserService userService;
-    private final OrderService orderService;
 
     @Autowired
-    public ManageBasketController(BasketService basketService, UserService userService, OrderService orderService) {
+    public ManageBasketController(BasketService basketService) {
         this.basketService = basketService;
-        this.userService = userService;
-        this.orderService = orderService;
     }
 
     @Operation(summary = "Retrieve all the baskets of an user")

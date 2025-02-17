@@ -3,11 +3,13 @@ package com.fabiolima.e_commerce.security.authentication;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class OrderAuthenticationService {
 
@@ -26,7 +28,10 @@ public class OrderAuthenticationService {
             throw new NotFoundException(String.format("User with email %s not found.",email));
         User authenticatedUser = optional.get();
 
-        return authenticatedUser.getOrders().stream().anyMatch(order -> order.getId().equals(urlOrderId));
+        boolean orderIdBelongsToAuthenticatedUser = authenticatedUser.getOrders().stream().anyMatch(order -> order.getId().equals(urlOrderId));
+        log.info("Is order id from the url belongs to authenticated user ? {}", orderIdBelongsToAuthenticatedUser);
+
+        return orderIdBelongsToAuthenticatedUser;
     }
 
 }

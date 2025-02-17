@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -63,6 +64,21 @@ public class OrderServiceImpl implements OrderService {
         // retrieve total cost
         order.setTotalPrice(totalPrice);
         return orderRepository.save(order);
+    }
+
+    @Override
+    public Order returnNewestPendingOrder(Long userId) {
+        //1- Fetch user
+        User user = userService.findUserByUserId(userId);
+        //2- Fetch the newest order with status pending
+        Optional<Order> newestOrder = user.getOrders()
+                .stream()
+                .filter(order -> ("PENDING").equalsIgnoreCase(order.getOrderStatus().name()))
+                .findFirst();
+        if(newestOrder.isEmpty())
+            throw new NotFoundException("Order with status PENDING not found");
+
+        return newestOrder.get();
     }
 
     @Override

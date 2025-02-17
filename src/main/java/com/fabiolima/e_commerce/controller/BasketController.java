@@ -44,6 +44,13 @@ public class BasketController {
         return ResponseEntity.ok(theBasket);
     }
 
+    @Operation(summary = "Retrieve newest Active basket - Useful for the frontend to have always a valid basket to use")
+    @GetMapping("/active-basket")
+    public ResponseEntity<Basket> getNewestActiveBasket(@PathVariable("userId") Long userId){
+        User user = userService.findUserByUserId(userId);
+        return  ResponseEntity.ok(basketService.returnNewestActiveBasket(user));
+    }
+
     @Operation(summary = "Creates new basket/cart for the user when it expires or is checked out")
     @PostMapping()
     public ResponseEntity<Basket> createBasket(@PathVariable("userId") Long userId){
@@ -56,10 +63,10 @@ public class BasketController {
     /**
      * Making user of HATEOAS to bind a link to get the order originated when the basket has become CHECKED_OUT
      */
-    @Operation(summary = "Checks-out a basket and creates an order for payment")
+    @Operation(summary = "Checks out a basket and creates an order for payment")
     @PatchMapping("/{basketId}/checkout")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<EntityModel<Basket>> convertBasketToOrder(@PathVariable("userId") Long userId,
+    public ResponseEntity<Basket> convertBasketToOrder(@PathVariable("userId") Long userId,
                                                    @PathVariable("basketId") Long basketId){
         //1 - Change basket status to CHECKED_OUT
         Basket basket = basketService.checkoutBasket(userId, basketId);
@@ -67,15 +74,7 @@ public class BasketController {
         //2 - Generate the order from basket and add to user
         Order order = orderService.createOrderAndAddToUser(userId, basket);
 
-        //apply entity model to the basket object
-        EntityModel<Basket> entityModel = EntityModel.of(basket);
-
-        //create a link to the basket that now has status CHECKED_OUT
-        WebMvcLinkBuilder link = WebMvcLinkBuilder.linkTo(methodOn(OrderController.class).getUsersOrderByOrderId(userId,order.getId()));
-        //Bind the link to the entityModel
-        entityModel.add(link.withRel("Order Created From Basket"));
-
-        return ResponseEntity.ok(entityModel);
+        return ResponseEntity.ok(basket);
     }
 
     @Operation(summary = "Deactivate a basket if user don't update it for 1 day, giving back all items to product stock")

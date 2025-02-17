@@ -22,4 +22,5 @@ public interface BasketService {
     BigDecimal calculateTotalPrice(Long basketId);
     BasketItem removeItemFromBasket(Basket basket, BasketItem item);
     Basket validateAndFetchBasket(Long userId, Long basketId);
+    Basket returnNewestActiveBasket(User user);
 }

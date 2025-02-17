@@ -1,6 +1,8 @@
 package com.fabiolima.e_commerce.controller;
 
+import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.Order;
+import com.fabiolima.e_commerce.model.User;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +27,11 @@ public class OrderController {
         this.productService = productService;
     }
 
+    @Operation(summary = "Retrieve newest created Order - Useful to fetch the created order when checking basket out")
+    @GetMapping("/pending-order")
+    public ResponseEntity<Order> getNewestPendingBasket(@PathVariable("userId") Long userId){
+        return  ResponseEntity.ok(orderService.returnNewestPendingOrder(userId));
+    }
     @Operation(summary = "It retrieves all users orders")
     @GetMapping
     public ResponseEntity<Page<Order>> getAllUsersOrders(@RequestParam(defaultValue = "0") int pgNum,

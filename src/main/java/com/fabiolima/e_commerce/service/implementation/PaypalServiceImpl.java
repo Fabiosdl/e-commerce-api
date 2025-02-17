@@ -16,20 +16,23 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class PaypalService {
+public class PaypalServiceImpl {
 
     private final PayPalHttpClient payPalHttpClient;
     private final OrderService entityOrderService;
     private final OrderRepository entityOrderRepository;
 
     @Autowired
-    public PaypalService(PayPalHttpClient payPalHttpClient, OrderService entityOrderService, OrderRepository entityOrderRepository) {
+    public PaypalServiceImpl(PayPalHttpClient payPalHttpClient, OrderService entityOrderService, OrderRepository entityOrderRepository) {
         this.payPalHttpClient = payPalHttpClient;
         this.entityOrderService = entityOrderService;
         this.entityOrderRepository = entityOrderRepository;
     }
 
-    public String createOrder(com.fabiolima.e_commerce.model.Order entityOrder) {
+    public String createOrder(Long orderId) {
+        //Retrieve entity order
+        com.fabiolima.e_commerce.model.Order entityOrder = entityOrderService.findOrderById(orderId);
+
         //create the purchase unit request list
         List<PurchaseUnitRequest> purchaseUnitRequests = new ArrayList<>();
 
@@ -53,10 +56,18 @@ public class PaypalService {
 
         purchaseUnitRequests.add(purchaseUnit);
 
+        //Create application context that will guide paypal after authorization
+        ApplicationContext applicationContext = new ApplicationContext()
+                .returnUrl("http://localhost:5173/capture")
+                .cancelUrl("http://localhost:5173/capture")
+                .userAction("CONTINUE");
+
         //build PayPal order request
         OrderRequest orderRequest = new OrderRequest()
                 .checkoutPaymentIntent("CAPTURE") //to capture payment
-                .purchaseUnits(purchaseUnitRequests);
+                .purchaseUnits(purchaseUnitRequests)
+                .applicationContext(applicationContext);
+
 
         //call PayPal to create the order
         try {
@@ -74,17 +85,11 @@ public class PaypalService {
                     .findFirst()
                     .map(LinkDescription::href)
                     .orElseThrow(() -> new RuntimeException("No approval URL found"));
+
             //Bind system order with paypal order
             String paypalOrderId = response.result().id();
-            Long orderId = entityOrder.getId();
-
-            //retrieve the order from data base instead form request body, as it may be incomplete
-            Optional<com.fabiolima.e_commerce.model.Order> fullOrder = entityOrderRepository.findById(orderId);
-            if (fullOrder.isEmpty())
-                throw new NotFoundException(String.format("Order with id %d could not be found", orderId));
-            fullOrder.get().setPaypalOrderId(paypalOrderId);
-            entityOrderRepository.save(fullOrder.get());
-
+            entityOrder.setPaypalOrderId(paypalOrderId);
+            entityOrderRepository.save(entityOrder);
 
             // Redirect the user to the PayPal approval URL
             return approveUrl; // This will redirect the user to the URL approval
@@ -93,31 +98,32 @@ public class PaypalService {
             log.error("Error creating PayPal order: {} ", e.getMessage());
             throw new RuntimeException("Error creating PayPal order: " + e.getMessage());
         }
-
     }
 
-    public String captureOrder(String orderId) {
+    public com.fabiolima.e_commerce.model.Order captureOrder(String token) {
 
         try {
             //create capture request
-            OrdersCaptureRequest request = new OrdersCaptureRequest(orderId);
+            OrdersCaptureRequest request = new OrdersCaptureRequest(token);
             request.requestBody(new OrderRequest());
 
             //execute capture request
             HttpResponse<Order> response = payPalHttpClient.execute(request);
             log.info("PayPal Response: Order id {} is COMPLETED", response.result().id());
 
+            Optional<com.fabiolima.e_commerce.model.Order> systemOrder = entityOrderRepository.findByPaypalOrderId(token);
+            if(systemOrder.isEmpty())
+                throw new NotFoundException(String.format("Could Not Find Order containing paypal Id %s", token));
+
             if("COMPLETED".equalsIgnoreCase(response.result().status())){
                 //retrieve system order from paypal id
-                Optional<com.fabiolima.e_commerce.model.Order> systemOrder = entityOrderRepository.findByPaypalOrderId(orderId);
-                if(systemOrder.isEmpty())
-                    throw new NotFoundException(String.format("Could Not Find Order containing paypal Id %s", orderId));
+
                 Long userId = systemOrder.get().getUser().getId();
                 Long systemOrderId = systemOrder.get().getId();
                 entityOrderService.updateOrderStatus(userId, systemOrderId, "PAID");
-
             }
-            return String.format("Paypal Order id: %s is COMPLETED", response.result().id());
+
+            return systemOrder.get();
 
         } catch (IOException e) {
             log.error("Error capturing order: {}", e.getMessage());
@@ -125,4 +131,3 @@ public class PaypalService {
         }
     }
 }
-

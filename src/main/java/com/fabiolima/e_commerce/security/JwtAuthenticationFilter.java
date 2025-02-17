@@ -44,9 +44,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
 
-        log.info("JWT Filter triggered: {}", request.getRequestURI());
-        log.info("Authentication header: {}", authHeader);
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -56,16 +53,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String jwt = authHeader.substring(7);
             final String userEmail = jwtService.extractUsername(jwt);
 
-            log.info("Extracted Username from jwt: {}", userEmail);
-
             // SecurityContextHolder allows the application to know that the user
             // is authenticated. For that, it uses User data from Authentication
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (userEmail != null && authentication == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-                log.info("UserDetails: {} - {}", userDetails.getUsername(), userDetails.getAuthorities());
-                log.info("Is Token Valid: {}", jwtService.isTokenValid(jwt, userDetails) );
+
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -77,8 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-
-            log.info("Jwt: {}", jwt);
 
             filterChain.doFilter(request, response);
         } catch (Exception exception) {

@@ -11,7 +11,6 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 
 @Entity
 @Table(name = "basket_item")
@@ -46,5 +45,14 @@ public class BasketItem {
         if (amount > 0 && this.quantity >= amount) {
             this.quantity -= amount;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "BasketItem{" +
+                "id=" + id +
+                ", product=" + product +
+                ", quantity=" + quantity +
+                '}';
     }
 }

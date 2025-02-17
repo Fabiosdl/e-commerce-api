@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface OrderService {
     Order convertBasketToOrder(Basket basket);
+    Order returnNewestPendingOrder(Long userId);
     Order createOrderAndAddToUser(Long userId, Basket basket);
     Page<Order> getUserOrders(int pgNum, int pgSize, Long userId);
     Page<Order> getUserOrdersByStatus(int pgNum, int pgSize, Long userId, String orderStatus);

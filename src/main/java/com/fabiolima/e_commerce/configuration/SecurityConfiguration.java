@@ -27,6 +27,7 @@ import java.util.List;
 @EnableMethodSecurity
 
 public class SecurityConfiguration {
+    /// TODO -> handle jwt expiration token and send a new one to user
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -41,6 +42,11 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("script-src 'self' https://www.paypal.com https://www.paypalobjects.com 'unsafe-inline'")
+                        )
+                )
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( authorizeRequests ->
@@ -71,11 +77,11 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:8080")); // Frontend URL
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173")); // Frontend URL
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
-        //corsConfiguration.setAllowCredentials(true);  // Allows cookies/credentials
+        corsConfiguration.setAllowCredentials(true);  // Allows cookies/credentials
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        //corsConfiguration.setExposedHeaders(List.of("Authorization")); // Allow frontend to read Authorization header
+        corsConfiguration.setExposedHeaders(List.of("Authorization")); // Allow frontend to read Authorization header
 
         // Ensure the CORS configuration is applied for all endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

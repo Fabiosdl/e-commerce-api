@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 
 @Entity
 @Table(name = "`order`")
@@ -39,7 +38,7 @@ public class Order {
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, // a basket becomes an order
             CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "basket_id", unique = true, nullable = false) //order is the owning side of the relationship
-    //@JsonIgnore
+    @JsonIgnore
     private Basket basket;                                           //and it's entity holds the basket foreign key
 
     @Column(name = "total_price")
@@ -73,5 +72,18 @@ public class Order {
         if(paymentStatus == null)
             paymentStatus = PaymentStatus.PENDING;
 
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", paypalOrderId='" + paypalOrderId + '\'' +
+                ", user=" + user +
+                ", totalPrice=" + totalPrice +
+                ", items=" + items +
+                ", paymentStatus=" + paymentStatus +
+                ", orderStatus=" + orderStatus +
+                '}';
     }
 }

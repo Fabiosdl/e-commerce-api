@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -218,7 +219,11 @@ public class BasketServiceImpl implements BasketService {
     @Override
     public int getTotalQuantity(Long basketId) {
         Basket theBasket = findBasketById(basketId);
-        return theBasket.getBasketItems().size();
+        int count = 0;
+        for (BasketItem item : theBasket.getBasketItems()){
+            count += item.getQuantity();
+        }
+        return count;
     }
 
     @Override
@@ -248,7 +253,7 @@ public class BasketServiceImpl implements BasketService {
 
         Optional<Basket> activeBasket = user.getBaskets().stream()
                 .filter(basket -> BasketStatus.ACTIVE.equals(basket.getBasketStatus()))
-                .findFirst();  // Optional<Basket>
+                .max(Comparator.comparing(Basket::getCreatedAt));
 
         if (activeBasket.isEmpty())
             throw new NotFoundException("No active basket has been found");

@@ -2,6 +2,7 @@ package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.dto.LoginRequest;
 import com.fabiolima.e_commerce.dto.RegistrationRequest;
+import com.fabiolima.e_commerce.exceptions.InvalidIdException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.exceptions.UniqueEmailException;
 import com.fabiolima.e_commerce.model.Basket;
@@ -16,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +75,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public User registerUser(RegistrationRequest input) {
 
         //check if user already exists
+        log.info("Does email exist? {}", userRepository.existsByEmail(input.getEmail()) );
         if(userRepository.existsByEmail(input.getEmail()))
             throw new UniqueEmailException("Email address already exist. Please use a new email.");
 

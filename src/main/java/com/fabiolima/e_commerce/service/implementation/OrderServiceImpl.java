@@ -10,6 +10,7 @@ import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.ProductService;
 import com.fabiolima.e_commerce.service.UserService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,11 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -41,13 +40,31 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order convertBasketToOrder(Basket basket) {
+        // initialize a new order
+        Order order = basket.getOrder();
 
-        // create new order based on the basket
-        Order order = new Order();
-        order.setUser(basket.getUser());
-        order.setBasket(basket);
-        order.setTotalPrice(basketService.calculateTotalPrice(basket.getId()));
+        // check if the Basket already has an order
+        if( order != null) {
+            // clear the items in order if it does exist
+            order = basket.getOrder();
+            order.getItems().clear();
+            log.info("items in order: {}",order.getItems());
+        } else {
+            // create new order based on the basket
+            order = new Order();
+            order.setUser(basket.getUser());
+            order.setBasket(basket);
+        }
 
+        //transfer data from the basket to order
+        transferBasketDataToOrder(basket, order);
+
+        log.info("items in order after transfer: {}", order.getItems());
+
+        return orderRepository.save(order);
+    }
+
+    private Order transferBasketDataToOrder(Basket basket, Order order){
         //transform basket items into order items and store it in TheOrder
         BigDecimal totalPrice = BigDecimal.ZERO;
         for(BasketItem bi : basket.getBasketItems()){
@@ -63,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
         }
         // retrieve total cost
         order.setTotalPrice(totalPrice);
-        return orderRepository.save(order);
+        return order;
     }
 
     @Override
@@ -73,8 +90,9 @@ public class OrderServiceImpl implements OrderService {
         //2- Fetch the newest order with status pending
         Optional<Order> newestOrder = user.getOrders()
                 .stream()
-                .filter(order -> ("PENDING").equalsIgnoreCase(order.getOrderStatus().name()))
-                .findFirst();
+                .filter(order -> "PENDING".equalsIgnoreCase(order.getOrderStatus().name()))
+                .max(Comparator.comparing(Order::getCreatedAt));
+
         if(newestOrder.isEmpty())
             throw new NotFoundException("Order with status PENDING not found");
 
@@ -162,6 +180,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order cancelOrder(Long userId, Long orderId) {
+        log.info("cancel order being called");
         //retrieve order
         Order order = validateAndFetchOrder(userId, orderId);
         //retrieve current status of order
@@ -173,6 +192,8 @@ public class OrderServiceImpl implements OrderService {
         } else {
             throw new ForbiddenException("Only orders with status PENDING can be cancelled");
         }
+
+        log.info("Order id {} has been cancelled",orderId);
         return orderRepository.save(order);
     }
 

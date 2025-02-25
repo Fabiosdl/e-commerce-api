@@ -59,7 +59,7 @@ public class PaypalServiceImpl {
         //Create application context that will guide paypal after authorization
         ApplicationContext applicationContext = new ApplicationContext()
                 .returnUrl("http://localhost:5173/capture")
-                .cancelUrl("http://localhost:5173/capture")
+                .cancelUrl("http://localhost:5173/cancel")
                 .userAction("CONTINUE");
 
         //build PayPal order request
@@ -117,12 +117,12 @@ public class PaypalServiceImpl {
 
             if("COMPLETED".equalsIgnoreCase(response.result().status())){
                 //retrieve system order from paypal id
-
                 Long userId = systemOrder.get().getUser().getId();
                 Long systemOrderId = systemOrder.get().getId();
                 entityOrderService.updateOrderStatus(userId, systemOrderId, "PAID");
             }
 
+            log.info("SystemOrder status: {}", systemOrder.get().getOrderStatus());
             return systemOrder.get();
 
         } catch (IOException e) {

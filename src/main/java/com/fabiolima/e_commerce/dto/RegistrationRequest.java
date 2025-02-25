@@ -18,7 +18,7 @@ public class RegistrationRequest {
     @Size(min = 2, max = 40, message = "Name has to have a minimum of 2 characters and a maximum of 40.")
     private String name;
 
-    @NotBlank(message = "Username is your email address and should not be blank.")
+    @NotBlank(message = "Username is your email address and it should not be blank.")
     @Email(regexp = "[a-z0-9._%-+]+@[a-z0-9.-]+\\.[a-z]{2,3}",
             flags = Pattern.Flag.CASE_INSENSITIVE,
             message = "Invalid email format.")

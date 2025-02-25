@@ -73,9 +73,15 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ExceptionHandler(UniqueEmailException.class)
-    public ResponseEntity<?> handleDataIntegrityViolationException(UniqueEmailException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    public ProblemDetail handleUniqueEmailException(UniqueEmailException ex) {
+        ProblemDetail errorDetail = null;
+        ex.printStackTrace();
+
+        errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(409), ex.getMessage());
+        errorDetail.setProperty("description", "This email is already registered in our databases.");
+        return errorDetail;
     }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleArgumentValidationException(MethodArgumentNotValidException ex){

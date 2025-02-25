@@ -60,19 +60,22 @@ public class BasketController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBasket);
     }
 
-    /**
-     * Making user of HATEOAS to bind a link to get the order originated when the basket has become CHECKED_OUT
-     */
-    @Operation(summary = "Checks out a basket and creates an order for payment")
+    @Operation(summary = "Change Basket status to checked out. A checked out basket cannot be updated anymore.")
     @PatchMapping("/{basketId}/checkout")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
     public ResponseEntity<Basket> convertBasketToOrder(@PathVariable("userId") Long userId,
                                                    @PathVariable("basketId") Long basketId){
         //1 - Change basket status to CHECKED_OUT
-        Basket basket = basketService.checkoutBasket(userId, basketId);
+        /**
 
-        //2 - Generate the order from basket and add to user
-        Order order = orderService.createOrderAndAddToUser(userId, basket);
+         Basket should only be checked out after order sent for payment.
+         This is necessary because after basket is checked out, it cannot be modified.
+         In a situation that the user clicks on check out, goes to order page where they
+         can pay for the order, but decides to buy another item, it is still possible if the
+         basket is as Active status. Therefore, the basket will only be checked out after
+         the user decides to pay for the order, and be redirected to PayPal page.
+        */
+        Basket basket = basketService.checkoutBasket(userId, basketId);
 
         return ResponseEntity.ok(basket);
     }

@@ -37,6 +37,7 @@ CREATE TABLE `product` (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
+    image_src VARCHAR(250),
     stock INT DEFAULT 0,
     category VARCHAR(100) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -127,14 +128,12 @@ INSERT INTO `role` (name) VALUES ('ROLE_GUEST');
 INSERT INTO `role` (name) VALUES ('ROLE_VENDOR');
 
 -- Insert Sample Products
-INSERT INTO `product` (name, description, price, stock, category) VALUES
-('Wireless Noise-Canceling Headphones', 'Premium over-ear headphones with advanced noise-canceling technology, 30-hour battery life, and a comfortable fit.', 199.99, 120, 'Electronics'),
-('Ergonomic Office Chair', 'Adjustable height, lumbar support, and breathable mesh backrest for all-day comfort.', 149.99, 50, 'Furniture'),
-('Stainless Steel Water Bottle (1L)', 'Insulated water bottle keeps drinks cold for 24 hours or hot for 12 hours, made with eco-friendly materials.', 24.99, 300, 'Outdoor'),
-('Yoga Mat', 'Non-slip, extra-thick mat for yoga, pilates, and workouts. Includes a carrying strap.', 29.99, 200, 'Fitness'),
-('Gourmet Coffee Beans (500g)', 'Rich, aromatic coffee beans sourced from sustainable farms for the perfect cup of coffee.', 14.99, 500, 'Grocery'),
-('4K Ultra HD Smart TV (55")', 'Stunning picture quality with HDR, built-in apps, and voice assistant compatibility.', 699.99, 30, 'Electronics'),
-('Leather Tote Bag', 'Stylish and durable tote bag with multiple compartments, perfect for work or travel.', 89.99, 80, 'Fashion'),
-('Wireless Gaming Mouse', 'High-precision gaming mouse with customizable buttons, RGB lighting, and 70-hour battery life.', 49.99, 150, 'Electronics'),
-('Running Shoes', 'Lightweight and breathable running shoes designed for comfort and performance.', 59.99, 100, 'Fitness'),
-('Hardcover Notebook (200 Pages)', 'Durable hardcover notebook with dotted pages, ideal for journaling and note-taking.', 12.99, 250, 'Stationery');
+INSERT INTO `product` (name, description, price, image_src, stock, category) VALUES
+('Wireless Noise-Canceling Headphones', 'Premium over-ear headphones with advanced noise-canceling technology, 30-hour battery life, and a comfortable fit.', 199.99, 'images/headphone.jpg',120, 'Electronics'),
+('Ergonomic Office Chair', 'Adjustable height, lumbar support, and breathable mesh backrest for all-day comfort.', 149.99, 'images/office-chair.jpg', 50, 'Furniture'),
+('Stainless Steel Water Bottle (1L)', 'Insulated water bottle keeps drinks cold for 24 hours or hot for 12 hours, made with eco-friendly materials.', 24.99, '../assets/images/bottle.jpg', 300, 'Outdoor'),
+('Yoga Mat', 'Non-slip, extra-thick mat for yoga, pilates, and workouts. Includes a carrying strap.',29.99, 'images/yoga-mat.jpg', 200, 'Fitness'),
+('Gourmet Coffee Beans (500g)', 'Rich, aromatic coffee beans sourced from sustainable farms for the perfect cup of coffee.', 14.99, 'images/coffee.jpg', 500, 'Grocery'),
+('4K Ultra HD Smart TV (55")', 'Stunning picture quality with HDR, built-in apps, and voice assistant compatibility.', 699.99, 'images/tv.jpg', 30, 'Electronics'),
+('Leather Tote Bag', 'Stylish and durable tote bag with multiple compartments, perfect for work or travel.', 89.99, 'images/bag.jpg', 80, 'Fashion'),
+('Wireless Gaming Mouse', 'High-precision gaming mouse with customizable buttons, RGB lighting, and 70-hour battery life.', 49.99, 'images/mouse.jpg', 150, 'Electronics');

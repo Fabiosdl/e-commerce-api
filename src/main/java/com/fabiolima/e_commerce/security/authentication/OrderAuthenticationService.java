@@ -2,6 +2,7 @@ package com.fabiolima.e_commerce.security.authentication;
 
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.repository.OrderRepository;
 import com.fabiolima.e_commerce.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -14,9 +15,11 @@ import java.util.Optional;
 public class OrderAuthenticationService {
 
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
-    public OrderAuthenticationService(UserRepository userRepository) {
+    public OrderAuthenticationService(UserRepository userRepository, OrderRepository orderRepository) {
         this.userRepository = userRepository;
+        this.orderRepository = orderRepository;
     }
 
     public boolean isOwner(Long urlOrderId, Authentication authentication ){
@@ -28,10 +31,12 @@ public class OrderAuthenticationService {
             throw new NotFoundException(String.format("User with email %s not found.",email));
         User authenticatedUser = optional.get();
 
-        boolean orderIdBelongsToAuthenticatedUser = authenticatedUser.getOrders().stream().anyMatch(order -> order.getId().equals(urlOrderId));
-        log.info("Is order id from the url belongs to authenticated user ? {}", orderIdBelongsToAuthenticatedUser);
+        boolean orderBelongsToUser = orderRepository.existsByIdAndUserId(urlOrderId, authenticatedUser.getId());
 
-        return orderIdBelongsToAuthenticatedUser;
+        log.info("Does the order ID {} belong to the authenticated user {}? {}",
+                urlOrderId, email, orderBelongsToUser);
+
+        return orderBelongsToUser;
     }
 
 }

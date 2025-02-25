@@ -26,7 +26,8 @@ public class PayPalController {
 
     @Operation(summary = "Creates a paypal order and request the user to approve it")
     @PostMapping("/create")
-    public String createOrder(@PathVariable("orderId") Long orderId){
+    public String createPayPalOrder(@PathVariable("orderId") Long orderId){
+        
         return paypalServiceImpl.createOrder(orderId);
     }
 

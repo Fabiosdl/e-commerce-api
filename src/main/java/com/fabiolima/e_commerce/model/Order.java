@@ -5,8 +5,11 @@ import com.fabiolima.e_commerce.model.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +48,7 @@ public class Order {
     private BigDecimal totalPrice;
 
     @Column(name = "order_list")
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 
     @Enumerated(EnumType.STRING)
@@ -55,6 +58,14 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
     private OrderStatus orderStatus;
+
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime lastUpdated;
 
     //bidirectional helper method
     public void addOrderItemToOrder(OrderItem orderItem){

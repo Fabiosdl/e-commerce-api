@@ -32,6 +32,9 @@ public class Product {
     @Column(name = "price")
     private BigDecimal productPrice;
 
+    @Column(name = "image_src")
+    private String imageSrc;
+
     @Column(name = "stock")
     private int stock;
 

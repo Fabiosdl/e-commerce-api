@@ -1,6 +1,7 @@
 package com.fabiolima.e_commerce.configuration;
 
 import com.fabiolima.e_commerce.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+@Slf4j
 @Configuration
 public class ApplicationConfiguration {
 
@@ -28,6 +30,7 @@ public class ApplicationConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService() {
+
         return username -> {
             com.fabiolima.e_commerce.model.User theUser = userRepository.findByEmail(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));

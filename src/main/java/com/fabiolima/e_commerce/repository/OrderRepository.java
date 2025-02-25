@@ -23,4 +23,6 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     Optional<Order>  findByPaypalOrderId(String paypalOrderId);
 
+    Boolean existsByIdAndUserId(Long orderId, Long userId);
+
 }

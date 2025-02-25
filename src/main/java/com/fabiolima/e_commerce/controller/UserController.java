@@ -34,7 +34,6 @@ public class UserController {
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
     public ResponseEntity<User> getUserByUserId(@PathVariable("userId") Long userId){
         User user = userService.findUserByUserId(userId);
-        log.info("User: {}", user.toString());
         return ResponseEntity.ok(user);
     }
 

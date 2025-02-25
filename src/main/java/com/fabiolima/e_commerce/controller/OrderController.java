@@ -3,8 +3,10 @@ package com.fabiolima.e_commerce.controller;
 import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.ProductService;
+import com.fabiolima.e_commerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,19 +21,33 @@ public class OrderController {
 
     private final OrderService orderService;
     private final ProductService productService;
+    private final BasketService basketService;
+    private final UserService userService;
 
     @Autowired
     public OrderController (OrderService orderService,
-                            ProductService productService){
+                            ProductService productService, BasketService basketService, UserService userService){
         this.orderService = orderService;
         this.productService = productService;
+        this.basketService = basketService;
+        this.userService = userService;
+    }
+
+    @Operation(summary = "Creates an Order from Basket")
+    @PostMapping("/create-order")
+    public ResponseEntity<Order> createOrderFromBasket(@PathVariable("userId") Long userId){
+        User user = userService.findUserByUserId(userId);
+        Basket basket = basketService.returnNewestActiveBasket(user);
+
+        return ResponseEntity.ok(orderService.createOrderAndAddToUser(userId,basket));
     }
 
     @Operation(summary = "Retrieve newest created Order - Useful to fetch the created order when checking basket out")
-    @GetMapping("/pending-order")
+    @GetMapping("/newest-created-order")
     public ResponseEntity<Order> getNewestPendingBasket(@PathVariable("userId") Long userId){
         return  ResponseEntity.ok(orderService.returnNewestPendingOrder(userId));
     }
+
     @Operation(summary = "It retrieves all users orders")
     @GetMapping
     public ResponseEntity<Page<Order>> getAllUsersOrders(@RequestParam(defaultValue = "0") int pgNum,
@@ -81,6 +97,13 @@ public class OrderController {
     @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
     public ResponseEntity<Order> cancelOrder(@PathVariable ("userId") Long userId,
                                              @PathVariable ("orderId") Long orderId){
-        return ResponseEntity.ok(orderService.cancelOrder(userId,orderId));
+         /**
+          * Cancel order.
+          * Stock quantity will be replaced if order status is cancelled
+          */
+        Order order = orderService.cancelOrder(userId,orderId);
+        productService.incrementStocksWhenOrderIsCancelled(order);
+
+        return ResponseEntity.ok(order);
     }
 }

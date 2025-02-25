@@ -6,6 +6,7 @@ import com.fabiolima.e_commerce.model.BasketItem;
 import com.fabiolima.e_commerce.model.Product;
 import com.fabiolima.e_commerce.model.enums.BasketStatus;
 import com.fabiolima.e_commerce.repository.BasketItemRepository;
+import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketItemService;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
@@ -15,20 +16,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class BasketItemServiceImpl implements BasketItemService {
 
     private final BasketItemRepository basketItemRepository;
+    private final BasketRepository basketRepository;
     private final BasketService basketService;
     private final ProductService productService;
 
     @Autowired
-    public BasketItemServiceImpl (BasketItemRepository basketItemRepository,
+    public BasketItemServiceImpl (BasketItemRepository basketItemRepository, BasketRepository basketRepository,
                                   BasketService basketService,
                                   ProductService productService){
         this.basketItemRepository = basketItemRepository;
+        this.basketRepository = basketRepository;
         this.basketService = basketService;
         this.productService = productService;
     }
@@ -85,6 +89,10 @@ public class BasketItemServiceImpl implements BasketItemService {
         // add item to basket
         theBasket.addBasketItemToBasket(newItem);
 
+        // update the time and date of insertion in basket
+        theBasket.setLastUpdated(LocalDateTime.now());
+        basketRepository.save(theBasket);
+
         // save the Basket containing the new item
         basketService.updateBasketWhenItemsAreAddedOrModified(theBasket);
         return newItem;
@@ -136,10 +144,9 @@ public class BasketItemServiceImpl implements BasketItemService {
          * check if quantity is 0. If so, remove item.
          * *** removeItemFromBasket update stock automatically
          */
+        Basket basket = basketService.findBasketById(basketId);
         if(newQuantity == 0) {
             //item still holds the older quantity, so stock can be updated inside remove
-
-            Basket basket = basketService.findBasketById(basketId);
             //removeItemFromBasket method update stock automatically
             basketService.removeItemFromBasket(basket, basketItem);
         }
@@ -150,6 +157,11 @@ public class BasketItemServiceImpl implements BasketItemService {
          * update stock quantity after ensuring stock availability
          */
         productService.updateProductStock(product, quantityDelta);
+
+        // update the time and date of insertion in basket
+        basket.setLastUpdated(LocalDateTime.now());
+        basketRepository.save(basket);
+
 
         return basketItemRepository.save(basketItem);
     }
@@ -173,6 +185,11 @@ public class BasketItemServiceImpl implements BasketItemService {
         //if there's enough stock, increment item and decrement stock;
         basketItem.incrementQuantity(1);
         productService.updateProductStock(product, delta);
+
+        // update the time and date of insertion in basket
+        Basket theBasket = basketItem.getBasket();
+        theBasket.setLastUpdated(LocalDateTime.now());
+        basketRepository.save(theBasket);
 
         return basketItemRepository.save(basketItem);
     }
@@ -208,6 +225,11 @@ public class BasketItemServiceImpl implements BasketItemService {
 
         basketItem.decrementQuantity(1);
 
+        // update the time and date of insertion in basket
+        Basket theBasket = basketItem.getBasket();
+        theBasket.setLastUpdated(LocalDateTime.now());
+        basketRepository.save(theBasket);
+
         return basketItemRepository.save(basketItem);
     }
 
@@ -218,6 +240,11 @@ public class BasketItemServiceImpl implements BasketItemService {
         //retrieve the basket where the item is stored
         Basket basket = basketService.findBasketById(basketId);
         BasketItem item = getItemById(basketItemId);
+
+        // update the time and date of insertion in basket
+        basket.setLastUpdated(LocalDateTime.now());
+        basketRepository.save(basket);
+
         return basketService.removeItemFromBasket(basket,item);
 
     }

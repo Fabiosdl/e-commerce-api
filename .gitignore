@@ -19,7 +19,6 @@ target/
 *.iml
 *.ipr
 /MySQL/data/
-/src/main/resources/application.properties
 
 ### NetBeans ###
 /nbproject/private/

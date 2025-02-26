@@ -86,7 +86,7 @@ public class PaypalServiceImpl {
                     .map(LinkDescription::href)
                     .orElseThrow(() -> new RuntimeException("No approval URL found"));
 
-            //Bind system order with paypal order
+            //Bind system order with PayPal order
             String paypalOrderId = response.result().id();
             entityOrder.setPaypalOrderId(paypalOrderId);
             entityOrderRepository.save(entityOrder);

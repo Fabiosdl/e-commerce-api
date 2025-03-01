@@ -84,11 +84,6 @@ public class OrderController {
                                                    @RequestParam ("status") String status){
         Order order = orderService.updateOrderStatus(userId,orderId,status);
 
-        /**
-         * Stock quantity will be replaced if order status is cancelled
-         */
-        if(status.equalsIgnoreCase("cancelled"))
-            productService.incrementStocksWhenOrderIsCancelled(order);
         return ResponseEntity.ok(order);
     }
 
@@ -97,13 +92,8 @@ public class OrderController {
     @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
     public ResponseEntity<Order> cancelOrder(@PathVariable ("userId") Long userId,
                                              @PathVariable ("orderId") Long orderId){
-         /**
-          * Cancel order.
-          * Stock quantity will be replaced if order status is cancelled
-          */
-        Order order = orderService.cancelOrder(userId,orderId);
-        productService.incrementStocksWhenOrderIsCancelled(order);
 
+        Order order = orderService.cancelOrder(userId,orderId);
         return ResponseEntity.ok(order);
     }
 }

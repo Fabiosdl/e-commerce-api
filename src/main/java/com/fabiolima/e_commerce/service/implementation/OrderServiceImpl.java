@@ -27,14 +27,15 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final BasketService basketService;
+    private final ProductService productService;
 
     @Autowired
     public OrderServiceImpl (OrderRepository orderRepository,
-                             UserService userService,
-                             ProductService productService, BasketService basketService){
+                             UserService userService, BasketService basketService, ProductService productService){
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.basketService = basketService;
+        this.productService = productService;
     }
 
     @Override
@@ -174,6 +175,9 @@ public class OrderServiceImpl implements OrderService {
             default: throw new ForbiddenException("Current Status " + currentStatus + " cannot be updated.");
         }
 
+        if(order.getOrderStatus().toString().equalsIgnoreCase("cancelled"))
+            productService.incrementStocksWhenOrderIsCancelled(order);
+
         //persist new order
         return orderRepository.save(order);
     }
@@ -194,6 +198,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         log.info("Order id {} has been cancelled",orderId);
+        productService.incrementStocksWhenOrderIsCancelled(order);
         return orderRepository.save(order);
     }
 

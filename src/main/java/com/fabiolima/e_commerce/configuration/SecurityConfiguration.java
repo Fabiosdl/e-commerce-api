@@ -27,7 +27,6 @@ import java.util.List;
 @EnableMethodSecurity
 
 public class SecurityConfiguration {
-    /// TODO -> handle jwt expiration token and send a new one to user
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -77,7 +76,9 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173")); // Frontend URL
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173",
+                "https://shop.fslwebsolutions.com",
+                "e-commerce-app-nine-silk.vercel.app")); // Frontend URL
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         corsConfiguration.setAllowCredentials(true);  // Allows cookies/credentials
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type"));

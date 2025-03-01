@@ -9,6 +9,7 @@ import com.fabiolima.e_commerce.model.Product;
 import com.fabiolima.e_commerce.model.Order;
 import com.fabiolima.e_commerce.repository.ProductRepository;
 import com.fabiolima.e_commerce.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -116,6 +118,7 @@ public class ProductServiceImpl implements ProductService {
             saveProduct(product);
             updatedProductStock.add(product);
         }
+        log.info("{} items were sent back to stock", updatedProductStock.size());
         return updatedProductStock;
     }
 

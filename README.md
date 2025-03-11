@@ -20,7 +20,7 @@ When a user confirms their basket, an order is generated with all the details, i
 - **Git** for version control
 
 ## Features:
-- Secure account management with user authentication
+- Secure account management with user authentication and encrypted password
 - Real-time stock updates based on basket activity
 - Basket persistence for 24 hours in case of abandonment
 - REST API with full CRUD operations
@@ -63,8 +63,8 @@ When a user confirms their basket, an order is generated with all the details, i
 
 2. **Login Credentials**:
    - On the login page, enter the following credentials (as specified in the `docker-compose.yml` file):
-     - **Username**: `fabiolima`
-     - **Password**: `fabiolima123`
+     - **Username**: `<my-username> you can change this in docker-compose.yml`
+     - **Password**: `<my-password> you can change this in docker-compose.yml`
 
 3. **View the Database Schema**:
    - Once logged in, you will see the schema `ecommerce_db`, which stores the application's data.
@@ -90,7 +90,8 @@ When a user confirms their basket, an order is generated with all the details, i
 You can view and interact with the API documentation using the Swagger UI:
 
 1. **Access Swagger UI**:
-   - Open your browser and go to: `localhost:8080/swagger-ui.html`.
+   - Open your browser and go to: `http://localhost:8080/swagger-ui/index.html`.
+   - Use the password: `e-commerce-Auth`.
 
 2. **Explore API Endpoints**:
    - The Swagger UI provides a detailed, interactive interface where you can explore all available API endpoints and test their functionality directly from your browser.

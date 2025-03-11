@@ -1,10 +1,7 @@
 services:
   ecommerce_api:
-    #image: lima-ecommerce-api
+    image: lima-ecommerce-api
     build: .
-    #build: the first time that I run docker-compose it will build the image.
-    #it will rebuild the image(Dockerfile) if i make changes in the application and
-    # use the command docker-compose up --build
     restart: always
     ports:
       - 8080:8080

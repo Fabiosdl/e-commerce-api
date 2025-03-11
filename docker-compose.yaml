@@ -1,24 +1,23 @@
 services:
-#  ecommerce_api:
-#    #image: lima-ecommerce-api
-#    build: .
-#    #build: the first time that I run docker-compose it will build the image.
-#    #it will rebuild the image(Dockerfile) if i make changes in the application and
-#    # use the command docker-compose up --build
-#    restart: always
-#    ports:
-#      - 8080:8080
-#    networks:
-#      - mynetwork
-#    environment:
-#      - spring.datasource.url=jdbc:mysql://mysqldb:3306/e-commerce?allowPublicKeyRetrieval=true
-#      - spring.datasource.username=<my-username>
-#      - spring.datasource.password=<my-password>
-#      - springdoc.swagger-ui.path=/limaecommerce-ui.html
-#      - springdoc.api-docs.path=/api-docs
-#
-#    depends_on:
-#      - mysqldb
+  ecommerce_api:
+    #image: lima-ecommerce-api
+    build: .
+    #build: the first time that I run docker-compose it will build the image.
+    #it will rebuild the image(Dockerfile) if i make changes in the application and
+    # use the command docker-compose up --build
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - mynetwork
+    environment:
+      - spring.datasource.url=jdbc:mysql://mysqldb:3306/e-commerce?allowPublicKeyRetrieval=true
+      - spring.datasource.username=<my-username>
+      - spring.datasource.password=<my-password>
+      - springdoc.api-docs.path=/api-docs
+
+    depends_on:
+      - mysqldb
 
   mysqldb:
     image: mysql:8.0
@@ -29,9 +28,9 @@ services:
       - mynetwork
     environment:
       MYSQL_DATABASE: e-commerce
-      MYSQL_USER: fabiolima
-      MYSQL_PASSWORD: fabiolima123
-      MYSQL_ROOT_PASSWORD: fabiolimaR123
+      MYSQL_USER: <my-username>
+      MYSQL_PASSWORD: <my-password>
+      MYSQL_ROOT_PASSWORD: <my-root-password>
 
     volumes:
         - ./MySQL/initdb:/docker-entrypoint-initdb.d
@@ -41,7 +40,7 @@ services:
     image: phpmyadmin/phpmyadmin
     environment:
       PMA_HOST: mysqldb  # Link to MySQL container
-      MYSQL_ROOT_PASSWORD: fabiolimaR123
+      MYSQL_ROOT_PASSWORD: <my-root-password>
     ports:
       - 8090:80  # Expose phpMyAdmin on port 8090
     depends_on:

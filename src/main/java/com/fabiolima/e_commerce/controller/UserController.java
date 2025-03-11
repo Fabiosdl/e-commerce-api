@@ -51,4 +51,13 @@ public class UserController {
     public ResponseEntity<User> deactivateUserByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
     }
+
+    @PostMapping("/{userId}/roles/add-role")
+    public ResponseEntity<User> addRoleToUser(
+            @PathVariable Long userId,
+            @RequestParam String roleName
+    ) {
+        User updatedUser = userService.addRoleToUser(userId, roleName);
+        return ResponseEntity.ok(updatedUser);
+    }
 }

@@ -47,10 +47,10 @@ public class ManageUserDetailsController {
     }
 
     @Operation(summary = "Add new role to user")
-    @PostMapping("/{userId}/roles/{roleName}")
+    @PostMapping("/{userId}/roles/add-role")
     public ResponseEntity<User> addRoleToUser(
             @PathVariable Long userId,
-            @PathVariable String roleName
+            @RequestParam String roleName
     ) {
         User updatedUser = userService.addRoleToUser(userId, roleName);
         return ResponseEntity.ok(updatedUser);

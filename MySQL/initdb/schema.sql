@@ -80,6 +80,7 @@ CREATE TABLE `order` (
     total_price DECIMAL(10, 2) NOT NULL,
     payment_status VARCHAR(30) NOT NULL,
     order_status VARCHAR(30) NOT NULL,
+    paypal_order_id VARCHAR(100),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     KEY fk_order_user_idx (user_id),

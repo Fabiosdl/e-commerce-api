@@ -78,7 +78,7 @@ public class SecurityConfiguration {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173",
                 "https://shop.fslwebsolutions.com",
-                "e-commerce-app-nine-silk.vercel.app")); // Frontend URL
+                "https://e-commerce-app-nine-silk.vercel.app")); // Frontend URL
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         corsConfiguration.setAllowCredentials(true);  // Allows cookies/credentials
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type"));

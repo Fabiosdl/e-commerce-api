@@ -10,6 +10,7 @@ import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketItemService;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 public class BasketItemServiceImpl implements BasketItemService {
 
@@ -40,9 +42,6 @@ public class BasketItemServiceImpl implements BasketItemService {
     @Override
     @Transactional
     public BasketItem addItemToBasket(Long basketId, Long productId, int quantity) {
-        //validate the parameters Ids
-        validateId(basketId);
-        validateId(productId);
 
         //validate quantity
         if(quantity <= 0)
@@ -77,6 +76,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
         if (existingItem != null) {
             existingItem.incrementQuantity(quantity);
+            log.info("Item id {} already exists in basket and its quantity is being updated", existingItem.getId());
             return basketItemRepository.save(existingItem);
         }
 
@@ -91,24 +91,22 @@ public class BasketItemServiceImpl implements BasketItemService {
 
         // update the time and date of insertion in basket
         theBasket.setLastUpdated(LocalDateTime.now());
-        basketRepository.save(theBasket);
 
         // save the Basket containing the new item
         basketService.updateBasketWhenItemsAreAddedOrModified(theBasket);
+
+        log.info("Item id {} has been created and added to basket.", newItem.getId());
         return newItem;
     }
 
     @Override
     public List<BasketItem> getItemsByBasket(Long basketId) {
-        //validate basketId
-        validateId(basketId);
+
         return basketService.findBasketById(basketId).getBasketItems();
     }
 
     @Override
     public BasketItem getItemById(Long basketItemId) {
-
-        validateId(basketItemId);
 
         return basketItemRepository.findById(basketItemId)
                 .orElseThrow(() -> new NotFoundException(String.format(
@@ -122,9 +120,10 @@ public class BasketItemServiceImpl implements BasketItemService {
      * Method to be used in case the user changes the quantity of a product manually providing the quantity they want
       */
     public BasketItem updateBasketItem(Long basketId, Long basketItemId, int newQuantity) {
-        validateId(basketId);
-        validateId(basketItemId);
+        //create basket to update it when an item is updated
+        Basket basket = basketService.findBasketById(basketId);
 
+        //retrieve the item
         BasketItem basketItem = getItemById(basketItemId);
         int currentQuantity = basketItem.getQuantity();
         int quantityDelta = newQuantity - currentQuantity;
@@ -144,11 +143,12 @@ public class BasketItemServiceImpl implements BasketItemService {
          * check if quantity is 0. If so, remove item.
          * *** removeItemFromBasket update stock automatically
          */
-        Basket basket = basketService.findBasketById(basketId);
         if(newQuantity == 0) {
             //item still holds the older quantity, so stock can be updated inside remove
             //removeItemFromBasket method update stock automatically
-            basketService.removeItemFromBasket(basket, basketItem);
+            log.info("Quantity of item id {} is zero and it will be removed from basket {}", basketItemId, basketId);
+            basket.setLastUpdated(LocalDateTime.now());
+            return basketService.removeItemFromBasket(basket, basketItem);
         }
 
         basketItem.setQuantity(newQuantity);
@@ -162,6 +162,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         basket.setLastUpdated(LocalDateTime.now());
         basketRepository.save(basket);
 
+        log.info("Item {} quantity has been updated", basketItemId);
 
         return basketItemRepository.save(basketItem);
     }
@@ -171,7 +172,6 @@ public class BasketItemServiceImpl implements BasketItemService {
      * Method to use in case the quantity is provided by pressing a button that increments the quantity by 1
      */
     public BasketItem incrementItemQuantity(Long basketItemId) {
-        validateId(basketItemId);
 
         //Delta -> New Quantity - current Quantity
         int delta = 1;
@@ -191,6 +191,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         theBasket.setLastUpdated(LocalDateTime.now());
         basketRepository.save(theBasket);
 
+        log.info("Item id {} quantity has been incremented by one", basketItemId);
         return basketItemRepository.save(basketItem);
     }
 
@@ -200,8 +201,6 @@ public class BasketItemServiceImpl implements BasketItemService {
      * Method in case the quantity is provided by pressing a button that decrements the quantity by 1
      */
     public BasketItem decrementItemQuantity(Long basketId, Long basketItemId) {
-        validateId(basketId);
-        validateId(basketItemId);
 
         //Delta -> New Quantity - current Quantity
         int delta = -1;
@@ -217,7 +216,8 @@ public class BasketItemServiceImpl implements BasketItemService {
         if(basketItem.getQuantity() == 1){
             Basket basket = basketService.findBasketById(basketId);
             //removeItemFromBasket method update stock automatically
-            basketService.removeItemFromBasket(basket, basketItem);
+            log.info("Item id {} has been removed from basket as its quantity is now 0", basketItemId);
+            return basketService.removeItemFromBasket(basket, basketItem);
         }
 
         //update stock
@@ -230,6 +230,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         theBasket.setLastUpdated(LocalDateTime.now());
         basketRepository.save(theBasket);
 
+        log.info("Item id {} quantity has been decremented by one", basketItemId);
         return basketItemRepository.save(basketItem);
     }
 
@@ -263,22 +264,14 @@ public class BasketItemServiceImpl implements BasketItemService {
                             product.getProductName(), product.getStock(), quantity));
     }
 
-
     @Override
     public BigDecimal calculateItemTotalPrice(Long basketItemId) {
-        validateId(basketItemId);
+
         BasketItem basketItem = getItemById(basketItemId);
         BigDecimal itemQuantity = BigDecimal.valueOf(basketItem.getQuantity());
         BigDecimal totalPrice = itemQuantity.multiply(basketItem.getProduct().getProductPrice());
 
         return totalPrice.setScale(2, RoundingMode.HALF_UP);
-    }
-
-    public void validateId(Long id){
-        if(id == null)
-            throw new InvalidIdException("The Id cannot be null");
-        if(id <= 0)
-            throw new InvalidIdException("The Id must be grater than 0");
     }
 
 }

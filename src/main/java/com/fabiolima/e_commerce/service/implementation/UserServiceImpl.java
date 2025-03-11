@@ -24,7 +24,7 @@ import java.util.*;
 import static com.fabiolima.e_commerce.model.enums.UserStatus.*;
 
 @Service
-@Slf4j //logging framework slf4j vs log4j vs log4j2 vs logback logging level
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;

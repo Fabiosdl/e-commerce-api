@@ -40,7 +40,7 @@ public class BasketController {
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
     public ResponseEntity<Basket> getBasketById(@PathVariable("userId") Long userId,
                                                 @PathVariable("basketId") Long basketId){
-        Basket theBasket = basketService.getUserBasketById(userId,basketId);
+        Basket theBasket = basketService.findBasketById(basketId);
         return ResponseEntity.ok(theBasket);
     }
 

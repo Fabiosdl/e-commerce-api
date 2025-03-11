@@ -58,8 +58,8 @@ public class PaypalServiceImpl {
 
         //Create application context that will guide paypal after authorization
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl("http://localhost:5173/capture")
-                .cancelUrl("http://localhost:5173/cancel")
+                .returnUrl("https://e-commerce-app-nine-silk.vercel.app/capture")
+                .cancelUrl("https://e-commerce-app-nine-silk.vercel.app/cancel")
                 .userAction("CONTINUE");
 
         //build PayPal order request

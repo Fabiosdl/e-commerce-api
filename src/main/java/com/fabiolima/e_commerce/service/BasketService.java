@@ -11,7 +11,6 @@ public interface BasketService {
 
     Basket createBasketAndAddToUser(User user);
     Page<Basket> getUserBaskets(int pgNum, int pgSize, Long userId);
-    Basket getUserBasketById(Long userId, Long basketId);
     Basket updateBasketWhenItemsAreAddedOrModified(Basket basket);
     Basket deactivateBasketById(Long userId, Long basketId);
     Basket clearBasket(Long basketId);
@@ -21,6 +20,5 @@ public interface BasketService {
     int getTotalQuantity(Long basketId);
     BigDecimal calculateTotalPrice(Long basketId);
     BasketItem removeItemFromBasket(Basket basket, BasketItem item);
-    Basket validateAndFetchBasket(Long userId, Long basketId);
     Basket returnNewestActiveBasket(User user);
 }

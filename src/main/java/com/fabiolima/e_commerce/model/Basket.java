@@ -31,7 +31,7 @@ public class Basket {
     private BasketStatus basketStatus;
 
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

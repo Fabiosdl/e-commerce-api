@@ -30,8 +30,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * clearBasket must be used in case the user wants to keep the basket open, but want to delete all items in it.
- * deleteBasket must be used in case the user wants to delete the basket
+ * clearBasket must be used in case the user wants to keep the basket open/active, but want to delete all items in it.
+ * deactivateBasket must be used in case the user wants to deactivate the basket
+ * inactive basket will stay in db for merchandise purposes
  */
 
 @Slf4j
@@ -51,9 +52,6 @@ public class BasketServiceImpl implements BasketService {
     @Override
     @Transactional
     public Basket createBasketAndAddToUser(User theUser) {
-
-        // Initialize the baskets collection
-        Hibernate. initialize(theUser.getBaskets());
 
         //check if user already has an open basket
         Optional<Basket> existingBasket = basketRepository.findActiveBasketByUserId(theUser.getId(),BasketStatus.ACTIVE);
@@ -77,22 +75,6 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public Basket getUserBasketById(Long userId, Long basketId) {
-        //check if userId and basketId are valid
-        if(basketId == null)
-            throw new IllegalArgumentException ("Basket id cannot be null");
-        if(userId == null)
-            throw new IllegalArgumentException ("User id cannot be null");
-        if(basketId <= 0L)
-            throw new IllegalArgumentException ("Basket id must be greater than 0");
-        if(userId <= 0L)
-            throw new IllegalArgumentException ("User id must be greater than 0");
-
-        // check if the basket exists
-        return validateAndFetchBasket(userId, basketId);
-    }
-
-    @Override
     public Basket updateBasketWhenItemsAreAddedOrModified(Basket basket) {
         return basketRepository.save(basket);
     }
@@ -100,20 +82,17 @@ public class BasketServiceImpl implements BasketService {
     @Override
     public Basket deactivateBasketById(Long userId, Long basketId) {
         //1 - Validate basket
-        Basket reference = validateAndFetchBasket(userId, basketId);
+        Basket reference = findBasketById(basketId);
 
         //2 - Check if its status is checked_out
-        if(reference.getBasketStatus() == BasketStatus.CHECKED_OUT)
-            throw new ForbiddenException("Cannot delete a checked out basket.");
+        if(!reference.getBasketStatus().equals(BasketStatus.ACTIVE))
+            throw new ForbiddenException("Only an ACTIVE basket can be deactivated.");
 
         //3 - If not, clear the basket, giving back to stock all the quantity in items
-        clearBasket(basketId);
+        if(!reference.getBasketItems().isEmpty())
+            clearBasket(basketId);
 
-        //4 - Clear basket if it is empty
-        if (!reference.getBasketItems().isEmpty())
-            throw new ForbiddenException("Basket must be empty before deleting it.");
-
-        //5 - Inactivate basket
+        //4 - Inactivate basket
         reference.setBasketStatus(BasketStatus.INACTIVE);
 
         return basketRepository.save(reference);
@@ -132,8 +111,8 @@ public class BasketServiceImpl implements BasketService {
         Basket theBasket = findBasketById(basketId);
 
         //Check if the basket is not checked-out
-        if(theBasket.getBasketStatus() == BasketStatus.CHECKED_OUT)
-            throw new ForbiddenException("Cannot clear a Checked-out basket");
+        if(!theBasket.getBasketStatus().equals(BasketStatus.ACTIVE))
+            throw new ForbiddenException("Can only clear an ACTIVE basket");
 
         //get the list of items and pass item by item to removeItemFromBasket method
         Iterator<BasketItem> listOfItem = theBasket.getBasketItems().iterator();
@@ -195,7 +174,7 @@ public class BasketServiceImpl implements BasketService {
     public Basket checkoutBasket(Long userId, Long basketId) {
 
         //1-Retrieve the basket
-        Basket basket = getUserBasketById(userId, basketId);
+        Basket basket = findBasketById(basketId);
 
         //2-Check if the basket is empty
         if(basket.getBasketItems().isEmpty())
@@ -212,7 +191,8 @@ public class BasketServiceImpl implements BasketService {
         User user = basket.getUser();
         Basket newBasket = createBasketAndAddToUser(user);
 
-        log.info("basket {} is checked-out and a new basket of id {} has been created to user {} - {}", basketId, newBasket.getId(), user.getId(), user.getName());
+        log.info("basket {} is checked-out and a new basket of id {} has been created to user {} - {}",
+                basketId, newBasket.getId(), user.getId(), user.getName());
         return basketRepository.save(basket);
     }
 
@@ -238,14 +218,6 @@ public class BasketServiceImpl implements BasketService {
                 // Reduce the BigDecimal stream to a single sum
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
                 return totalPrice;
-    }
-    @Override
-    public Basket validateAndFetchBasket(Long userId, Long basketId){
-
-        return basketRepository.findBasketByIdAndUserId(basketId, userId)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Basket with Id %d does not belong to the user with Id %d."
-                                ,basketId,userId)));
     }
 
     @Override

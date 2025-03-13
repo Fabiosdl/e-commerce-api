@@ -1,6 +1,7 @@
 package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
+import com.fabiolima.e_commerce.exceptions.InsufficientStockException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.Basket;
 import com.fabiolima.e_commerce.model.BasketItem;
@@ -14,6 +15,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
@@ -21,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -46,28 +52,35 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).save(product);
     }
 
-//    @Test
-//    void findAllProducts_ShouldFindListOfProducts() {
-//        //given
-//        Product product1 = new Product();
-//        product1.setId(1L);
-//        product1.setProductName("Product One");
-//
-//        Product product2 = new Product();
-//        product2.setId(1L);
-//        product2.setProductName("Product Two");
-//
-//        List<Product> productList = List.of(product1, product2);
-//
-//        when(productRepository.findAll()).thenReturn(productList);
-//
-//        //when
-//        List<Product> actual = productService.findAllProducts();
-//
-//        //then
-//        assertEquals(productList, actual);
-//        verify(productRepository, times(1)).findAll();
-//    }
+    @Test
+    void findAllProducts_ShouldFindListOfProducts() {
+        //given
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setProductName("Product One");
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setProductName("Product Two");
+
+        int pgNum = 0;
+        int pgSize = 2;
+        List<Product> productList = List.of(product1, product2);
+
+        Pageable pageable = PageRequest.of(pgNum, pgSize);
+        Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
+        when(productRepository.findAll(pageable)).thenReturn(productPage);
+
+        //when
+        Page<Product> actual = productService.findAllProducts(pgNum, pgSize);
+
+        //then
+        assertNotNull(actual);
+        assertEquals(1L, actual.getContent().get(0).getId());
+        assertEquals(2L, actual.getContent().get(1).getId());
+
+        verify(productRepository, times(1)).findAll(pageable);
+    }
 
     @Test
     void findProductById_ShouldReturnProduct_WhenUserExist() {
@@ -100,6 +113,38 @@ class ProductServiceImplTest {
 
     }
 
+    @Test
+    void findProductsByCategory(){
+        // Given
+        Product product1 = Product.builder().id(1L).category("Games").build();
+        Product product2 = Product.builder().id(2L).category("Computers").build();
+        Product product3 = Product.builder().id(3L).category("Games").build();
+
+        int pgNum = 0;
+        int pgSize = 2;
+
+        List<Product> productList = List.of(product1,product2,product3);
+        List<Product> categoryList = productList.stream()
+                .filter(product -> product.getCategory().equalsIgnoreCase("Games"))
+                .toList();
+        Pageable pageable = PageRequest.of(pgNum,pgSize);
+        Page<Product> productPage = new PageImpl<>(categoryList, pageable, categoryList.size());
+
+        // mock productRepository
+        when(productRepository.findAllByCategory("Games", pageable))
+                .thenReturn(productPage);
+
+        // When
+
+        Page<Product> actualPage = productService.findProductsByCategory(pgNum, pgSize, "Games");
+
+        // Then
+        assertNotNull(actualPage);
+        assertThat(actualPage)
+                .allSatisfy(product -> assertEquals("Games",product.getCategory())
+                );
+    }
+
     @ParameterizedTest
     @CsvSource({"productName, Product Two",
             "productDescription, This is a test",
@@ -118,7 +163,7 @@ class ProductServiceImplTest {
         product.setCategory("Electronics");
 
         Object parsedValue = switch (field) {
-            case "productPrice" -> Double.parseDouble(newValue);
+            case "productPrice" -> new BigDecimal(newValue);
             case "stock" -> Integer.parseInt(newValue);
             default -> newValue;
         };
@@ -235,5 +280,46 @@ class ProductServiceImplTest {
         assertEquals(14, updatedProduct2.getStock(), "Product stock should be updated to 14 (8 of stock + 6 of returned item");
         verify(productRepository, times(1)).save(product1);
         verify(productRepository, times(1)).save(product2);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"4,3","4,4"})
+    void updateProductStock_ShouldReturnUpdatedStock_WhenDeltaSmallerOrEqualCurrentStock(String stock, String delta){
+        // Given
+        int currentStock = Integer.parseInt(stock);
+        int deltaStock = Integer.parseInt(delta);
+        int expectedStock = currentStock - deltaStock;
+        Product product = Product.builder().id(1L)
+                .stock(currentStock).build();
+
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+
+        // When
+        productService.updateProductStock(product, deltaStock);
+
+        // Then
+
+        assertEquals(expectedStock, product.getStock(), "Stock should be updated correctly");
+        verify(productRepository).save(product);
+    }
+
+    @Test
+    void updateProductStock_ShouldThrowInsufficientStockException_WhenDeltaGreaterCurrentStock(){
+        // Given
+        int currentStock = 3;
+        int deltaStock = 4;
+
+        Product product = Product.builder().id(1L)
+                .stock(currentStock).build();
+
+        // When
+        Executable executable = () -> productService.updateProductStock(product, deltaStock);
+
+        // Then
+
+        assertThrows( InsufficientStockException.class, executable,
+                String.format("Not enough stock available for product '%s'. Available: %d, Requested: %d",
+                product.getProductName(), product.getStock(), deltaStock));
+
     }
 }

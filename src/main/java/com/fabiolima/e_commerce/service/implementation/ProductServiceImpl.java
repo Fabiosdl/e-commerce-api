@@ -47,7 +47,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> findProductsByCategory(int pgNum, int pgSize, String category) {
-        return null;
+
+        Pageable pageable = PageRequest.of(pgNum, pgSize);
+        return productRepository.findAllByCategory(category,pageable);
     }
 
     @Override

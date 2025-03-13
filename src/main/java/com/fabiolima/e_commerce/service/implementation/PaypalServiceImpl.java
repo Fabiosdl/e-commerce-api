@@ -119,7 +119,7 @@ public class PaypalServiceImpl {
                 //retrieve system order from paypal id
                 Long userId = systemOrder.get().getUser().getId();
                 Long systemOrderId = systemOrder.get().getId();
-                entityOrderService.updateOrderStatus(userId, systemOrderId, "PAID");
+                entityOrderService.updateOrderStatus(systemOrderId, "PAID");
             }
 
             log.info("SystemOrder status: {}", systemOrder.get().getOrderStatus());

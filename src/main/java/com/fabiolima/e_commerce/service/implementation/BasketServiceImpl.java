@@ -60,6 +60,7 @@ public class BasketServiceImpl implements BasketService {
 
         //add basket to the user (addBasketToUser is a bidirectional helper method)
         Basket basket = new Basket();
+        basket.setBasketStatus(BasketStatus.ACTIVE);
         theUser.addBasketToUser(basket);
 
         return basketRepository.save(basket);

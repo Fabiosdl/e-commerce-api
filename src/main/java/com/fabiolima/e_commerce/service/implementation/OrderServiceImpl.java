@@ -26,30 +26,48 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final UserService userService;
-    private final BasketService basketService;
     private final ProductService productService;
 
     @Autowired
     public OrderServiceImpl (OrderRepository orderRepository,
-                             UserService userService, BasketService basketService, ProductService productService){
+                             UserService userService, ProductService productService){
         this.orderRepository = orderRepository;
         this.userService = userService;
-        this.basketService = basketService;
         this.productService = productService;
     }
 
     @Override
     @Transactional
+    public Order createOrderAndAddToUser(Long userId, Basket basket) {
+
+        //1 - Retrieve the User
+        User user = userService.findUserByUserId(userId);
+
+        //2 - Convert basket to order
+        Order order = convertBasketToOrder(basket);
+
+        //3 - Set Pending status to order
+        order.setOrderStatus(OrderStatus.PENDING);
+
+        //4 - Link order to user
+        user.addOrderToUser(order);
+
+        //5 - persist new order attached to user
+        return orderRepository.save(order);
+    }
+
+    //helper method for createOrderAndAddToUser
+    @Transactional
     public Order convertBasketToOrder(Basket basket) {
         // initialize a new order
         Order order = basket.getOrder();
 
-        // check if the Basket already has an order
+        // check if the Basket already has an order.
+        // If it does, clear the order and insert the new items
         if( order != null) {
             // clear the items in order if it does exist
             order = basket.getOrder();
             order.getItems().clear();
-            log.info("items in order: {}",order.getItems());
         } else {
             // create new order based on the basket
             order = new Order();
@@ -65,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    // Helper method for convertBasketToOrder
     private Order transferBasketDataToOrder(Basket basket, Order order){
         //transform basket items into order items and store it in TheOrder
         BigDecimal totalPrice = BigDecimal.ZERO;
@@ -101,23 +120,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
-    public Order createOrderAndAddToUser(Long userId, Basket basket) {
-
-        //1 - Retrieve the User
-        User user = userService.findUserByUserId(userId);
-
-        //2 - Convert basket to order
-        Order order = convertBasketToOrder(basket);
-
-        //3 - Link order to user
-        order.setUser(user);
-
-        //4 - persist new order attached to user
-        return orderRepository.save(order);
-    }
-
-    @Override
     public Page<Order> getUserOrders(int pgNum, int pgSize, Long userId) {
 
         User theUser = userService.findUserByUserId(userId);
@@ -140,22 +142,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getUserOrderById(Long userId, Long orderId) {
+    public Order findOrderById(Long orderId){
 
-        // validate and fetch the order
-        return validateAndFetchOrder(userId,orderId);
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException(String.format("Order with Id %d not found.", orderId)));
     }
 
     @Override
     @Transactional
-    public Order updateOrderStatus(Long userId, Long orderId, String orderStatus) {
+    public Order updateOrderStatus(Long orderId, String orderStatus) {
 
         //Check if orderStatus is a valid Enum
         if (!OrderStatus.isValid(orderStatus))
             throw new IllegalArgumentException(String.format("Invalid order status %s", orderStatus));
 
-        //validate and fetch order
-        Order order = validateAndFetchOrder(userId, orderId);
+        //Fetch order
+        Order order = findOrderById(orderId);
 
         // set new status to order depending on the current Status
         String currentStatus = order.getOrderStatus().toString();
@@ -183,10 +185,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order cancelOrder(Long userId, Long orderId) {
+    public Order cancelOrder(Long orderId) {
         log.info("cancel order being called");
         //retrieve order
-        Order order = validateAndFetchOrder(userId, orderId);
+        Order order = findOrderById(orderId);
         //retrieve current status of order
         OrderStatus currentStatus = order.getOrderStatus();
 
@@ -202,44 +204,4 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
-    @Override
-    public List<Order> getOrdersByStatus(Long userId, String status) {
-
-        //Check if orderStatus is a valid Enum
-        if (!OrderStatus.isValid(status))
-            throw new IllegalArgumentException(String.format("Invalid order status %s", status));
-
-        OrderStatus orderStatus = OrderStatus.fromString(status);
-
-        //fetch user
-        User theUser = userService.findUserByUserId(userId);
-
-        // get the full List of orders
-        List<Order> orderList = theUser.getOrders();
-
-        // add only the orders with designated status
-        List<Order> selectedOrder = new ArrayList<>();
-        for(Order o : orderList){
-            if(o.getOrderStatus().equals(orderStatus)){
-                selectedOrder.add(o);
-            }
-        }
-
-        return selectedOrder;
-    }
-    @Override
-    public Order findOrderById(Long orderId){
-
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException(String.format("Order with Id %d not found.", orderId)));
-    }
-
-    private Order validateAndFetchOrder(Long userId, Long orderId){
-
-        return orderRepository.findOrderByIdAndUserId(orderId,userId)
-                .orElseThrow(() -> new NotFoundException(String.format(
-                        "Order with Id %d does not belong to User with Id %d",orderId,userId
-                )));
-
-    }
 }

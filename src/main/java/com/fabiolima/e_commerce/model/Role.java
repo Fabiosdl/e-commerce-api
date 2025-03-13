@@ -9,11 +9,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 @Entity
 @Table(name = "role")

@@ -57,8 +57,6 @@ class BasketServiceImplTest {
         Basket basket2 = new Basket();
         basket2.setBasketStatus(BasketStatus.CHECKED_OUT);
 
-        Basket newBasket = new Basket();
-
         // Mocking the behavior of basketRepository
         when(basketRepository.findActiveBasketByUserId(anyLong(), eq(BasketStatus.ACTIVE)))
                 .thenReturn(Optional.empty());
@@ -66,9 +64,9 @@ class BasketServiceImplTest {
         // Simulate saving the User along with its associated Basket
         when(basketRepository.save(any(Basket.class))).thenAnswer(invocation -> {
             // adding a new active basket to the user.
-            newBasket.setBasketStatus(BasketStatus.ACTIVE);
-            user.addBasketToUser(newBasket);
-            return newBasket;
+            Basket argumentBasket = invocation.getArgument(0);
+            argumentBasket.setId(1L);//simulate DB creating an order
+            return argumentBasket;
         });
 
         // when
@@ -79,8 +77,7 @@ class BasketServiceImplTest {
         assertAll(
                 () -> assertNotNull(actualBasket),
                 () -> assertEquals(BasketStatus.ACTIVE, actualBasket.getBasketStatus()), // Ensure new basket is ACTIVE
-                () -> assertEquals(newBasket, actualBasket), // Ensure the returned Basket is the same one added
-                () -> assertTrue(user.getBaskets().contains(newBasket)) // Ensure the Basket is in the User's list
+                () -> assertTrue(user.getBaskets().contains(actualBasket)) // Ensure the Basket is in the User's list
         );
     }
 
@@ -108,8 +105,8 @@ class BasketServiceImplTest {
 
         //THEN
         assertNotNull(actualBasket);
-        assertEquals(basket, actualBasket);  // Ensure the returned Basket is the same one added to the User
-        assertTrue(user.getBaskets().contains(basket));  // Ensure the Basket was added to the User's baskets
+        assertEquals(basket, actualBasket); //confirming that actualBasket already exists with user
+        assertTrue(user.getBaskets().contains(actualBasket));  // Ensure the Basket was added to the User's baskets
 
     }
 

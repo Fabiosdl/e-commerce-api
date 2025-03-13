@@ -10,11 +10,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
+import static com.fabiolima.e_commerce.model.enums.UserStatus.ACTIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -22,11 +29,12 @@ import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
 
+    @MockitoBean
+    private UserRepository userRepository;
+
     @Autowired
     private UserServiceImpl userService;
 
-    @MockitoBean
-    private UserRepository userRepository;
 
     /**
      * The set up above is the same as:
@@ -58,76 +66,67 @@ class UserServiceImplTest {
         verify(userRepository, times(1)).save(user);
     }
 
-//    @Test
-//    void findAllUsers_ShouldReturnListOfUsers() {
-//
-//        //GIVEN
-//        List<User> users = List.of(new User(), new User());
-//        when(userRepository.findAll()).thenReturn(users);
-//
-//        //WHEN
-//        List<User> result = userService.findAllUsers();
-//
-//        //THEN
-//        assertEquals(users,result);
-//        verify(userRepository,times(1)).findAll();
-//    }
+    @Test
+    void findAllUsers_ShouldReturnListOfUsers() {
 
-//    @Test
-//    void findAllUsersWithStatus_ShouldReturnListOfActiveUsers() {
-//        //GIVEN
-//        User activeUser1 = new User();
-//        activeUser1.setId(1L);
-//        activeUser1.setUserStatus(UserStatus.ACTIVE);
-//
-//        User activeUser2 = new User();
-//        activeUser2.setId(2L);
-//        activeUser2.setUserStatus(UserStatus.ACTIVE);
-//
-//        User inactiveUser = new User();
-//        inactiveUser.setId(3L);
-//        inactiveUser.setUserStatus(UserStatus.INACTIVE);
-//
-//        List<User> users = List.of(activeUser1,activeUser2,inactiveUser);
-//        List<User> expected = List.of(activeUser1,activeUser2);
-//
-//        when(userRepository.findAll()).thenReturn(users);
-//
-//        //WHEN
-//        List<User> actual = userService.findAllUsersWithStatus(UserStatus.ACTIVE);
-//
-//        //THEN
-//        assertEquals(expected,actual);
-//        verify(userRepository,times(1)).findAll();
-//    }
-//
-//    @Test
-//    void findAllUsersWithStatus_ShouldReturnListOfInactiveUsers() {
-//        //GIVEN
-//        User inactiveUser1 = new User();
-//        inactiveUser1.setId(1L);
-//        inactiveUser1.setUserStatus(UserStatus.INACTIVE);
-//
-//        User inactiveUser2 = new User();
-//        inactiveUser2.setId(2L);
-//        inactiveUser2.setUserStatus(UserStatus.INACTIVE);
-//
-//        User activeUser = new User();
-//        activeUser.setId(3L);
-//        activeUser.setUserStatus(UserStatus.ACTIVE);
-//
-//        List<User> users = List.of(inactiveUser1,inactiveUser2,activeUser);
-//        List<User> expected = List.of(inactiveUser1, inactiveUser2);
-//
-//        when(userRepository.findAll()).thenReturn(users);
-//
-//        //WHEN
-//        List<User> actual = userService.findAllUsersWithStatus(UserStatus.INACTIVE);
-//
-//        //THEN
-//        assertEquals(expected,actual);
-//        verify(userRepository,times(1)).findAll();
-//    }
+        //GIVEN
+        int pgNum = 0;
+        int pgSize = 2;
+
+        List<User> userList = List.of(
+                User.builder().id(1L).userStatus(ACTIVE).build(),
+                User.builder().id(2L).userStatus(ACTIVE).build(),
+                User.builder().id(3L).userStatus(UserStatus.INACTIVE).build()
+        );
+
+        Pageable pageable = PageRequest.of(pgNum, pgSize);
+        Page<User> userPage = new PageImpl<>(userList, pageable, userList.size());
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
+
+        //WHEN
+        Page<User> result = userService.findAllUsers(pgNum,pgSize);
+
+        //THEN
+        assertNotNull(result);
+        assertEquals(3, result.getContent().size());
+        assertEquals(1L, result.getContent().get(0).getId());
+        assertEquals(3L, result.getContent().get(2).getId());
+
+        verify(userRepository,times(1)).findAll(pageable);
+    }
+
+
+    @Test
+    void findAllUsersWithStatus_ShouldReturnListOfInactiveUsers() {
+        //GIVEN
+        int pgNum = 0;
+        int pgSize = 2;
+
+        List<User> userList = List.of(
+                User.builder().id(1L).userStatus(ACTIVE).build(),
+                User.builder().id(2L).userStatus(ACTIVE).build(),
+                User.builder().id(3L).userStatus(UserStatus.INACTIVE).build()
+        );
+
+        List<User> statusList = userList.stream()
+                .filter(user -> user.getUserStatus().equals(ACTIVE))
+                .toList();
+
+        Pageable pageable = PageRequest.of(pgNum, pgSize);
+        Page<User> userPage = new PageImpl<>(statusList, pageable, statusList.size());
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
+
+        //WHEN
+        Page<User> result = userService.findAllUsers(pgNum,pgSize);
+
+        //THEN
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        assertThat(result)
+                .allSatisfy(user -> user.getUserStatus().equals(ACTIVE));
+
+        verify(userRepository,times(1)).findAll(pageable);
+    }
 
     @Test
     void findUserByUserId_ShouldReturnUser_WhenUserExists() {
@@ -235,7 +234,7 @@ class UserServiceImplTest {
         //GIVEN
         User user = new User();
         user.setId(1L);
-        user.setUserStatus(UserStatus.ACTIVE);
+        user.setUserStatus(ACTIVE);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);

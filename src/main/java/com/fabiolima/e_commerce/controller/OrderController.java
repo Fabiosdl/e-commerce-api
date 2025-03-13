@@ -73,16 +73,15 @@ public class OrderController {
     @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
     public ResponseEntity<Order> getUsersOrderByOrderId(@PathVariable ("userId") Long userId,
                                                         @PathVariable ("orderId") Long orderId){
-        return ResponseEntity.ok(orderService.getUserOrderById(userId,orderId));
+        return ResponseEntity.ok(orderService.findOrderById(orderId));
     }
 
     @Operation(summary = "Update order status")
     @PatchMapping("/{orderId}/status")
     @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable ("userId") Long userId,
-                                                   @PathVariable ("orderId") Long orderId,
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable ("orderId") Long orderId,
                                                    @RequestParam ("status") String status){
-        Order order = orderService.updateOrderStatus(userId,orderId,status);
+        Order order = orderService.updateOrderStatus(orderId,status);
 
         return ResponseEntity.ok(order);
     }
@@ -90,10 +89,9 @@ public class OrderController {
     @Operation(summary = "To cancel an order if its current status is pending")
     @DeleteMapping("/{orderId}/cancel")
     @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
-    public ResponseEntity<Order> cancelOrder(@PathVariable ("userId") Long userId,
-                                             @PathVariable ("orderId") Long orderId){
+    public ResponseEntity<Order> cancelOrder(@PathVariable ("orderId") Long orderId){
 
-        Order order = orderService.cancelOrder(userId,orderId);
+        Order order = orderService.cancelOrder(orderId);
         return ResponseEntity.ok(order);
     }
 }

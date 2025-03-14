@@ -5,19 +5,20 @@ import com.fabiolima.e_commerce.model.Product;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 public interface BasketItemService {
 
-    BasketItem addItemToBasket(Long basketId, Long productId, int quantity);
-    List<BasketItem> getItemsByBasket(Long basketId);
-    BasketItem getItemById(Long basketItemId);
-    BasketItem updateBasketItem(Long basketId, Long basketItemId, int newQuantity);
-    BasketItem removeItemFromBasket(Long basketId, Long basketItemId);
+    BasketItem addItemToBasket(UUID basketId, UUID productId, int quantity);
+    List<BasketItem> getItemsByBasket(UUID basketId);
+    BasketItem getItemById(UUID basketItemId);
+    BasketItem updateBasketItem(UUID basketId, UUID basketItemId, int newQuantity);
+    BasketItem removeItemFromBasket(UUID basketId, UUID basketItemId);
 
-    BasketItem incrementItemQuantity(Long basketItemId);
-    BasketItem decrementItemQuantity(Long basketId, Long basketItemId);
+    BasketItem incrementItemQuantity(UUID basketItemId);
+    BasketItem decrementItemQuantity(UUID basketId, UUID basketItemId);
 
     void ensureStockAvailable(Product product, int quantity);
 
-    BigDecimal calculateItemTotalPrice(Long basketItemId);
+    BigDecimal calculateItemTotalPrice(UUID basketItemId);
 }

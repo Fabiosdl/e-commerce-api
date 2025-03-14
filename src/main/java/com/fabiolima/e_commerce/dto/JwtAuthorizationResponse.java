@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @NoArgsConstructor
 @Getter
@@ -13,6 +14,6 @@ import java.time.LocalDateTime;
 public class JwtAuthorizationResponse {
     private String token;
     private long expiresIn;
-    private Long userId;
+    private UUID userId;
     private String role;
 }

@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -19,7 +20,7 @@ public class UserAuthenticationService {
         this.userRepository = userRepository;
     }
 
-    public boolean isOwner(Long urlId, Authentication authentication){
+    public boolean isOwner(UUID urlId, Authentication authentication){
         String email = authentication.getName();
 
         Optional<User> optional = userRepository.findByEmail(email);
@@ -28,7 +29,7 @@ public class UserAuthenticationService {
 
         User authenticatedUser = optional.get();
 
-        Long authenticatedUserId = authenticatedUser.getId();
+        UUID authenticatedUserId = authenticatedUser.getId();
 
         log.info("Is user id from the url the same as the authenticated user ? {}", urlId.equals(authenticatedUser.getId()));
 

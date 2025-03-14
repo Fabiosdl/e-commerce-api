@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/basket/{basketId}/item")
@@ -25,8 +26,8 @@ public class BasketItemController {
 
     @Operation(summary = "Add items to basket")
     @PostMapping
-    public ResponseEntity<BasketItem> addItemToBasket(@PathVariable("basketId") Long basketId,
-                                                       @RequestParam Long productId,
+    public ResponseEntity<BasketItem> addItemToBasket(@PathVariable("basketId") UUID basketId,
+                                                       @RequestParam UUID productId,
                                                        @RequestParam int quant){
 
         BasketItem item = basketItemService.addItemToBasket(basketId, productId, quant);
@@ -35,15 +36,15 @@ public class BasketItemController {
 
     @Operation(summary = "Retrieve all items in a basket")
     @GetMapping
-    public ResponseEntity<List<BasketItem>> getAllItemsInBasket(@PathVariable("basketId") Long basketId){
+    public ResponseEntity<List<BasketItem>> getAllItemsInBasket(@PathVariable("basketId") UUID basketId){
         return ResponseEntity.ok(basketItemService.getItemsByBasket(basketId));
     }
 
     @Operation(summary = "Retrieve item by its id")
     @GetMapping("/{itemId}")
     @PreAuthorize("@orderAuthenticationService.isOwner(#itemId, authentication)")
-    public ResponseEntity<BasketItem> getItemById(@PathVariable("basketId") Long basketId,
-                                                  @PathVariable("itemId") Long itemId){
+    public ResponseEntity<BasketItem> getItemById(@PathVariable("basketId") UUID basketId,
+                                                  @PathVariable("itemId") UUID itemId){
         return ResponseEntity.ok(basketItemService.getItemById(itemId));
     }
     /*
@@ -54,7 +55,7 @@ public class BasketItemController {
     @Operation(summary = "Increment the item quantity by the value of One in basket and decrement product stock")
     @PostMapping("/{itemId}/increment")
     @PreAuthorize("@orderAuthenticationService.isOwner(#itemId, authentication)")
-    public ResponseEntity<BasketItem> incrementItemInBasket(@PathVariable("itemId") Long itemId){
+    public ResponseEntity<BasketItem> incrementItemInBasket(@PathVariable("itemId") UUID itemId){
         BasketItem incrementedItem = basketItemService.incrementItemQuantity(itemId);
         return ResponseEntity.ok(incrementedItem);
     }
@@ -63,8 +64,8 @@ public class BasketItemController {
     @Operation(summary = "Decrement the item quantity by the value of One in basket and increment product stock")
     @PostMapping("/{itemId}/decrement")
     @PreAuthorize("@orderAuthenticationService.isOwner(#itemId, authentication)")
-    public ResponseEntity<BasketItem> decrementItemInBasket(@PathVariable("basketId") Long basketId,
-                                                            @PathVariable("itemId") Long itemId){
+    public ResponseEntity<BasketItem> decrementItemInBasket(@PathVariable("basketId") UUID basketId,
+                                                            @PathVariable("itemId") UUID itemId){
         BasketItem decrementedItem = basketItemService.decrementItemQuantity(basketId, itemId);
         return ResponseEntity.ok(decrementedItem);
     }
@@ -74,8 +75,8 @@ public class BasketItemController {
             "Useful if website allows user to manually set the quantity. It also update product stock")
     @PostMapping("/{itemId}")
     @PreAuthorize("@orderAuthenticationService.isOwner(#itemId, authentication)")
-    public ResponseEntity<BasketItem> updateItemQuantityInBasket(@PathVariable("basketId") Long basketId,
-                                                                 @PathVariable("itemId") Long itemId,
+    public ResponseEntity<BasketItem> updateItemQuantityInBasket(@PathVariable("basketId") UUID basketId,
+                                                                 @PathVariable("itemId") UUID itemId,
                                                                  @RequestParam int quant){
         BasketItem updatedBasketItem = basketItemService.updateBasketItem(basketId, itemId, quant);
         return ResponseEntity.ok(updatedBasketItem);
@@ -85,7 +86,7 @@ public class BasketItemController {
     @Operation(summary = "Retrieve the total price of an item")
     @GetMapping("/{itemId}/total-price")
     @PreAuthorize("@orderAuthenticationService.isOwner(#itemId, authentication)")
-    public ResponseEntity<BigDecimal> getTotalItemPrice(@PathVariable("itemId") Long itemId){
+    public ResponseEntity<BigDecimal> getTotalItemPrice(@PathVariable("itemId") UUID itemId){
         return ResponseEntity.ok(basketItemService.calculateItemTotalPrice(itemId));
     }
 
@@ -93,8 +94,8 @@ public class BasketItemController {
     @Operation(summary = "Remove item from basket, and update product stock")
     @DeleteMapping("/{itemId}")
     @PreAuthorize("@orderAuthenticationService.isOwner(#itemId, authentication)")
-    public ResponseEntity<Void> removeItemFromBasket(@PathVariable("basketId") Long basketId,
-                                                     @PathVariable("itemId") Long itemId){
+    public ResponseEntity<Void> removeItemFromBasket(@PathVariable("basketId") UUID basketId,
+                                                     @PathVariable("itemId") UUID itemId){
         basketItemService.removeItemFromBasket(basketId,itemId);
         return ResponseEntity.noContent().build();
     }

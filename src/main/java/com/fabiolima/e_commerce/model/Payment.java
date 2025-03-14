@@ -5,21 +5,22 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
+@Getter
+@Setter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-@Getter
-@Setter
 
 @Entity
 @Table(name = "payment")
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @OneToOne
     @JoinColumn(name = "order_id")

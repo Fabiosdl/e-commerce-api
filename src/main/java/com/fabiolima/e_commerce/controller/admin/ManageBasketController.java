@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/admin")
 public class ManageBasketController {
@@ -22,7 +24,7 @@ public class ManageBasketController {
 
     @Operation(summary = "Retrieve all the baskets of an user")
     @GetMapping("/{adminId}/user/{userId}")
-    public ResponseEntity<Page<Basket>> getAllUsersBasket(@PathVariable("userId") Long userId,
+    public ResponseEntity<Page<Basket>> getAllUsersBasket(@PathVariable("userId") UUID userId,
                                                           @RequestParam(defaultValue = "0") int pgNum,
                                                           @RequestParam(defaultValue = "25") int pgSize){
         Page<Basket> usersBaskets = basketService.getUserBaskets(pgNum, pgSize, userId);
@@ -32,8 +34,8 @@ public class ManageBasketController {
 
     @Operation(summary = "Retrieve basket by its id")
     @GetMapping("/{basketId}")
-    public ResponseEntity<Basket> getBasketById(@PathVariable("userId") Long userId,
-                                                @PathVariable("basketId") Long basketId){
+    public ResponseEntity<Basket> getBasketById(@PathVariable("userId") UUID userId,
+                                                @PathVariable("basketId") UUID basketId){
         Basket theBasket = basketService.findBasketById(basketId);
         return ResponseEntity.ok(theBasket);
     }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -25,7 +26,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment processPayment(Long orderId, String paymentMethod) {
+    public Payment processPayment(UUID orderId, String paymentMethod) {
 
         // check and fetch if the order exists
         Order order = orderService.findOrderById(orderId);
@@ -73,37 +74,37 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment getPaymentDetails(Long paymentId) {
+    public Payment getPaymentDetails(UUID paymentId) {
         return null;
     }
 
     @Override
-    public List<Payment> getPaymentsByOrder(Long orderId) {
+    public List<Payment> getPaymentsByOrder(UUID orderId) {
         return List.of();
     }
 
     @Override
-    public List<Payment> getPaymentsByUser(Long userId) {
+    public List<Payment> getPaymentsByUser(UUID userId) {
         return List.of();
     }
 
     @Override
-    public Payment refundPayment(Long paymentId) {
+    public Payment refundPayment(UUID paymentId) {
         return null;
     }
 
     @Override
-    public Payment confirmPayment(Long paymentId) {
+    public Payment confirmPayment(UUID paymentId) {
         return null;
     }
 
     @Override
-    public boolean isPaymentComplete(Long orderId) {
+    public boolean isPaymentComplete(UUID orderId) {
         return false;
     }
 
     @Override
-    public double calculateOutstandingAmount(Long orderId) {
+    public double calculateOutstandingAmount(UUID orderId) {
         return 0;
     }
 
@@ -113,7 +114,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment retryFailedPayment(Long paymentId) {
+    public Payment retryFailedPayment(UUID paymentId) {
         return null;
     }
 }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -29,7 +30,7 @@ public class PaypalServiceImpl {
         this.entityOrderRepository = entityOrderRepository;
     }
 
-    public String createOrder(Long orderId) {
+    public String createOrder(UUID orderId) {
         //Retrieve entity order
         com.fabiolima.e_commerce.model.Order entityOrder = entityOrderService.findOrderById(orderId);
 
@@ -117,8 +118,8 @@ public class PaypalServiceImpl {
 
             if("COMPLETED".equalsIgnoreCase(response.result().status())){
                 //retrieve system order from paypal id
-                Long userId = systemOrder.get().getUser().getId();
-                Long systemOrderId = systemOrder.get().getId();
+                UUID userId = systemOrder.get().getUser().getId();
+                UUID systemOrderId = systemOrder.get().getId();
                 entityOrderService.updateOrderStatus(systemOrderId, "PAID");
             }
 

@@ -24,10 +24,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * clearBasket must be used in case the user wants to keep the basket open/active, but want to delete all items in it.
@@ -67,7 +64,7 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public Page<Basket> getUserBaskets(int pgNum, int pgSize, Long userId) {
+    public Page<Basket> getUserBaskets(int pgNum, int pgSize, UUID userId) {
 
         Pageable pageable  = PageRequest.of(pgNum, pgSize, Sort.by(Sort.Direction.DESC, "createdAt"));
 
@@ -81,7 +78,7 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public Basket deactivateBasketById(Long userId, Long basketId) {
+    public Basket deactivateBasketById(UUID userId, UUID basketId) {
         //1 - Validate basket
         Basket reference = findBasketById(basketId);
 
@@ -100,14 +97,14 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public Basket findBasketById(Long basketId) {
+    public Basket findBasketById(UUID basketId) {
         return basketRepository.findById(basketId)
-                .orElseThrow(() -> new NotFoundException(String.format("Basket with Id %d not found",basketId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Basket with Id %s not found",basketId.toString())));
     }
 
     @Override//I have to pass all the quantity items back to product
     @Transactional
-    public Basket clearBasket(Long basketId) {
+    public Basket clearBasket(UUID basketId) {
         //find the basket
         Basket theBasket = findBasketById(basketId);
 
@@ -172,7 +169,7 @@ public class BasketServiceImpl implements BasketService {
 
     @Override
     @Transactional
-    public Basket checkoutBasket(Long userId, Long basketId) {
+    public Basket checkoutBasket(UUID userId, UUID basketId) {
 
         //1-Retrieve the basket
         Basket basket = findBasketById(basketId);
@@ -198,7 +195,7 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public int getTotalQuantity(Long basketId) {
+    public int getTotalQuantity(UUID basketId) {
         Basket theBasket = findBasketById(basketId);
         int count = 0;
         for (BasketItem item : theBasket.getBasketItems()){
@@ -208,7 +205,7 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public BigDecimal calculateTotalPrice(Long basketId) {
+    public BigDecimal calculateTotalPrice(UUID basketId) {
 
         Basket theBasket = findBasketById(basketId);
         // Stream through basket items and calculate the total

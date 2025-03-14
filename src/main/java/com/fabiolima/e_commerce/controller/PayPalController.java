@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequestMapping("/user/{userId}/order/{orderId}/payments")
@@ -26,7 +28,7 @@ public class PayPalController {
 
     @Operation(summary = "Creates a paypal order and request the user to approve it")
     @PostMapping("/create")
-    public String createPayPalOrder(@PathVariable("orderId") Long orderId){
+    public String createPayPalOrder(@PathVariable("orderId") UUID orderId){
         
         return paypalServiceImpl.createOrder(orderId);
     }

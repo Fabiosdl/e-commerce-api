@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/product")
@@ -48,14 +49,14 @@ public class ProductController {
 
     @Operation(summary = "Retrieve a product by its id")
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable ("productId") Long productId){
+    public ResponseEntity<Product> getProductById(@PathVariable ("productId") UUID productId){
         Product theProduct = productService.findProductById(productId);
         return ResponseEntity.ok(theProduct);
     }
 
     @Operation(summary = "Update product details")
     @PatchMapping("/{productId}")
-    public ResponseEntity<Product> updateProduct(@PathVariable ("productId") Long productId,
+    public ResponseEntity<Product> updateProduct(@PathVariable ("productId") UUID productId,
                                         @RequestBody Map<String, Object> updates){
         Product updatedProduct = productService.patchUpdateProductById(productId, updates);
 
@@ -64,7 +65,7 @@ public class ProductController {
 
     @Operation(summary = "Delete product by its id")
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable("productId") Long productId){
+    public ResponseEntity<Void> deleteProduct(@PathVariable("productId") UUID productId){
         productService.deleteProductById(productId);
         return ResponseEntity.noContent().build();
     }

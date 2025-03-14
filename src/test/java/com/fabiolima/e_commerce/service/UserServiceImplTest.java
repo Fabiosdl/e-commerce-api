@@ -19,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.fabiolima.e_commerce.model.enums.UserStatus.ACTIVE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +54,7 @@ class UserServiceImplTest {
     void saveUser_ShouldReturnSavedUser() {
         //GIVEN
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         user.setName("Joe Doe");
 
         when(userRepository.save(user)).thenReturn(user);
@@ -73,11 +74,11 @@ class UserServiceImplTest {
         int pgNum = 0;
         int pgSize = 2;
 
-        List<User> userList = List.of(
-                User.builder().id(1L).userStatus(ACTIVE).build(),
-                User.builder().id(2L).userStatus(ACTIVE).build(),
-                User.builder().id(3L).userStatus(UserStatus.INACTIVE).build()
-        );
+        User user1 = User.builder().id(UUID.randomUUID()).userStatus(ACTIVE).build();
+        User user2 = User.builder().id(UUID.randomUUID()).userStatus(ACTIVE).build();
+        User user3 = User.builder().id(UUID.randomUUID()).userStatus(UserStatus.INACTIVE).build();
+
+        List<User> userList = List.of(user1, user2, user3);
 
         Pageable pageable = PageRequest.of(pgNum, pgSize);
         Page<User> userPage = new PageImpl<>(userList, pageable, userList.size());
@@ -89,8 +90,8 @@ class UserServiceImplTest {
         //THEN
         assertNotNull(result);
         assertEquals(3, result.getContent().size());
-        assertEquals(1L, result.getContent().get(0).getId());
-        assertEquals(3L, result.getContent().get(2).getId());
+        assertEquals(user1.getId(), result.getContent().get(0).getId());
+        assertEquals(user3.getId(), result.getContent().get(2).getId());
 
         verify(userRepository,times(1)).findAll(pageable);
     }
@@ -102,11 +103,11 @@ class UserServiceImplTest {
         int pgNum = 0;
         int pgSize = 2;
 
-        List<User> userList = List.of(
-                User.builder().id(1L).userStatus(ACTIVE).build(),
-                User.builder().id(2L).userStatus(ACTIVE).build(),
-                User.builder().id(3L).userStatus(UserStatus.INACTIVE).build()
-        );
+        User user1 = User.builder().id(UUID.randomUUID()).userStatus(ACTIVE).build();
+        User user2 = User.builder().id(UUID.randomUUID()).userStatus(ACTIVE).build();
+        User user3 = User.builder().id(UUID.randomUUID()).userStatus(UserStatus.INACTIVE).build();
+
+        List<User> userList = List.of(user1, user2, user3);
 
         List<User> statusList = userList.stream()
                 .filter(user -> user.getUserStatus().equals(ACTIVE))
@@ -133,32 +134,34 @@ class UserServiceImplTest {
 
         //GIVEN
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         //WHEN
-        User result = userService.findUserByUserId(1L);
+        User result = userService.findUserByUserId(user.getId());
 
         //THEN
         assertEquals(user, result);
-        verify(userRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).findById(user.getId());
     }
 
     @Test
     void findUserByUserID_ShouldThrowNotFoundException_WhenUserDoesNotExist() {
 
         //GIVEN
-        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+        UUID userId = UUID.randomUUID();
+
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
 
         //WHEN
-        Executable executable = () -> userService.findUserByUserId(2L);
+        Executable executable = () -> userService.findUserByUserId(userId);
 
         //THEN
         assertThrows(NotFoundException.class, executable);
 
         //to verify that the repository was called with the correct id
-        verify(userRepository, times(1)).findById(2L);
+        verify(userRepository, times(1)).findById(userId);
     }
 
     @Test
@@ -166,18 +169,18 @@ class UserServiceImplTest {
 
         //GIVEN
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         User updatedUser = new User();
-        updatedUser.setId(1L);
+        updatedUser.setId(UUID.randomUUID());
         updatedUser.setName("Serrano Suarez");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(userRepository.save(updatedUser)).thenReturn(updatedUser);
 
         //WHEN
 
-        User actual = userService.updateUserByUserId(1L, updatedUser);
+        User actual = userService.updateUserByUserId(user.getId(), updatedUser);
 
         //THEN
         assertEquals(updatedUser, actual);
@@ -189,23 +192,23 @@ class UserServiceImplTest {
     void patchUpdateUserByUserId_ShouldReturnPatchedUser() {
         //GIVEN
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         user.setName("Jamón Suarez");
 
         HashMap<String,Object> map = new HashMap<>();
         String username = "Serrano Suarez";
         map.put("name", username);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
         //WHEN
         String expected = username;
-        User actual = userService.patchUpdateUserByUserId(1L, map);
+        User actual = userService.patchUpdateUserByUserId(user.getId(), map);
 
         //THEN
         assertEquals(expected, actual.getName());
-        verify(userRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).findById(user.getId());
         verify(userRepository, times(1)).save(user);
     }
 
@@ -213,17 +216,17 @@ class UserServiceImplTest {
     void patchUpdateUserByUserId_ShouldReturnException_WhenUpdateFieldNotFound() {
         //GIVEN
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("test", "TEST");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
         //I won't mock the userRepository.save() because it's in the return statement and
         //the exception will be launched before reach it.
 
         //WHEN
-        Executable executable = () -> userService.patchUpdateUserByUserId(1L, map);
+        Executable executable = () -> userService.patchUpdateUserByUserId(user.getId(), map);
 
         //THEN
         assertThrows(ForbiddenException.class, executable);
@@ -233,14 +236,14 @@ class UserServiceImplTest {
     void deactivateUserByUserId_ShouldSaveUserWithInactiveStatus() {
         //GIVEN
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
         user.setUserStatus(ACTIVE);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
         //WHEN
-        User actual = userService.deactivateUserByUserId(1L);
+        User actual = userService.deactivateUserByUserId(user.getId());
 
         //THEN
         assertEquals(UserStatus.INACTIVE, actual.getUserStatus());
@@ -251,13 +254,13 @@ class UserServiceImplTest {
     void deactivateUserByUserId_ShouldThrowForbiddenException_WhenUserIsInactive() {
         //GIVEN
         User user = new User();
-        user.setId(1L);
+        user.setId(user.getId());
         user.setUserStatus(UserStatus.INACTIVE);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         //WHEN
-        Executable executable = () -> userService.deactivateUserByUserId(1L);
+        Executable executable = () -> userService.deactivateUserByUserId(user.getId());
 
         //THEN
         assertThrows(ForbiddenException.class, executable);
@@ -268,15 +271,15 @@ class UserServiceImplTest {
     void deleteUserById_ShouldDeleteUser(){
         //GIVEN
         User user = new User();
-        user.setId(1L);
+        user.setId(UUID.randomUUID());
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        doNothing().when(userRepository).deleteById(1L);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        doNothing().when(userRepository).deleteById(user.getId());
 
         //WHEN
-        userService.deleteUserById(1L);
+        userService.deleteUserById(user.getId());
 
         //THEN
-        verify(userRepository,times(1)).deleteById(1L);
+        verify(userRepository,times(1)).deleteById(user.getId());
     }
 }

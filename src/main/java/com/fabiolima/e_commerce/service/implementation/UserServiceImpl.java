@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User addRoleToUser(Long userId, String roleName) {
+    public User addRoleToUser(UUID userId, String roleName) {
         //fetch user
         User user = findUserByUserId(userId);
 
@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserByUserId(Long userId){
+    public User findUserByUserId(UUID userId){
         Optional<User> result = userRepository.findById(userId);
         if (result.isEmpty()) throw new NotFoundException("User not found");
         return result.get();
@@ -96,12 +96,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User updateUserByUserId(Long userId, User updatedUser) {
-
-        // first check if the user id in the parameter matches the user id in the body.
-        if(!Objects.equals(updatedUser.getId(), userId))
-            throw new BadRequestException("User id in the parameter does not " +
-                    "match the user id in the body");
+    public User updateUserByUserId(UUID userId, User updatedUser) {
 
         // If the request is correct, find user. check if it exists; throw an error if it doesn't
         findUserByUserId(userId);
@@ -111,7 +106,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User patchUpdateUserByUserId(Long userId, Map<String, Object> updates) {
+    public User patchUpdateUserByUserId(UUID userId, Map<String, Object> updates) {
 
         // Check if user exists; throw an error if it doesn't
         User theUser = findUserByUserId(userId);
@@ -139,7 +134,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User deactivateUserByUserId(Long userId) {
+    public User deactivateUserByUserId(UUID userId) {
         //1- Retrieve the user
         User theUser = findUserByUserId(userId);
 
@@ -159,7 +154,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User deleteUserById(Long userId) {
+    public User deleteUserById(UUID userId) {
         User theUser = findUserByUserId(userId);
         userRepository.deleteById(userId);
         return theUser;

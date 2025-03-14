@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -41,7 +42,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     @Transactional
-    public BasketItem addItemToBasket(Long basketId, Long productId, int quantity) {
+    public BasketItem addItemToBasket(UUID basketId, UUID productId, int quantity) {
 
         //validate quantity
         if(quantity <= 0)
@@ -100,13 +101,13 @@ public class BasketItemServiceImpl implements BasketItemService {
     }
 
     @Override
-    public List<BasketItem> getItemsByBasket(Long basketId) {
+    public List<BasketItem> getItemsByBasket(UUID basketId) {
 
         return basketService.findBasketById(basketId).getBasketItems();
     }
 
     @Override
-    public BasketItem getItemById(Long basketItemId) {
+    public BasketItem getItemById(UUID basketItemId) {
 
         return basketItemRepository.findById(basketItemId)
                 .orElseThrow(() -> new NotFoundException(String.format(
@@ -119,7 +120,7 @@ public class BasketItemServiceImpl implements BasketItemService {
     /**
      * Method to be used in case the user changes the quantity of a product manually providing the quantity they want
       */
-    public BasketItem updateBasketItem(Long basketId, Long basketItemId, int newQuantity) {
+    public BasketItem updateBasketItem(UUID basketId, UUID basketItemId, int newQuantity) {
         //create basket to update it when an item is updated
         Basket basket = basketService.findBasketById(basketId);
 
@@ -171,7 +172,7 @@ public class BasketItemServiceImpl implements BasketItemService {
     /**
      * Method to use in case the quantity is provided by pressing a button that increments the quantity by 1
      */
-    public BasketItem incrementItemQuantity(Long basketItemId) {
+    public BasketItem incrementItemQuantity(UUID basketItemId) {
 
         //Delta -> New Quantity - current Quantity
         int delta = 1;
@@ -200,7 +201,7 @@ public class BasketItemServiceImpl implements BasketItemService {
     /**
      * Method in case the quantity is provided by pressing a button that decrements the quantity by 1
      */
-    public BasketItem decrementItemQuantity(Long basketId, Long basketItemId) {
+    public BasketItem decrementItemQuantity(UUID basketId, UUID basketItemId) {
 
         //Delta -> New Quantity - current Quantity
         int delta = -1;
@@ -236,7 +237,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     @Transactional
-    public BasketItem removeItemFromBasket(Long basketId, Long basketItemId) {
+    public BasketItem removeItemFromBasket(UUID basketId, UUID basketItemId) {
 
         //retrieve the basket where the item is stored
         Basket basket = basketService.findBasketById(basketId);
@@ -265,7 +266,7 @@ public class BasketItemServiceImpl implements BasketItemService {
     }
 
     @Override
-    public BigDecimal calculateItemTotalPrice(Long basketItemId) {
+    public BigDecimal calculateItemTotalPrice(UUID basketItemId) {
 
         BasketItem basketItem = getItemById(basketItemId);
         BigDecimal itemQuantity = BigDecimal.valueOf(basketItem.getQuantity());

@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -38,22 +39,22 @@ public class BasketController {
     @Operation(summary = "Retrieve basket by its id")
     @GetMapping("/{basketId}")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<Basket> getBasketById(@PathVariable("userId") Long userId,
-                                                @PathVariable("basketId") Long basketId){
+    public ResponseEntity<Basket> getBasketById(@PathVariable("userId") UUID userId,
+                                                @PathVariable("basketId") UUID basketId){
         Basket theBasket = basketService.findBasketById(basketId);
         return ResponseEntity.ok(theBasket);
     }
 
     @Operation(summary = "Retrieve newest Active basket - Useful for the frontend to have always a valid basket to use")
     @GetMapping("/active-basket")
-    public ResponseEntity<Basket> getNewestActiveBasket(@PathVariable("userId") Long userId){
+    public ResponseEntity<Basket> getNewestActiveBasket(@PathVariable("userId") UUID userId){
         User user = userService.findUserByUserId(userId);
         return  ResponseEntity.ok(basketService.returnNewestActiveBasket(user));
     }
 
     @Operation(summary = "Creates new basket/cart for the user when it expires or is checked out")
     @PostMapping()
-    public ResponseEntity<Basket> createBasket(@PathVariable("userId") Long userId){
+    public ResponseEntity<Basket> createBasket(@PathVariable("userId") UUID userId){
 
         User user = userService.findUserByUserId(userId);
         Basket createdBasket = basketService.createBasketAndAddToUser(user);
@@ -63,8 +64,8 @@ public class BasketController {
     @Operation(summary = "Change Basket status to checked out. A checked out basket cannot be updated anymore.")
     @PatchMapping("/{basketId}/checkout")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<Basket> convertBasketToOrder(@PathVariable("userId") Long userId,
-                                                   @PathVariable("basketId") Long basketId){
+    public ResponseEntity<Basket> convertBasketToOrder(@PathVariable("userId") UUID userId,
+                                                   @PathVariable("basketId") UUID basketId){
         //1 - Change basket status to CHECKED_OUT
         /**
 
@@ -83,8 +84,8 @@ public class BasketController {
     @Operation(summary = "Deactivate a basket if user don't update it for 1 day, giving back all items to product stock")
     @DeleteMapping("/{basketId}")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<Basket> deactivateBasket(@PathVariable("userId") Long userId,
-                                               @PathVariable("basketId") Long basketId) {
+    public ResponseEntity<Basket> deactivateBasket(@PathVariable("userId") UUID userId,
+                                               @PathVariable("basketId") UUID basketId) {
         Basket theBasket = basketService.deactivateBasketById(userId, basketId);
         return ResponseEntity.ok(theBasket);
     }
@@ -92,7 +93,7 @@ public class BasketController {
     @Operation(summary = "Remove all items in basket")
     @PostMapping("/{basketId}/clear-basket")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<Basket> clearBasket(@PathVariable("basketId") Long basketId){
+    public ResponseEntity<Basket> clearBasket(@PathVariable("basketId") UUID basketId){
         Basket basket = basketService.clearBasket(basketId);
         return ResponseEntity.ok(basket);
     }
@@ -100,14 +101,14 @@ public class BasketController {
     @Operation(summary = "Retrieve the total amount of items in a basket")
     @GetMapping("/{basketId}/quant-of-items")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<Integer> getTotalAmountOfItemsInBasket(@PathVariable("basketId") Long basketId){
+    public ResponseEntity<Integer> getTotalAmountOfItemsInBasket(@PathVariable("basketId") UUID basketId){
         return ResponseEntity.ok(basketService.getTotalQuantity(basketId));
     }
 
     @Operation(summary = "Retrieves the total price of a basket")
     @GetMapping("{basketId}/total-price")
     @PreAuthorize("@basketAuthenticationService.isOwner(#basketId, authentication)")
-    public ResponseEntity<BigDecimal> getTotalBasketPrice(@PathVariable("basketId") Long basketId){
+    public ResponseEntity<BigDecimal> getTotalBasketPrice(@PathVariable("basketId") UUID basketId){
         return ResponseEntity.ok(basketService.calculateTotalPrice(basketId));
     }
 }

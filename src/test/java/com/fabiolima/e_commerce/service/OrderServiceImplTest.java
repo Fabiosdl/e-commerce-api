@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.fabiolima.e_commerce.model.enums.OrderStatus.*;
@@ -48,7 +49,7 @@ class OrderServiceImplTest {
     @Test
     void createOrderAndAddToUser_ShouldReturnTheLastAddedOrder() {
         //given
-        Long userId = 1L;
+        UUID userId = UUID.randomUUID();;
 
         Basket basket = new Basket();
         User user = new User();
@@ -61,12 +62,12 @@ class OrderServiceImplTest {
         user.addOrderToUser(order1);
         user.addOrderToUser(order2);
 
-        when(userService.findUserByUserId(anyLong())).thenReturn(user);
+        when(userService.findUserByUserId(any())).thenReturn(user);
 
         //mock converting basket to order
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order argumentOrder = invocation.getArgument(0);
-            argumentOrder.setId(1L);
+            argumentOrder.setId(UUID.randomUUID());
             return argumentOrder;
         });
 
@@ -85,18 +86,18 @@ class OrderServiceImplTest {
     @Test
     void convertBasketToOrder_ShouldReturnNewOrderCreated_WhenBasketDoeNotHaveAnOrder(){
         // Given
-        Product product1 = Product.builder().id(1L).productName("Product A")
+        Product product1 = Product.builder().id(UUID.randomUUID()).productName("Product A")
                 .productPrice(new BigDecimal("10.00"))
                 .build();
-        Product product2 = Product.builder().id(2L).productName("Product B")
+        Product product2 = Product.builder().id(UUID.randomUUID()).productName("Product B")
                 .productPrice(new BigDecimal("20.00"))
                 .build();
 
         Basket basket = new Basket();
         User user = new User();
         basket.setUser(user);
-        basket.addBasketItemToBasket(BasketItem.builder().id(1L).product(product1).quantity(2).build());
-        basket.addBasketItemToBasket(BasketItem.builder().id(2L).product(product2).quantity(1).build());
+        basket.addBasketItemToBasket(BasketItem.builder().id(UUID.randomUUID()).product(product1).quantity(2).build());
+        basket.addBasketItemToBasket(BasketItem.builder().id(UUID.randomUUID()).product(product2).quantity(1).build());
 
         Order savedOrder = new Order();
         savedOrder.setUser(user);
@@ -105,7 +106,7 @@ class OrderServiceImplTest {
 
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order argumentOrder = invocation.getArgument(0);
-            argumentOrder.setId(1L); // simulate DB assigning an Id
+            argumentOrder.setId(UUID.randomUUID()); // simulate DB assigning an Id
             return argumentOrder;
         });
 
@@ -122,7 +123,7 @@ class OrderServiceImplTest {
     @Test
     void convertBasketToOrder_ShouldReturnOrderWithNewItems_WhenBasketHaveAnOrder(){
         // Given
-        Product product = Product.builder().id(1L).productName("Product C")
+        Product product = Product.builder().id(UUID.randomUUID()).productName("Product C")
                 .productPrice(new BigDecimal("15.00"))
                 .build();
 
@@ -135,12 +136,12 @@ class OrderServiceImplTest {
 
         basket.setUser(user);
         basket.setOrder(existingOrder);
-        basket.addBasketItemToBasket(BasketItem.builder().id(1L).product(product).quantity(3).build());
+        basket.addBasketItemToBasket(BasketItem.builder().id(UUID.randomUUID()).product(product).quantity(3).build());
 
         //mock creating a new order
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order argumentOrder = invocation.getArgument(0);
-            argumentOrder.setId(1L);
+            argumentOrder.setId(UUID.randomUUID());
             return argumentOrder;
         });
 
@@ -159,18 +160,18 @@ class OrderServiceImplTest {
     void returnNewestPendingOrder_ShouldReturnNewestPendingOrder(){
         // Given
         Order order1 = Order.builder()
-                .id(1L).orderStatus(PENDING)
+                .id(UUID.randomUUID()).orderStatus(PENDING)
                 .createdAt(LocalDateTime.now().minusDays(1)).build();
 
         Order order2 = Order.builder()
-                .id(2L).orderStatus(PENDING)
+                .id(UUID.randomUUID()).orderStatus(PENDING)
                 .createdAt(LocalDateTime.now().minusDays(2)).build();
 
         Order order3 = Order.builder()
-                .id(3L).orderStatus(PENDING)
+                .id(UUID.randomUUID()).orderStatus(PENDING)
                 .createdAt(LocalDateTime.now().minusDays(3)).build();
 
-        Long userId = 1L;
+        UUID userId = UUID.randomUUID();
         User user = new User();
         user.setId(userId);
         user.addOrderToUser(order3);
@@ -186,7 +187,7 @@ class OrderServiceImplTest {
         // Then
         assertNotNull(actualOrder);
         assertEquals(PENDING, actualOrder.getOrderStatus());
-        assertEquals(1L,actualOrder.getId()); //order with id = 1 is the newest order
+        assertEquals(order1.getId(),actualOrder.getId()); //order with id = 1 is the newest order
 
         verify(userService, times(1)).findUserByUserId(userId);
     }
@@ -195,18 +196,18 @@ class OrderServiceImplTest {
     void returnNewestPendingOrder_ShouldThrowNotFoundException_WhenTheresNoPendingOrder() {
         // Given
         Order order1 = Order.builder()
-                .id(1L).orderStatus(PAID)
+                .id(UUID.randomUUID()).orderStatus(PAID)
                 .createdAt(LocalDateTime.now().minusDays(1)).build();
 
         Order order2 = Order.builder()
-                .id(2L).orderStatus(CANCELLED)
+                .id(UUID.randomUUID()).orderStatus(CANCELLED)
                 .createdAt(LocalDateTime.now().minusDays(2)).build();
 
         Order order3 = Order.builder()
-                .id(3L).orderStatus(COMPLETED)
+                .id(UUID.randomUUID()).orderStatus(COMPLETED)
                 .createdAt(LocalDateTime.now().minusDays(3)).build();
 
-        Long userId = 1L;
+        UUID userId = UUID.randomUUID();
         User user = new User();
         user.setId(userId);
         user.addOrderToUser(order3);
@@ -229,14 +230,16 @@ class OrderServiceImplTest {
     void getUserOrders_ShouldReturnListOfOrders_WhenUserExists() {
 
         //given
-        Long userId = 1L;
+        UUID userId = UUID.randomUUID();
         int pgNum = 0;
         int pgSize = 2;
 
         User user = new User();
         user.setId(userId);
-        user.addOrderToUser(Order.builder().id(1L).build());
-        user.addOrderToUser(Order.builder().id(2L).build());
+        Order order1 = Order.builder().id(UUID.randomUUID()).build();
+        user.addOrderToUser(order1);
+        Order order2 = Order.builder().id(UUID.randomUUID()).build();
+        user.addOrderToUser(order2);
 
         Pageable pageable = PageRequest.of(pgNum, pgSize);
         Page<Order> orderPage = new PageImpl<>(user.getOrders(), pageable, user.getOrders().size());
@@ -251,10 +254,10 @@ class OrderServiceImplTest {
         // Then
         assertNotNull(result);
         assertEquals(2, result.getContent().size());
-        assertEquals(1L, result.getContent().get(0).getId());
-        assertEquals(2L, result.getContent().get(1).getId());
+        assertEquals(order1.getId(), result.getContent().get(0).getId());
+        assertEquals(order2.getId(), result.getContent().get(1).getId());
 
-        verify(userService,times(1)).findUserByUserId(1L);
+        verify(userService,times(1)).findUserByUserId(userId);
 
     }
 
@@ -269,7 +272,7 @@ class OrderServiceImplTest {
     void getUserOrdersByStatus_ShouldReturnListOfOrdersWithJustOneTypeOfStatus_WhenStatusIsValid(String status) {
         //given
         //create user to suffice userService.findUserById method
-        Long userId = 1L;
+        UUID userId = UUID.randomUUID();
         User user = new User();
         user.setId(userId);
 
@@ -340,28 +343,29 @@ class OrderServiceImplTest {
     void findOrderById_ShouldReturnTheOrderByItsId_WhenOrderExists() {
         //given
         Order order = new Order();
+        order.setId(UUID.randomUUID());
 
-        when(orderRepository.findById(anyLong())).thenReturn(Optional.of(order));
+        when(orderRepository.findById(any())).thenReturn(Optional.of(order));
 
         //when
-        Order actualOrder = orderService.findOrderById(1L);
+        Order actualOrder = orderService.findOrderById(order.getId());
 
         //then
         assertEquals(order,actualOrder);
-        verify(orderRepository,times(1)).findById(1L);
+        verify(orderRepository,times(1)).findById(order.getId());
     }
 
     @Test
     void findOrderById_ShouldThrowNotFoundException_WhenOrderDoesNotExist(){
 
         //given
-        when(orderRepository.findOrderByIdAndUserId(anyLong(),anyLong())).thenReturn(Optional.empty());
+        when(orderRepository.findOrderByIdAndUserId(any(),any())).thenReturn(Optional.empty());
 
         //when
-        Executable executable = () -> orderService.findOrderById(1L);
+        Executable executable = () -> orderService.findOrderById(UUID.randomUUID());
 
         //then
-        assertThrows(NotFoundException.class,executable,"Order with Id 1 not found");
+        assertThrows(NotFoundException.class,executable);
     }
 
     @ParameterizedTest
@@ -374,7 +378,7 @@ class OrderServiceImplTest {
         //given
 
         //create new order
-        Long orderId = 1L;
+        UUID orderId = UUID.randomUUID();
         Order expected = new Order();
         expected.setId(orderId);
         //set currentStatus to expected order
@@ -382,7 +386,7 @@ class OrderServiceImplTest {
 
         //mocking method findByIdId and returning the order, which contains the current status,
         // that will be used by the actual order to update to the new status
-        when(orderRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(orderRepository.findById(any())).thenReturn(Optional.of(expected));
 
         when(orderRepository.save(expected)).thenReturn(expected);
 
@@ -412,18 +416,19 @@ class OrderServiceImplTest {
 
         //create new order
         Order expected = new Order();
+        expected.setId(UUID.randomUUID());
         //set currentStatus to expected order
         expected.setOrderStatus(OrderStatus.valueOf(currentStatus));
 
         //mocking method findOrderByIdAndUserId and returning the order, which contains the current status, that will be used by the actual order to update to the new status
-        when(orderRepository.findById(anyLong())).thenReturn(Optional.of(expected));
+        when(orderRepository.findById(any())).thenReturn(Optional.of(expected));
 
         //when
-        Executable executable = () -> orderService.updateOrderStatus(1L, newStatus);
+        Executable executable = () -> orderService.updateOrderStatus(expected.getId(), newStatus);
 
         //then
         assertThrows(ForbiddenException.class, executable, exceptionMessage);
-        verify(orderRepository,times(1)).findById(1L);
+        verify(orderRepository,times(1)).findById(expected.getId());
     }
 
     @ParameterizedTest
@@ -434,7 +439,7 @@ class OrderServiceImplTest {
     void updateStatusOrder_ShouldThrowIllegalArguments_WhenNewStatusIsInvalid(String newStatus) {
 
         //when
-        Executable executable = () -> orderService.updateOrderStatus(1L, newStatus);
+        Executable executable = () -> orderService.updateOrderStatus(UUID.randomUUID(), newStatus);
 
         //then
         assertThrows(IllegalArgumentException.class, executable, "Invalid order status " + newStatus);
@@ -449,10 +454,10 @@ class OrderServiceImplTest {
         order.setOrderStatus(PENDING);
         user.addOrderToUser(order);
 
-        when(orderRepository.findById(anyLong())).thenReturn(Optional.of(order));
+        when(orderRepository.findById(any())).thenReturn(Optional.of(order));
 
         //when
-        Executable executable = () -> orderService.updateOrderStatus(1L, "cancelled");
+        Executable executable = () -> orderService.updateOrderStatus(UUID.randomUUID(), "cancelled");
 
         //then
         assertThrows(ForbiddenException.class, executable, "Please, use the method cancelOrder to cancel an order.");
@@ -464,14 +469,14 @@ class OrderServiceImplTest {
         int quantity = 3;
         Order expected = new Order();
         expected.setOrderStatus(PENDING);
-        expected.setId(1L);
+        expected.setId(UUID.randomUUID());
 
-        when(orderRepository.findById(anyLong()))
+        when(orderRepository.findById(any()))
                 .thenReturn(Optional.of(expected));
 
         //mock incrementStocksWhenOrderIsCancelled
         Basket basket = new Basket();
-        basket.setId(1L);
+        basket.setId(UUID.randomUUID());
         basket.setOrder(expected);
         expected.setBasket(basket);
 
@@ -484,13 +489,13 @@ class OrderServiceImplTest {
         when(orderRepository.save(any())).thenReturn(expected);
 
         //when
-        Order actual = orderService.cancelOrder(1L);
+        Order actual = orderService.cancelOrder(expected.getId());
 
         //then
         assertNotNull(actual);
         assertEquals(expected, actual);
         assertEquals(CANCELLED,actual.getOrderStatus());
-        verify(orderRepository,times(1)).findById(1L);
+        verify(orderRepository,times(1)).findById(expected.getId());
         verify(orderRepository,times(1)).save(expected);
     }
 
@@ -503,17 +508,18 @@ class OrderServiceImplTest {
     void cancelOrder_ShouldThrowForbiddenException_WhenCurrentStatusIsNotPending(String currentStatus) {
         //given
         Order expected = new Order();
+        expected.setId(UUID.randomUUID());
         expected.setOrderStatus(OrderStatus.valueOf(currentStatus));
 
-        when(orderRepository.findById(anyLong()))
+        when(orderRepository.findById(any()))
                 .thenReturn(Optional.of(expected));
 
         //when
-        Executable executable = () -> orderService.cancelOrder(1L);
+        Executable executable = () -> orderService.cancelOrder(expected.getId());
 
         //then
         assertThrows(ForbiddenException.class, executable,"Only orders with status PENDING can be cancelled");
-        verify(orderRepository,times(1)).findById(1L);
+        verify(orderRepository,times(1)).findById(expected.getId());
 
     }
 

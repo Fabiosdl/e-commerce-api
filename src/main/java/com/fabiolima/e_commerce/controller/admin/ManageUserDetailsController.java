@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("admin/{adminId}")
 public class ManageUserDetailsController {
@@ -49,7 +51,7 @@ public class ManageUserDetailsController {
     @Operation(summary = "Add new role to user")
     @PostMapping("/{userId}/roles/add-role")
     public ResponseEntity<User> addRoleToUser(
-            @PathVariable Long userId,
+            @PathVariable UUID userId,
             @RequestParam String roleName
     ) {
         User updatedUser = userService.addRoleToUser(userId, roleName);
@@ -58,7 +60,7 @@ public class ManageUserDetailsController {
 
     @Operation(summary = "Remove user account")
     @DeleteMapping("/{userId}")
-    public ResponseEntity<User> deleteUserByUserId(@PathVariable("userId") Long userId){
+    public ResponseEntity<User> deleteUserByUserId(@PathVariable("userId") UUID userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
     }
 }

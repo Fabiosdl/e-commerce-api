@@ -8,9 +8,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository//optional (only for jpa is optional)
-public interface BasketItemRepository extends JpaRepository<BasketItem,Long> {
+public interface BasketItemRepository extends JpaRepository<BasketItem, UUID> {
 
     Optional<BasketItem> findByBasketAndProduct(@Param("basket") Basket basket, @Param("product") Product product);
 }

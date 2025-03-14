@@ -12,20 +12,21 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+@Getter
+@Setter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-@Getter
-@Setter
 
 @Entity
 @Table(name = "`order`")
 public class Order {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "paypal_order_id",unique = true)
     private String paypalOrderId;

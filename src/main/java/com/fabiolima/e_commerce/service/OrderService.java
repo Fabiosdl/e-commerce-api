@@ -5,14 +5,15 @@ import com.fabiolima.e_commerce.model.Order;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface OrderService {
 
-    Order returnNewestPendingOrder(Long userId);
-    Order createOrderAndAddToUser(Long userId, Basket basket);
-    Page<Order> getUserOrders(int pgNum, int pgSize, Long userId);
-    Page<Order> getUserOrdersByStatus(int pgNum, int pgSize, Long userId, String orderStatus);
-    Order updateOrderStatus(Long orderId, String orderStatus);
-    Order cancelOrder(Long orderId);
-    Order findOrderById(Long orderId);
+    Order returnNewestPendingOrder(UUID userId);
+    Order createOrderAndAddToUser(UUID userId, Basket basket);
+    Page<Order> getUserOrders(int pgNum, int pgSize, UUID userId);
+    Page<Order> getUserOrdersByStatus(int pgNum, int pgSize, UUID userId, String orderStatus);
+    Order updateOrderStatus(UUID orderId, String orderStatus);
+    Order cancelOrder(UUID orderId);
+    Order findOrderById(UUID orderId);
 }

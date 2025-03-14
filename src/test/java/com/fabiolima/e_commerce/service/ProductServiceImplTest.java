@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,11 +57,11 @@ class ProductServiceImplTest {
     void findAllProducts_ShouldFindListOfProducts() {
         //given
         Product product1 = new Product();
-        product1.setId(1L);
+        product1.setId(UUID.randomUUID());
         product1.setProductName("Product One");
 
         Product product2 = new Product();
-        product2.setId(2L);
+        product2.setId(UUID.randomUUID());
         product2.setProductName("Product Two");
 
         int pgNum = 0;
@@ -76,8 +77,8 @@ class ProductServiceImplTest {
 
         //then
         assertNotNull(actual);
-        assertEquals(1L, actual.getContent().get(0).getId());
-        assertEquals(2L, actual.getContent().get(1).getId());
+        assertEquals(product1.getId(), actual.getContent().get(0).getId());
+        assertEquals(product2.getId(), actual.getContent().get(1).getId());
 
         verify(productRepository, times(1)).findAll(pageable);
     }
@@ -86,39 +87,38 @@ class ProductServiceImplTest {
     void findProductById_ShouldReturnProduct_WhenUserExist() {
         //given
         Product product = new Product();
-        product.setId(1L);
+        product.setId(UUID.randomUUID());
         product.setProductName("Product One");
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findById(any())).thenReturn(Optional.of(product));
 
         //when
-        Product actual = productService.findProductById(1L);
+        Product actual = productService.findProductById(product.getId());
 
         //then
         assertEquals(product, actual);
-        verify(productRepository, times(1)).findById(1L);
+        verify(productRepository, times(1)).findById(product.getId());
     }
 
     @Test
     void findProductById_ShouldReturnNotFoundException_WhenUserDoesNotExist() {
         //given
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+        when(productRepository.findById(any())).thenReturn(Optional.empty());
 
         //when
-        Executable exe = () -> productService.findProductById(1L);
+        Executable exe = () -> productService.findProductById(UUID.randomUUID());
 
         //then
         assertThrows(NotFoundException.class, exe);
-        verify(productRepository, times(1)).findById(1L);
 
     }
 
     @Test
     void findProductsByCategory(){
         // Given
-        Product product1 = Product.builder().id(1L).category("Games").build();
-        Product product2 = Product.builder().id(2L).category("Computers").build();
-        Product product3 = Product.builder().id(3L).category("Games").build();
+        Product product1 = Product.builder().id(UUID.randomUUID()).category("Games").build();
+        Product product2 = Product.builder().id(UUID.randomUUID()).category("Computers").build();
+        Product product3 = Product.builder().id(UUID.randomUUID()).category("Games").build();
 
         int pgNum = 0;
         int pgSize = 2;
@@ -155,7 +155,7 @@ class ProductServiceImplTest {
     void patchUpdateProductById_ShouldReturnUpdatedProduct(String field, String newValue) {
         //given
         Product product = new Product();
-        product.setId(1L);
+        product.setId(UUID.randomUUID());
         product.setProductName("Product One");
         product.setProductDescription("Test");
         product.setProductPrice(new BigDecimal("10.00"));
@@ -171,11 +171,11 @@ class ProductServiceImplTest {
         HashMap<String, Object> map = new HashMap<>();
         map.put(field, parsedValue);
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findById(any())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 
         //when
-        Product actual = productService.patchUpdateProductById(1L, map);
+        Product actual = productService.patchUpdateProductById(product.getId(), map);
 
         //then
         switch (field) {
@@ -192,7 +192,7 @@ class ProductServiceImplTest {
     void patchUpdateProductById_ShouldReturnForbiddenException_WhenProductFieldDoesNotExist() {
         //given
         Product product = new Product();
-        product.setId(1L);
+        product.setId(UUID.randomUUID());
         product.setProductName("Product One");
         product.setProductDescription("Testing Exception");
 
@@ -200,11 +200,11 @@ class ProductServiceImplTest {
         map.put("productName", "Product Two");
         map.put("test", "Testing Exception");
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findById(any())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenReturn(product);
 
         //when
-        Executable exe = () -> productService.patchUpdateProductById(1L, map);
+        Executable exe = () -> productService.patchUpdateProductById(product.getId(), map);
 
         //then
         assertThrows(ForbiddenException.class, exe);
@@ -215,16 +215,16 @@ class ProductServiceImplTest {
     void deleteProductById_ShouldDeleteProduct() {
         //given
         Product product = new Product();
-        product.setId(1L);
+        product.setId(UUID.randomUUID());
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        doNothing().when(productRepository).deleteById(1L);
+        when(productRepository.findById(any())).thenReturn(Optional.of(product));
+        doNothing().when(productRepository).deleteById(product.getId());
 
         //when
-        productService.deleteProductById(1L);
+        productService.deleteProductById(product.getId());
 
         //then
-        verify(productRepository, times(1)).deleteById(1L);
+        verify(productRepository, times(1)).deleteById(product.getId());
     }
 
     @Test
@@ -233,32 +233,32 @@ class ProductServiceImplTest {
 
         //setting two products with a stock of 10
         Product product1 = new Product();
-        product1.setId(1L);
+        product1.setId(UUID.randomUUID());
         product1.setStock(10);
 
         Product product2 = new Product();
-        product2.setId(2L);
+        product2.setId(UUID.randomUUID());
         product2.setStock(8);
 
         //create a list of items and insert in basket and then insert basket into order
         //as the method asks for the order
         BasketItem item1 = new BasketItem();
-        item1.setId(1L);
+        item1.setId(UUID.randomUUID());
         item1.setProduct(product1);
         item1.setQuantity(5);
 
         BasketItem item2 = new BasketItem();
-        item2.setId(2L);
+        item2.setId(UUID.randomUUID());
         item2.setProduct(product2);
         item2.setQuantity(6);
 
         Basket basket = new Basket();
-        basket.setId(1L);
+        basket.setId(UUID.randomUUID());
         basket.addBasketItemToBasket(item1);
         basket.addBasketItemToBasket(item2);
 
         Order order = new Order();
-        order.setId(1L);
+        order.setId(UUID.randomUUID());
         order.setBasket(basket);
         basket.setOrder(order);
 
@@ -289,7 +289,7 @@ class ProductServiceImplTest {
         int currentStock = Integer.parseInt(stock);
         int deltaStock = Integer.parseInt(delta);
         int expectedStock = currentStock - deltaStock;
-        Product product = Product.builder().id(1L)
+        Product product = Product.builder().id(UUID.randomUUID())
                 .stock(currentStock).build();
 
         when(productRepository.save(any(Product.class))).thenReturn(product);
@@ -309,7 +309,7 @@ class ProductServiceImplTest {
         int currentStock = 3;
         int deltaStock = 4;
 
-        Product product = Product.builder().id(1L)
+        Product product = Product.builder().id(UUID.randomUUID())
                 .stock(currentStock).build();
 
         // When

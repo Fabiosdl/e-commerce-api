@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequestMapping("/user")
@@ -32,7 +34,7 @@ public class UserController {
     @Operation(summary = "Returns user's data")
     @GetMapping("/{userId}")
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
-    public ResponseEntity<User> getUserByUserId(@PathVariable("userId") Long userId){
+    public ResponseEntity<User> getUserByUserId(@PathVariable("userId") UUID userId){
         User user = userService.findUserByUserId(userId);
         return ResponseEntity.ok(user);
     }
@@ -41,20 +43,20 @@ public class UserController {
     @PatchMapping("/{userId}")
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
     public ResponseEntity<User> updateUserByUserId(@RequestBody Map<String, Object> updates,
-                                   @PathVariable("userId") Long userId){
+                                   @PathVariable("userId") UUID userId){
         return ResponseEntity.ok(userService.patchUpdateUserByUserId(userId,updates));
     }
 
     @Operation(summary = "Deactivate user, preserving its data")
     @PatchMapping("/{userId}/deactivate")
     @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
-    public ResponseEntity<User> deactivateUserByUserId(@PathVariable("userId") Long userId){
+    public ResponseEntity<User> deactivateUserByUserId(@PathVariable("userId") UUID userId){
         return ResponseEntity.ok(userService.deactivateUserByUserId(userId));
     }
 
     @PostMapping("/{userId}/roles/add-role")
     public ResponseEntity<User> addRoleToUser(
-            @PathVariable Long userId,
+            @PathVariable UUID userId,
             @RequestParam String roleName
     ) {
         User updatedUser = userService.addRoleToUser(userId, roleName);

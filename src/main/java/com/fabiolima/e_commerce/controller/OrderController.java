@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/user/{userId}/order")
 @PreAuthorize("@userAuthenticationService.isOwner(#userId, authentication)")
@@ -35,7 +37,7 @@ public class OrderController {
 
     @Operation(summary = "Creates an Order from Basket")
     @PostMapping("/create-order")
-    public ResponseEntity<Order> createOrderFromBasket(@PathVariable("userId") Long userId){
+    public ResponseEntity<Order> createOrderFromBasket(@PathVariable("userId") UUID userId){
         User user = userService.findUserByUserId(userId);
         Basket basket = basketService.returnNewestActiveBasket(user);
 
@@ -44,7 +46,7 @@ public class OrderController {
 
     @Operation(summary = "Retrieve newest created Order - Useful to fetch the created order when checking basket out")
     @GetMapping("/newest-created-order")
-    public ResponseEntity<Order> getNewestPendingBasket(@PathVariable("userId") Long userId){
+    public ResponseEntity<Order> getNewestPendingBasket(@PathVariable("userId") UUID userId){
         return  ResponseEntity.ok(orderService.returnNewestPendingOrder(userId));
     }
 
@@ -52,7 +54,7 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<Page<Order>> getAllUsersOrders(@RequestParam(defaultValue = "0") int pgNum,
                                                          @RequestParam(defaultValue = "25") int pgSize,
-                                                         @PathVariable ("userId") Long userId){
+                                                         @PathVariable ("userId") UUID userId){
         Page<Order> orders = orderService.getUserOrders(pgNum, pgSize, userId);
         return ResponseEntity.ok(orders);
     }
@@ -61,7 +63,7 @@ public class OrderController {
     @GetMapping("/status")
     public ResponseEntity<Page<Order>> getUsersOrdersByOrderStatus(@RequestParam(defaultValue = "0") int pgNum,
                                                                    @RequestParam(defaultValue = "25") int pgSize,
-                                                                   @PathVariable("userId") Long userId,
+                                                                   @PathVariable("userId") UUID userId,
                                                                    @RequestParam("status") String status){
 
         Page<Order> orders = orderService.getUserOrdersByStatus(pgNum, pgSize, userId, status);
@@ -71,15 +73,15 @@ public class OrderController {
     @Operation(summary = "Retrieve users order by its id")
     @GetMapping("/{orderId}")
     @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
-    public ResponseEntity<Order> getUsersOrderByOrderId(@PathVariable ("userId") Long userId,
-                                                        @PathVariable ("orderId") Long orderId){
+    public ResponseEntity<Order> getUsersOrderByOrderId(@PathVariable ("userId") UUID userId,
+                                                        @PathVariable ("orderId") UUID orderId){
         return ResponseEntity.ok(orderService.findOrderById(orderId));
     }
 
     @Operation(summary = "Update order status")
     @PatchMapping("/{orderId}/status")
     @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable ("orderId") Long orderId,
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable ("orderId") UUID orderId,
                                                    @RequestParam ("status") String status){
         Order order = orderService.updateOrderStatus(orderId,status);
 
@@ -89,7 +91,7 @@ public class OrderController {
     @Operation(summary = "To cancel an order if its current status is pending")
     @DeleteMapping("/{orderId}/cancel")
     @PreAuthorize("@orderAuthenticationService.isOwner(#orderId,authentication)")
-    public ResponseEntity<Order> cancelOrder(@PathVariable ("orderId") Long orderId){
+    public ResponseEntity<Order> cancelOrder(@PathVariable ("orderId") UUID orderId){
 
         Order order = orderService.cancelOrder(orderId);
         return ResponseEntity.ok(order);

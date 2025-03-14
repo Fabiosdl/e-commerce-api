@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -22,7 +23,7 @@ public class BasketAuthenticationService {
         this.basketRepository = basketRepository;
     }
 
-    public boolean isOwner(Long basketUrlId, Authentication authentication){
+    public boolean isOwner(UUID basketUrlId, Authentication authentication){
 
         //retrieve user from basket id
         Optional<User> expectedOptionalUser = userRepository.findByBaskets_Id(basketUrlId);

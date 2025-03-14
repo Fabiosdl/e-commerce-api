@@ -12,17 +12,18 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface BasketRepository extends JpaRepository<Basket,Long> {
+public interface BasketRepository extends JpaRepository<Basket, UUID> {
 
-    Optional<Basket> findBasketByIdAndUserId(@Param("basketId") Long basketId, @Param("userId") Long userId);
+    Optional<Basket> findBasketByIdAndUserId(@Param("basketId") UUID basketId, @Param("userId") UUID userId);
 
-    Page<Basket> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
+    Page<Basket> findAllByUserId(@Param("userId") UUID userId, Pageable pageable);
 
     List<Basket> findByBasketStatusAndLastUpdatedBefore(BasketStatus basketStatus, LocalDateTime time);
 
     @Query("SELECT b FROM Basket b WHERE b.user.id = :userId AND b.basketStatus = :status")
-    Optional<Basket> findActiveBasketByUserId(@Param("userId") Long userId, @Param("status") BasketStatus status);
+    Optional<Basket> findActiveBasketByUserId(@Param("userId") UUID userId, @Param("status") BasketStatus status);
 
 }

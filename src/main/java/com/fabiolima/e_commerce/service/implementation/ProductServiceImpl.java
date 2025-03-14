@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -53,19 +54,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findProductById(Long productId) {
+    public Product findProductById(UUID productId) {
         //check if userId and basketId are valid
         if(productId == null)
             throw new IllegalArgumentException ("Product id cannot be null");
-        if(productId <= 0L)
-            throw new IllegalArgumentException ("Product id must be greater than 0");
         return productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException(String.format("Product with Id %d not found",productId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Product with Id %s not found",productId.toString())));
     }
 
     @Override
     @Transactional
-    public Product patchUpdateProductById(Long productId, Map<String, Object> updates) {
+    public Product patchUpdateProductById(UUID productId, Map<String, Object> updates) {
 
         // check if the product exists
         Product theProduct = findProductById(productId);
@@ -87,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product deleteProductById(Long productId) {
+    public Product deleteProductById(UUID productId) {
         Product reference = findProductById(productId);
         productRepository.deleteById(productId);
         return reference;

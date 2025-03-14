@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -48,8 +49,8 @@ class BasketItemServiceImplTest {
     @Test
     void addItemToBasket_ShouldReturnBasketWithAddedItemAndUpdateStock_WhenItemIsNotInBasketAndStockGreaterThanQuant() {
         //Given
-        Long basketId = 1L;
-        Long productId = 1L;
+        UUID basketId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
         int quantity = 7;
         int initialStock = 10;
 
@@ -109,8 +110,8 @@ class BasketItemServiceImplTest {
     void addItemToBasket_ShouldIncrementItemQuantityInBasketAndUpdateStock_WhenBasketAlreadyHasItem(){
 
         //Given
-        Long basketId = 1L;
-        Long productId = 1L;
+        UUID basketId = UUID.randomUUID();;
+        UUID productId = UUID.randomUUID();;
         int quantity = 6;
         int initialStock = 10;
 
@@ -131,8 +132,8 @@ class BasketItemServiceImplTest {
         basket.addBasketItemToBasket(existingItem);
 
         //mocking services call
-        when(basketService.findBasketById(anyLong())).thenReturn(basket);
-        when(productService.findProductById(anyLong())).thenReturn(product);
+        when(basketService.findBasketById(any())).thenReturn(basket);
+        when(productService.findProductById(any())).thenReturn(product);
         doAnswer(invocation -> {
             product.setStock(initialStock - quantity);
             return null;
@@ -163,24 +164,24 @@ class BasketItemServiceImplTest {
 
         //given
         Basket basket = Basket.builder()
+                .id(UUID.randomUUID())
                 .basketStatus(BasketStatus.ACTIVE).build();
 
-        Long productId = 1L;
+        UUID productId = UUID.randomUUID();
         Product product = new Product();
         product.setId(productId);
         product.setStock(5);
 
         int quantity = 6;
 
-        when(basketService.findBasketById(anyLong())).thenReturn(basket);
-        when(productService.findProductById(anyLong())).thenReturn(product);
+        when(basketService.findBasketById(any())).thenReturn(basket);
+        when(productService.findProductById(any())).thenReturn(product);
 
         //when
-        Executable executable = () -> basketItemService.addItemToBasket(1L,productId,quantity);
+        Executable executable = () -> basketItemService.addItemToBasket(basket.getId(),productId,quantity);
 
         //then
         assertThrows(InsufficientStockException.class, executable);
-        //verify(basketItemService,never()).removeItemFromBasket(1L,1L);
 
     }
 
@@ -188,11 +189,11 @@ class BasketItemServiceImplTest {
     @CsvSource({"-5", "0"})
     void addItemToBasket_ShouldReturnInvalidQuantityException_WhenQuantityIsZeroOrNegative(String input){
         //given
-        Long productId = 1L;
+        UUID productId = UUID.randomUUID();
         int quantity = Integer.parseInt(input);
 
         //when
-        Executable executable = () -> basketItemService.addItemToBasket(1L,productId,quantity);
+        Executable executable = () -> basketItemService.addItemToBasket(UUID.randomUUID(),productId,quantity);
 
         //then
         assertThrows(InvalidQuantityException.class, executable);
@@ -206,35 +207,35 @@ class BasketItemServiceImplTest {
         BasketItem item3 = new BasketItem();
 
         Basket basket = new Basket();
-        basket.setId(1L);
+        basket.setId(UUID.randomUUID());
 
         basket.addBasketItemToBasket(item1);
         basket.addBasketItemToBasket(item2);
         basket.addBasketItemToBasket(item3);
 
-        when(basketService.findBasketById(anyLong())).thenReturn(basket);
+        when(basketService.findBasketById(any())).thenReturn(basket);
 
         //When
-        List<BasketItem> actualListOfItems = basketItemService.getItemsByBasket(1L);
+        List<BasketItem> actualListOfItems = basketItemService.getItemsByBasket(basket.getId());
 
         //Then
         assertNotNull(actualListOfItems);
         assertTrue(actualListOfItems.containsAll(basket.getBasketItems()));
         assertEquals(basket.getBasketItems(),actualListOfItems);
 
-        verify(basketService,times(1)).findBasketById(1L);
+        verify(basketService,times(1)).findBasketById(basket.getId());
 
     }
 
     @Test
     void getItemById_ShouldReturnItem_WhenItemIdIsValidAndItemExists() {
         //Given
-        Long itemId = 1L;
+        UUID itemId = UUID.randomUUID();
 
         BasketItem expectedItem = new BasketItem();
         expectedItem.setId(itemId);
 
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(expectedItem));
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(expectedItem));
 
         //When
         BasketItem actualItem = basketItemService.getItemById(itemId);
@@ -250,8 +251,8 @@ class BasketItemServiceImplTest {
     @Test
     void updateBasketItem_ShouldReturnItemWithNewQuantity_WhenQuantityIsSmallerThanStock() {
         //Given
-        Long basketId = 1L;
-        Long basketItemId = 2L;
+        UUID basketId = UUID.randomUUID();
+        UUID basketItemId = UUID.randomUUID();
         int initialQuantity = 7;
         int initialStock = 100;
         int newQuantity = 3;
@@ -262,7 +263,7 @@ class BasketItemServiceImplTest {
         item.setQuantity(initialQuantity);
 
         Product product = new Product();
-        product.setId(1L);
+        product.setId(UUID.randomUUID());
         product.setStock(initialStock);
 
         item.setProduct(product);
@@ -273,8 +274,8 @@ class BasketItemServiceImplTest {
 
         //mocking the called methods
 
-        when(basketService.findBasketById(anyLong())).thenReturn(basket);
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(basketService.findBasketById(any())).thenReturn(basket);
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(item));
         doAnswer(invocation -> {
             product.setStock(initialStock - delta);
             return null;
@@ -301,8 +302,8 @@ class BasketItemServiceImplTest {
     void updateBasketItem_ShouldReturnInsufficientStockException_WhenNewQuantityIsGreaterThanCurrentQuantityAndStockIsLessThanQuantity(){
 
         //Given
-        Long basketId = 1L;
-        Long itemId = 1L;
+        UUID basketId = UUID.randomUUID();
+        UUID itemId = UUID.randomUUID();
 
         int initialQuantity = 3;
         BasketItem item = new BasketItem();
@@ -319,7 +320,7 @@ class BasketItemServiceImplTest {
         int newQuantity = 6;
 
         //mocking the called methods
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(item));
 
         //when
         Executable executable = () -> basketItemService.updateBasketItem(basketId, itemId, newQuantity);
@@ -334,15 +335,15 @@ class BasketItemServiceImplTest {
     @Test
     void updateBasketItem_ShouldRemoveItemFromBasketAndUpdateStock_WhenNewQuantityIsZero(){
         //Given
-        Long basketId = 1L;
-        Long basketItemId = 2L;
+        UUID basketId = UUID.randomUUID();
+        UUID basketItemId = UUID.randomUUID();
         int initialQuantity = 5;
         int newQuantity = 0;
         int initialStock = 100;
         int delta = newQuantity - initialQuantity;
 
         Product product = new Product();
-        product.setId(1L);
+        product.setId(UUID.randomUUID());
         product.setStock(initialStock);
 
         BasketItem item = new BasketItem();
@@ -355,8 +356,8 @@ class BasketItemServiceImplTest {
         basket.addBasketItemToBasket(item);
 
         //mocking methods in updateBasketItem
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
-        when(basketService.findBasketById(anyLong())).thenReturn(basket);
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(item));
+        when(basketService.findBasketById(any())).thenReturn(basket);
 
         // mocking updateProductStock inside the removeItemFromBasket
         when(basketService.removeItemFromBasket(any(Basket.class), any(BasketItem.class)))
@@ -385,8 +386,8 @@ class BasketItemServiceImplTest {
     void incrementItemQuantity_ShouldReturnItemWithQuantityIncrementedByOne_WhenTheresEnoughStockAvailable() {
 
         //Given
-        Long itemId = 1L;
-        Long productId = 2L;
+        UUID itemId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
         int quantity = 1;
         int delta = 1; // delta = new quantity - initial quantity -> new quantity is always one unit more
         int initialStock = 10;
@@ -401,7 +402,7 @@ class BasketItemServiceImplTest {
         item.setProduct(product);
 
         Basket basket = new Basket();
-        basket.setId(1L);
+        basket.setId(UUID.randomUUID());
         basket.addBasketItemToBasket(item);
 
         //mocking the methods
@@ -429,8 +430,8 @@ class BasketItemServiceImplTest {
     void incrementItemQuantity_ShouldThrowInsufficientStockException_WhenTheresEnoughStockAvailable() {
 
         //Given
-        Long itemId = 1L;
-        Long productId = 2L;
+        UUID itemId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
         int quantity = 10;
 
         Product product = new Product();
@@ -456,9 +457,9 @@ class BasketItemServiceImplTest {
     @Test
     void decrementItemQuantity_ShouldDecrementItemQuantityByOneAndIncrementStockByOne_WhenItemQuantityIsGreaterThanOne() {
         //Given
-        Long itemId = 1L;
-        Long productId = 2L;
-        Long basketId = 3L;
+        UUID itemId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+        UUID basketId = UUID.randomUUID();
         int initialQuantity = 8;
         int delta = -1;
         int currentStock = 10;
@@ -473,7 +474,7 @@ class BasketItemServiceImplTest {
         item.setQuantity(initialQuantity);
 
         Basket basket = new Basket();
-        basket.setId(1L);
+        basket.setId(UUID.randomUUID());
         basket.addBasketItemToBasket(item);
 
         //mocking the methods
@@ -497,9 +498,9 @@ class BasketItemServiceImplTest {
     @Test
     void decrementItemQuantity_ShouldRemoveItemFromBasketAndIncrementStockByOne_WhenItemQuantityIsOne(){
         //Given
-        Long basketId = 1L;
-        Long itemId = 2L;
-        Long productId = 3L;
+        UUID basketId = UUID.randomUUID();
+        UUID itemId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
         int currentStock = 10;
         int delta = -1;
 
@@ -516,8 +517,8 @@ class BasketItemServiceImplTest {
         basket.setId(basketId);
         basket.addBasketItemToBasket(basketItem);
 
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(basketItem));
-        when(basketService.findBasketById(anyLong())).thenReturn(basket);
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(basketItem));
+        when(basketService.findBasketById(any())).thenReturn(basket);
         when(basketService.removeItemFromBasket(any(Basket.class), any(BasketItem.class)))
                 .thenAnswer(invocation -> {
                     basket.getBasketItems().remove(basketItem);
@@ -544,15 +545,15 @@ class BasketItemServiceImplTest {
     @CsvSource({"0","-5"})
     void decrementItemQuantity_ShouldThrowInvalidQuantityException_WhenItemQuantityBelow1(String input){
         //Given
-        Long basketId = 2L;
-        Long itemId = 1L;
+        UUID basketId = UUID.randomUUID();
+        UUID itemId = UUID.randomUUID();
         int quantity = Integer.parseInt(input);
 
         BasketItem item = new BasketItem();
         item.setId(itemId);
         item.setQuantity(quantity);
 
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(item));
 
         //When
         Executable executable = () -> basketItemService.decrementItemQuantity(basketId,itemId);
@@ -564,8 +565,8 @@ class BasketItemServiceImplTest {
     @Test
     void removeItemFromBasket_ShouldRemoveItemFromBasketAndUpdateStock_WhenItemIsFoundInBasket() {
         //Given
-        Long basketId = 1L;
-        Long itemId = 2L;
+        UUID basketId = UUID.randomUUID();
+        UUID itemId = UUID.randomUUID();
 
         Basket basket = new Basket();
         basket.setId(basketId);
@@ -574,9 +575,9 @@ class BasketItemServiceImplTest {
         product.setStock(10);
 
         BasketItem item1 = new BasketItem();
-        item1.setId(10L);
+        item1.setId(UUID.randomUUID());
         BasketItem item2 = new BasketItem();
-        item2.setId(20L);
+        item2.setId(UUID.randomUUID());
 
         BasketItem removedItem = new BasketItem();
         removedItem.setId(itemId);
@@ -588,8 +589,8 @@ class BasketItemServiceImplTest {
         basket.addBasketItemToBasket(removedItem);
 
         //mock the dependencies calls
-        when(basketService.findBasketById(anyLong())).thenReturn(basket);
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(removedItem));
+        when(basketService.findBasketById(any())).thenReturn(basket);
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(removedItem));
         when(basketService.removeItemFromBasket(any(Basket.class), any(BasketItem.class)))
                 .thenAnswer(invocation -> {
                     basket.getBasketItems().remove(removedItem);
@@ -662,7 +663,7 @@ class BasketItemServiceImplTest {
         //Given
         int quantity = 5;
         BigDecimal price = new BigDecimal(4.5);
-        Long itemId = 1L;
+        UUID itemId = UUID.randomUUID();
 
         Product product = new Product();
         product.setProductPrice(price);
@@ -674,10 +675,10 @@ class BasketItemServiceImplTest {
 
         BigDecimal expectedTotal = new BigDecimal("22.50").setScale(2, RoundingMode.HALF_UP);
 
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(item));
 
         //When
-        BigDecimal actualTotal = basketItemService.calculateItemTotalPrice(1L);
+        BigDecimal actualTotal = basketItemService.calculateItemTotalPrice(UUID.randomUUID());
 
         //Then
         assertEquals(expectedTotal, actualTotal);
@@ -690,7 +691,7 @@ class BasketItemServiceImplTest {
         //Given
         int quantity = 0;
         BigDecimal price = new BigDecimal(4.5);
-        Long itemId = 1L;
+        UUID itemId = UUID.randomUUID();
 
         Product product = new Product();
         product.setProductPrice(price);
@@ -702,10 +703,10 @@ class BasketItemServiceImplTest {
 
         BigDecimal expectedTotal = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 
-        when(basketItemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(basketItemRepository.findById(any())).thenReturn(Optional.of(item));
 
         //When
-        BigDecimal actualTotal = basketItemService.calculateItemTotalPrice(1L);
+        BigDecimal actualTotal = basketItemService.calculateItemTotalPrice(UUID.randomUUID());
 
         //Then
         assertEquals(expectedTotal, actualTotal, "Total price should be zero for zero quantity.");

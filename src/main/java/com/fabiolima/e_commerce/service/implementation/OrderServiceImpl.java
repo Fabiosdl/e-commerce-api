@@ -5,7 +5,6 @@ import com.fabiolima.e_commerce.exceptions.NotFoundException;
 import com.fabiolima.e_commerce.model.*;
 import com.fabiolima.e_commerce.model.enums.OrderStatus;
 import com.fabiolima.e_commerce.repository.OrderRepository;
-import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.ProductService;
 import com.fabiolima.e_commerce.service.UserService;
@@ -38,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order createOrderAndAddToUser(Long userId, Basket basket) {
+    public Order createOrderAndAddToUser(UUID userId, Basket basket) {
 
         //1 - Retrieve the User
         User user = userService.findUserByUserId(userId);
@@ -84,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // Helper method for convertBasketToOrder
-    private Order transferBasketDataToOrder(Basket basket, Order order){
+    private void transferBasketDataToOrder(Basket basket, Order order){
         //transform basket items into order items and store it in TheOrder
         BigDecimal totalPrice = BigDecimal.ZERO;
         for(BasketItem bi : basket.getBasketItems()){
@@ -100,11 +99,10 @@ public class OrderServiceImpl implements OrderService {
         }
         // retrieve total cost
         order.setTotalPrice(totalPrice);
-        return order;
     }
 
     @Override
-    public Order returnNewestPendingOrder(Long userId) {
+    public Order returnNewestPendingOrder(UUID userId) {
         //1- Fetch user
         User user = userService.findUserByUserId(userId);
         //2- Fetch the newest order with status pending
@@ -120,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> getUserOrders(int pgNum, int pgSize, Long userId) {
+    public Page<Order> getUserOrders(int pgNum, int pgSize, UUID userId) {
 
         User theUser = userService.findUserByUserId(userId);
         Pageable pageable = PageRequest.of(pgNum, pgSize);
@@ -129,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> getUserOrdersByStatus(int pgNum, int pgSize, Long userId, String status) {
+    public Page<Order> getUserOrdersByStatus(int pgNum, int pgSize, UUID userId, String status) {
         //Check if orderStatus is a valid Enum
         if (!OrderStatus.isValid(status))
             throw new IllegalArgumentException(String.format("Invalid order status %s", status));
@@ -142,15 +140,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order findOrderById(Long orderId){
+    public Order findOrderById(UUID orderId){
 
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException(String.format("Order with Id %d not found.", orderId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Order with Id %s not found.", orderId.toString())));
     }
 
     @Override
     @Transactional
-    public Order updateOrderStatus(Long orderId, String orderStatus) {
+    public Order updateOrderStatus(UUID orderId, String orderStatus) {
 
         //Check if orderStatus is a valid Enum
         if (!OrderStatus.isValid(orderStatus))
@@ -185,7 +183,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order cancelOrder(Long orderId) {
+    public Order cancelOrder(UUID orderId) {
         log.info("cancel order being called");
         //retrieve order
         Order order = findOrderById(orderId);

@@ -9,20 +9,21 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order,Long> {
+public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     //@Query("SELECT o FROM TheOrder o WHERE o.id = :orderId AND o.user.id = :userId")
-    Optional<Order> findOrderByIdAndUserId(@Param("orderId") Long orderId, @Param("userId") Long userId);
+    Optional<Order> findOrderByIdAndUserId(@Param("orderId") UUID orderId, @Param("userId") UUID userId);
     // Don't need the query because JPA recognizes the method name and know what to do
 
-    Page<Order> findAllByUserId(Long userId, Pageable pageable);
+    Page<Order> findAllByUserId(UUID userId, Pageable pageable);
 
-    Page<Order> findByOrderStatusAndUserId(OrderStatus orderStatus, Long userId, Pageable pageable);
+    Page<Order> findByOrderStatusAndUserId(OrderStatus orderStatus, UUID userId, Pageable pageable);
 
     Optional<Order>  findByPaypalOrderId(String paypalOrderId);
 
-    Boolean existsByIdAndUserId(Long orderId, Long userId);
+    Boolean existsByIdAndUserId(UUID orderId, UUID userId);
 
 }

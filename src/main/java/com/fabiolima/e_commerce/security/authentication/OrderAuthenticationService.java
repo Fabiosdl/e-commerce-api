@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -22,7 +23,7 @@ public class OrderAuthenticationService {
         this.orderRepository = orderRepository;
     }
 
-    public boolean isOwner(Long urlOrderId, Authentication authentication ){
+    public boolean isOwner(UUID urlOrderId, Authentication authentication ){
 
         String email = authentication.getName();
 

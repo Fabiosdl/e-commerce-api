@@ -2,8 +2,8 @@ package com.fabiolima.e_commerce.controller;
 
 import com.fabiolima.e_commerce.dto.LoginRequest;
 import com.fabiolima.e_commerce.dto.RegistrationRequest;
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.entities.Basket;
+import com.fabiolima.e_commerce.entities.User;
 import com.fabiolima.e_commerce.dto.JwtAuthorizationResponse;
 import com.fabiolima.e_commerce.security.JwtService;
 import com.fabiolima.e_commerce.service.AuthenticationService;

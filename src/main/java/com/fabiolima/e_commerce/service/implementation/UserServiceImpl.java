@@ -1,12 +1,12 @@
 package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.exceptions.*;
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.Role;
-import com.fabiolima.e_commerce.model.User;
-import com.fabiolima.e_commerce.model.enums.BasketStatus;
-import com.fabiolima.e_commerce.model.enums.UserRole;
-import com.fabiolima.e_commerce.model.enums.UserStatus;
+import com.fabiolima.e_commerce.entities.Basket;
+import com.fabiolima.e_commerce.entities.Role;
+import com.fabiolima.e_commerce.entities.User;
+import com.fabiolima.e_commerce.entities.enums.BasketStatus;
+import com.fabiolima.e_commerce.entities.enums.UserRole;
+import com.fabiolima.e_commerce.entities.enums.UserStatus;
 import com.fabiolima.e_commerce.repository.RoleRepository;
 import com.fabiolima.e_commerce.repository.UserRepository;
 import com.fabiolima.e_commerce.service.BasketService;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.fabiolima.e_commerce.model.enums.UserStatus.*;
+import static com.fabiolima.e_commerce.entities.enums.UserStatus.*;
 
 @Service
 @Slf4j

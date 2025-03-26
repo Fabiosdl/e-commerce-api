@@ -2,8 +2,8 @@ package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
-import com.fabiolima.e_commerce.model.*;
-import com.fabiolima.e_commerce.model.enums.OrderStatus;
+import com.fabiolima.e_commerce.entities.*;
+import com.fabiolima.e_commerce.entities.enums.OrderStatus;
 import com.fabiolima.e_commerce.repository.OrderRepository;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.ProductService;

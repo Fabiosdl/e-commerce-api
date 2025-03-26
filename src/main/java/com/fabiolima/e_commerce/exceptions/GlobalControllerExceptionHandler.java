@@ -1,5 +1,6 @@
 package com.fabiolima.e_commerce.exceptions;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
@@ -21,78 +22,138 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
 
+
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<?> handleNotFound(NotFoundException ex, WebRequest request){
-        //homework -> create a class errorsDetails instead of using map.
+    public ResponseEntity<ErrorDetails> handleNotFound(NotFoundException ex, HttpServletRequest request){
 
-        Map<String,Object> errorsDetails = new HashMap<>();
-        errorsDetails.put("timestamp: " , LocalDateTime.now());
-        errorsDetails.put("message: " , ex.getMessage());
-        errorsDetails.put("details: " , request.getDescription(false));
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Not Found")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
 
-        return new ResponseEntity<>(errorsDetails, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<?> handleBadRequest(BadRequestException ex){
-        Map<String,Object> errorsDetails = new HashMap<>();
-        errorsDetails.put("timestamp: " , LocalDateTime.now());
-        errorsDetails.put("message: " , ex.getMessage());
-        errorsDetails.put("details: " , ex.getCause());
-        return new ResponseEntity<>(errorsDetails, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorDetails> handleBadRequest(BadRequestException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<?> handleForbidden(ForbiddenException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorDetails> handleForbidden(ForbiddenException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error("Forbidden")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<?> handleInsufficientStockException(InsufficientStockException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorDetails> handleInsufficientStockException(InsufficientStockException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(OrderStatusException.class)
-    public ResponseEntity<?> handleOrderStatusException(OrderStatusException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorDetails> handleOrderStatusException(OrderStatusException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error("Forbidden")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(PaymentMethodException.class)
-    public ResponseEntity<?> handlePaymentMethodException(PaymentMethodException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorDetails> handlePaymentMethodException(PaymentMethodException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidQuantityException.class)
-    public ResponseEntity<?> handleInvalidQuantityException(InvalidQuantityException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorDetails> handleInvalidQuantityException(InvalidQuantityException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidIdException.class)
-    public ResponseEntity<?> handleInvalidIdException(InvalidIdException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorDetails> handleInvalidIdException(InvalidIdException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UniqueEmailException.class)
-    public ProblemDetail handleUniqueEmailException(UniqueEmailException ex) {
-        ProblemDetail errorDetail = null;
-        ex.printStackTrace();
-
-        errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(409), ex.getMessage());
-        errorDetail.setProperty("description", "This email is already registered in our databases.");
-        return errorDetail;
+    public ResponseEntity<ErrorDetails> handleUniqueEmailException(UniqueEmailException ex, HttpServletRequest request) {
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error("Conflict")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleArgumentValidationException(MethodArgumentNotValidException ex){
-        Map<String,String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(),error.getDefaultMessage()));
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
+    public ResponseEntity<?> handleArgumentValidationException(MethodArgumentNotValidException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);    }
 
     @ExceptionHandler(CustomAccessDeniedException.class)
-    public ResponseEntity<?> handleAccessDeniedException(CustomAccessDeniedException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    public ResponseEntity<?> handleAccessDeniedException(CustomAccessDeniedException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error("Forbidden")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

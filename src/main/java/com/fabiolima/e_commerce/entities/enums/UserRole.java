@@ -1,4 +1,4 @@
-package com.fabiolima.e_commerce.model.enums;
+package com.fabiolima.e_commerce.entities.enums;
 
 public enum UserRole {
     ROLE_CUSTOMER, ROLE_ADMIN, ROLE_VENDOR, ROLE_GUEST;

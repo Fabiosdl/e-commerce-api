@@ -1,8 +1,8 @@
 package com.fabiolima.e_commerce.controller;
 
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.Order;
-import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.entities.Basket;
+import com.fabiolima.e_commerce.entities.Order;
+import com.fabiolima.e_commerce.entities.User;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.ProductService;

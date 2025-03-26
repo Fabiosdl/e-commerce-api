@@ -1,6 +1,6 @@
-package com.fabiolima.e_commerce.model;
+package com.fabiolima.e_commerce.entities;
 
-import com.fabiolima.e_commerce.model.enums.UserStatus;
+import com.fabiolima.e_commerce.entities.enums.UserStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -8,8 +8,6 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,7 +23,7 @@ import java.util.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
+    @Column(name = "id",columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(name = "name")

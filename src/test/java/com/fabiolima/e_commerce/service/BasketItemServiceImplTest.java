@@ -1,13 +1,11 @@
 package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.exceptions.InsufficientStockException;
-import com.fabiolima.e_commerce.exceptions.InvalidIdException;
 import com.fabiolima.e_commerce.exceptions.InvalidQuantityException;
-import com.fabiolima.e_commerce.exceptions.NotFoundException;
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.BasketItem;
-import com.fabiolima.e_commerce.model.Product;
-import com.fabiolima.e_commerce.model.enums.BasketStatus;
+import com.fabiolima.e_commerce.entities.Basket;
+import com.fabiolima.e_commerce.entities.BasketItem;
+import com.fabiolima.e_commerce.entities.Product;
+import com.fabiolima.e_commerce.entities.enums.BasketStatus;
 import com.fabiolima.e_commerce.repository.BasketItemRepository;
 import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.implementation.BasketItemServiceImpl;

@@ -1,6 +1,6 @@
 package com.fabiolima.e_commerce.controller;
 
-import com.fabiolima.e_commerce.model.Product;
+import com.fabiolima.e_commerce.entities.Product;
 import com.fabiolima.e_commerce.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;

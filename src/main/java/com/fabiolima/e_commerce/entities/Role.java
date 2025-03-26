@@ -1,6 +1,6 @@
-package com.fabiolima.e_commerce.model;
+package com.fabiolima.e_commerce.entities;
 
-import com.fabiolima.e_commerce.model.enums.UserRole;
+import com.fabiolima.e_commerce.entities.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,7 +22,7 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
+    @Column(name = "id",columnDefinition = "BINARY(16)")
     private UUID roleId;
 
     @Enumerated(EnumType.STRING)

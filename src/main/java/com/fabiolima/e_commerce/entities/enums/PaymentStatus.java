@@ -1,4 +1,4 @@
-package com.fabiolima.e_commerce.model.enums;
+package com.fabiolima.e_commerce.entities.enums;
 
 public enum PaymentStatus {
     PENDING,

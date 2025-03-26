@@ -1,15 +1,12 @@
 package com.fabiolima.e_commerce.controller;
 
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.Order;
-import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.entities.Basket;
+import com.fabiolima.e_commerce.entities.User;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("user/{userId}/basket")

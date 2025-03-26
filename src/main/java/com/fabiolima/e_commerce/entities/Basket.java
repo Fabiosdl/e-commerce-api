@@ -1,16 +1,12 @@
-package com.fabiolima.e_commerce.model;
+package com.fabiolima.e_commerce.entities;
 
-import com.fabiolima.e_commerce.model.enums.BasketStatus;
+import com.fabiolima.e_commerce.entities.enums.BasketStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.IdGeneratorType;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.id.UUIDGenerator;
-import org.hibernate.id.uuid.UuidGenerator;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +25,7 @@ import java.util.UUID;
 public class Basket {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
+    @Column(name = "id",columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Enumerated(EnumType.STRING)

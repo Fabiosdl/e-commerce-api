@@ -1,10 +1,9 @@
 package com.fabiolima.e_commerce.service;
 
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.Order;
+import com.fabiolima.e_commerce.entities.Basket;
+import com.fabiolima.e_commerce.entities.Order;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface OrderService {

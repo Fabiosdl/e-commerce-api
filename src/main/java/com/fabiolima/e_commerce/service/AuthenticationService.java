@@ -2,9 +2,7 @@ package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.dto.LoginRequest;
 import com.fabiolima.e_commerce.dto.RegistrationRequest;
-import com.fabiolima.e_commerce.model.User;
-
-import java.util.Map;
+import com.fabiolima.e_commerce.entities.User;
 
 public interface AuthenticationService {
 

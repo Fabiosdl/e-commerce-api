@@ -1,6 +1,6 @@
-package com.fabiolima.e_commerce.model;
+package com.fabiolima.e_commerce.entities;
 
-import com.fabiolima.e_commerce.model.enums.PaymentStatus;
+import com.fabiolima.e_commerce.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +19,7 @@ public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
+    @Column(name = "id",columnDefinition = "BINARY(16)")
     private UUID id;
 
     @OneToOne

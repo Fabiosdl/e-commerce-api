@@ -1,8 +1,8 @@
 package com.fabiolima.e_commerce.controller.admin;
 
-import com.fabiolima.e_commerce.model.Role;
-import com.fabiolima.e_commerce.model.User;
-import com.fabiolima.e_commerce.model.enums.UserRole;
+import com.fabiolima.e_commerce.entities.Role;
+import com.fabiolima.e_commerce.entities.User;
+import com.fabiolima.e_commerce.entities.enums.UserRole;
 import com.fabiolima.e_commerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;

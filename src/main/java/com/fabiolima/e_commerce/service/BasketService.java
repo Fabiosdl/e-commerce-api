@@ -1,8 +1,8 @@
 package com.fabiolima.e_commerce.service;
 
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.BasketItem;
-import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.entities.Basket;
+import com.fabiolima.e_commerce.entities.BasketItem;
+import com.fabiolima.e_commerce.entities.User;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;

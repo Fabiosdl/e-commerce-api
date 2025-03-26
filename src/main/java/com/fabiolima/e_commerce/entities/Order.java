@@ -1,7 +1,7 @@
-package com.fabiolima.e_commerce.model;
+package com.fabiolima.e_commerce.entities;
 
-import com.fabiolima.e_commerce.model.enums.OrderStatus;
-import com.fabiolima.e_commerce.model.enums.PaymentStatus;
+import com.fabiolima.e_commerce.entities.enums.OrderStatus;
+import com.fabiolima.e_commerce.entities.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +26,7 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id",columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(name = "paypal_order_id",unique = true)

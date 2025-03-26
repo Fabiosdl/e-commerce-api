@@ -1,10 +1,10 @@
 package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.exceptions.*;
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.BasketItem;
-import com.fabiolima.e_commerce.model.Product;
-import com.fabiolima.e_commerce.model.enums.BasketStatus;
+import com.fabiolima.e_commerce.entities.Basket;
+import com.fabiolima.e_commerce.entities.BasketItem;
+import com.fabiolima.e_commerce.entities.Product;
+import com.fabiolima.e_commerce.entities.enums.BasketStatus;
 import com.fabiolima.e_commerce.repository.BasketItemRepository;
 import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketItemService;
@@ -96,7 +96,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         // save the Basket containing the new item
         basketService.updateBasketWhenItemsAreAddedOrModified(theBasket);
 
-        log.info("Item id {} has been created and added to basket.", newItem.getId());
+        log.info("Item has been created and added to basket.");
         return newItem;
     }
 
@@ -111,7 +111,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
         return basketItemRepository.findById(basketItemId)
                 .orElseThrow(() -> new NotFoundException(String.format(
-                        "Item with Id %d was not found.",basketItemId)
+                        "Item with Id %s was not found.",basketItemId.toString())
                 ));
     }
 
@@ -178,6 +178,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         int delta = 1;
 
         BasketItem basketItem = getItemById(basketItemId);
+
         Product product = basketItem.getProduct();
 
         // Check if there's enough stock. If not it will throw an InsufficientStockException
@@ -274,5 +275,4 @@ public class BasketItemServiceImpl implements BasketItemService {
 
         return totalPrice.setScale(2, RoundingMode.HALF_UP);
     }
-
 }

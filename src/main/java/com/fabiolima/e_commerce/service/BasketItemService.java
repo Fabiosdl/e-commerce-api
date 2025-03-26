@@ -1,7 +1,7 @@
 package com.fabiolima.e_commerce.service;
 
-import com.fabiolima.e_commerce.model.BasketItem;
-import com.fabiolima.e_commerce.model.Product;
+import com.fabiolima.e_commerce.entities.BasketItem;
+import com.fabiolima.e_commerce.entities.Product;
 
 import java.math.BigDecimal;
 import java.util.List;

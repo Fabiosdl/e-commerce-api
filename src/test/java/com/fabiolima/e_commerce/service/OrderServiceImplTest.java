@@ -2,8 +2,8 @@ package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
-import com.fabiolima.e_commerce.model.*;
-import com.fabiolima.e_commerce.model.enums.OrderStatus;
+import com.fabiolima.e_commerce.entities.*;
+import com.fabiolima.e_commerce.entities.enums.OrderStatus;
 import com.fabiolima.e_commerce.repository.OrderRepository;
 import com.fabiolima.e_commerce.repository.ProductRepository;
 import com.fabiolima.e_commerce.service.implementation.OrderServiceImpl;
@@ -25,12 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import static com.fabiolima.e_commerce.model.enums.OrderStatus.*;
+import static com.fabiolima.e_commerce.entities.enums.OrderStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest

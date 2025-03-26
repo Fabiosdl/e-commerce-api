@@ -2,9 +2,9 @@ package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.exceptions.OrderStatusException;
 import com.fabiolima.e_commerce.exceptions.PaymentMethodException;
-import com.fabiolima.e_commerce.model.Payment;
-import com.fabiolima.e_commerce.model.Order;
-import com.fabiolima.e_commerce.model.enums.OrderStatus;
+import com.fabiolima.e_commerce.entities.Payment;
+import com.fabiolima.e_commerce.entities.Order;
+import com.fabiolima.e_commerce.entities.enums.OrderStatus;
 import com.fabiolima.e_commerce.repository.PaymentRepository;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.fabiolima.e_commerce.service.PaymentService;

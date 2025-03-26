@@ -32,7 +32,7 @@ public class ApplicationConfiguration {
     public UserDetailsService userDetailsService() {
 
         return username -> {
-            com.fabiolima.e_commerce.model.User theUser = userRepository.findByEmail(username)
+            com.fabiolima.e_commerce.entities.User theUser = userRepository.findByEmail(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
             return new org.springframework.security.core.userdetails.User(

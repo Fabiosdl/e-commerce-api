@@ -1,7 +1,7 @@
 package com.fabiolima.e_commerce.service;
 
-import com.fabiolima.e_commerce.model.Product;
-import com.fabiolima.e_commerce.model.Order;
+import com.fabiolima.e_commerce.entities.Product;
+import com.fabiolima.e_commerce.entities.Order;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

@@ -2,8 +2,8 @@ package com.fabiolima.e_commerce.service;
 
 import com.fabiolima.e_commerce.exceptions.ForbiddenException;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
-import com.fabiolima.e_commerce.model.User;
-import com.fabiolima.e_commerce.model.enums.UserStatus;
+import com.fabiolima.e_commerce.entities.User;
+import com.fabiolima.e_commerce.entities.enums.UserStatus;
 import com.fabiolima.e_commerce.repository.UserRepository;
 import com.fabiolima.e_commerce.service.implementation.UserServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.fabiolima.e_commerce.model.enums.UserStatus.ACTIVE;
+import static com.fabiolima.e_commerce.entities.enums.UserStatus.ACTIVE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

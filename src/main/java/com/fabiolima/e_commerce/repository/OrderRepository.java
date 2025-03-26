@@ -1,7 +1,7 @@
 package com.fabiolima.e_commerce.repository;
 
-import com.fabiolima.e_commerce.model.Order;
-import com.fabiolima.e_commerce.model.enums.OrderStatus;
+import com.fabiolima.e_commerce.entities.Order;
+import com.fabiolima.e_commerce.entities.enums.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

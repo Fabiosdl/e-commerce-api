@@ -1,7 +1,7 @@
 package com.fabiolima.e_commerce.security.authentication;
 
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
-import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.entities.User;
 import com.fabiolima.e_commerce.repository.OrderRepository;
 import com.fabiolima.e_commerce.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;

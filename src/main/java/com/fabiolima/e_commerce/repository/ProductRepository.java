@@ -1,6 +1,6 @@
 package com.fabiolima.e_commerce.repository;
 
-import com.fabiolima.e_commerce.model.Product;
+import com.fabiolima.e_commerce.entities.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

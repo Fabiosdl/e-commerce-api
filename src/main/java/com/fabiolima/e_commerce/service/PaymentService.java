@@ -1,6 +1,6 @@
 package com.fabiolima.e_commerce.service;
 
-import com.fabiolima.e_commerce.model.Payment;
+import com.fabiolima.e_commerce.entities.Payment;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,8 +1,7 @@
 package com.fabiolima.e_commerce.repository;
 
-import com.fabiolima.e_commerce.model.Basket;
-import com.fabiolima.e_commerce.model.User;
-import com.fabiolima.e_commerce.model.enums.UserStatus;
+import com.fabiolima.e_commerce.entities.User;
+import com.fabiolima.e_commerce.entities.enums.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

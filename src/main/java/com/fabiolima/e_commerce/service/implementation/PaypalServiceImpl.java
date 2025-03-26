@@ -32,7 +32,7 @@ public class PaypalServiceImpl {
 
     public String createOrder(UUID orderId) {
         //Retrieve entity order
-        com.fabiolima.e_commerce.model.Order entityOrder = entityOrderService.findOrderById(orderId);
+        com.fabiolima.e_commerce.entities.Order entityOrder = entityOrderService.findOrderById(orderId);
 
         //create the purchase unit request list
         List<PurchaseUnitRequest> purchaseUnitRequests = new ArrayList<>();
@@ -101,7 +101,7 @@ public class PaypalServiceImpl {
         }
     }
 
-    public com.fabiolima.e_commerce.model.Order captureOrder(String token) {
+    public com.fabiolima.e_commerce.entities.Order captureOrder(String token) {
 
         try {
             //create capture request
@@ -112,7 +112,7 @@ public class PaypalServiceImpl {
             HttpResponse<Order> response = payPalHttpClient.execute(request);
             log.info("PayPal Response: Order id {} is COMPLETED", response.result().id());
 
-            Optional<com.fabiolima.e_commerce.model.Order> systemOrder = entityOrderRepository.findByPaypalOrderId(token);
+            Optional<com.fabiolima.e_commerce.entities.Order> systemOrder = entityOrderRepository.findByPaypalOrderId(token);
             if(systemOrder.isEmpty())
                 throw new NotFoundException(String.format("Could Not Find Order containing paypal Id %s", token));
 

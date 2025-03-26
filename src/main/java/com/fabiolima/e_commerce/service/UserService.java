@@ -1,7 +1,6 @@
 package com.fabiolima.e_commerce.service;
 
-import com.fabiolima.e_commerce.dto.RegistrationRequest;
-import com.fabiolima.e_commerce.model.User;
+import com.fabiolima.e_commerce.entities.User;
 import org.springframework.data.domain.Page;
 
 import java.util.Map;

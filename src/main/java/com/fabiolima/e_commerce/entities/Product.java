@@ -1,4 +1,4 @@
-package com.fabiolima.e_commerce.model;
+package com.fabiolima.e_commerce.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -21,7 +21,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
+    @Column(name = "id",columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(name = "name")

@@ -22,6 +22,10 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
 
+    private static final String notFound = "Not Found";
+    private static final String badRequest = "Bad Request";
+    private static final String forbidden = "Forbidden";
+    private static final String conflict = "Conflict";
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorDetails> handleNotFound(NotFoundException ex, HttpServletRequest request){
@@ -29,7 +33,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
-                .error("Not Found")
+                .error(notFound)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -42,7 +46,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
+                .error(badRequest)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -54,7 +58,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
-                .error("Forbidden")
+                .error(forbidden)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -66,7 +70,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
+                .error(badRequest)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -78,7 +82,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
-                .error("Forbidden")
+                .error(forbidden)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -90,7 +94,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
+                .error(badRequest)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -102,7 +106,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
+                .error(badRequest)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -114,7 +118,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
+                .error(badRequest)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -126,7 +130,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
-                .error("Conflict")
+                .error(conflict)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -134,22 +138,22 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleArgumentValidationException(MethodArgumentNotValidException ex, HttpServletRequest request){
+    public ResponseEntity<ErrorDetails> handleArgumentValidationException(MethodArgumentNotValidException ex, HttpServletRequest request){
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
+                .error(badRequest)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);    }
 
     @ExceptionHandler(CustomAccessDeniedException.class)
-    public ResponseEntity<?> handleAccessDeniedException(CustomAccessDeniedException ex, HttpServletRequest request){
+    public ResponseEntity<ErrorDetails> handleAccessDeniedException(CustomAccessDeniedException ex, HttpServletRequest request){
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
-                .error("Forbidden")
+                .error(forbidden)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();

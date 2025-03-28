@@ -51,7 +51,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String password = input.getPassword();
 
         //01- Authenticate the user with Authentication Manager
-        Authentication authentication = authenticationManager.authenticate(
+        authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username,password));
 
         //02- SecurityContextHolder allows the application to know the user is authenticated.

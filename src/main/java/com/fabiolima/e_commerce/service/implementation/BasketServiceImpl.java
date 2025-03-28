@@ -36,14 +36,12 @@ public class BasketServiceImpl implements BasketService {
 
     private final BasketRepository basketRepository;
     private final ProductService productService;
-    private final BasketService proxyService;
 
     @Autowired
     public BasketServiceImpl (BasketRepository basketRepository,
-                              ProductService productService, BasketService proxyService){
+                              ProductService productService){
         this.basketRepository = basketRepository;
         this.productService = productService;
-        this.proxyService = proxyService;
     }
 
     @Override
@@ -77,6 +75,7 @@ public class BasketServiceImpl implements BasketService {
         return basketRepository.save(basket);
     }
 
+    @Transactional
     @Override
     public Basket deactivateBasketById(UUID userId, UUID basketId) {
         //1 - Validate basket
@@ -88,7 +87,7 @@ public class BasketServiceImpl implements BasketService {
 
         //3 - If not, clear the basket, giving back to stock all the quantity in items
         if(!reference.getBasketItems().isEmpty())
-            proxyService.clearBasket(basketId);
+            clearBasket(basketId);
 
         //4 - Inactivate basket
         reference.setBasketStatus(BasketStatus.INACTIVE);
@@ -152,7 +151,7 @@ public class BasketServiceImpl implements BasketService {
             for(Basket b : expiredBaskets) {
 
                 // clear the basket, giving back to stock all the quantity in items
-                proxyService.clearBasket(b.getId());
+                clearBasket(b.getId());
 
                 //delete basket in databases
                 basketRepository.delete(b);
@@ -161,7 +160,7 @@ public class BasketServiceImpl implements BasketService {
                 //Add new basket to user if user is active.
                 User user = b.getUser();
                 if(user.getUserStatus().equals(UserStatus.ACTIVE))
-                    proxyService.createBasketAndAddToUser(b.getUser());
+                    createBasketAndAddToUser(b.getUser());
             }
             log.info("{} Expired Baskets have been deleted", expiredBaskets.size());
         }
@@ -187,7 +186,7 @@ public class BasketServiceImpl implements BasketService {
 
         //5- Create a new basket to the user
         User user = basket.getUser();
-        Basket newBasket = proxyService.createBasketAndAddToUser(user);
+        Basket newBasket = createBasketAndAddToUser(user);
 
         log.info("basket {} is checked-out and a new basket of id {} has been created to user {} - {}",
                 basketId, newBasket.getId(), user.getId(), user.getName());

@@ -53,7 +53,7 @@ public class AuthenticationController {
         String jwtToken = jwtService.generateToken(userDetails);
 
         //04 - add basket to user
-        Basket basket = basketService.createBasketAndAddToUser(authenticatedUser);
+        basketService.createBasketAndAddToUser(authenticatedUser);
 
         //04 - build and return the response with token and expiring date
         JwtAuthorizationResponse jwtAuthorizationResponse = new JwtAuthorizationResponse();

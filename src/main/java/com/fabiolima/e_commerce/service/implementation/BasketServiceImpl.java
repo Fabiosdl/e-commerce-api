@@ -10,6 +10,8 @@ import com.fabiolima.e_commerce.repository.BasketRepository;
 import com.fabiolima.e_commerce.service.BasketService;
 import com.fabiolima.e_commerce.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -78,6 +80,9 @@ public class BasketServiceImpl implements BasketService {
     @Transactional
     @Override
     public Basket deactivateBasketById(UUID userId, UUID basketId) {
+        //00 self-invocation via proxy to ensure @Transactional works
+        BasketService selfProxy = (BasketService) AopContext.currentProxy();
+
         //1 - Validate basket
         Basket reference = findBasketById(basketId);
 
@@ -87,7 +92,7 @@ public class BasketServiceImpl implements BasketService {
 
         //3 - If not, clear the basket, giving back to stock all the quantity in items
         if(!reference.getBasketItems().isEmpty())
-            clearBasket(basketId);
+            selfProxy.clearBasket(basketId);
 
         //4 - Inactivate basket
         reference.setBasketStatus(BasketStatus.INACTIVE);
@@ -139,6 +144,8 @@ public class BasketServiceImpl implements BasketService {
     @Scheduled(fixedRate = 60000) // run every 60 seconds
     @Transactional
     public void deleteExpiredBasketAndAddNewOne() {
+        // self-invocation via proxy to ensure @Transactional works
+        BasketService selfProxy = (BasketService) AopContext.currentProxy();
 
         //setting the no activity in basket for 1 day
         LocalDateTime expirationTime = LocalDateTime.now().minusDays(1);
@@ -151,7 +158,7 @@ public class BasketServiceImpl implements BasketService {
             for(Basket b : expiredBaskets) {
 
                 // clear the basket, giving back to stock all the quantity in items
-                clearBasket(b.getId());
+                selfProxy.clearBasket(b.getId());
 
                 //delete basket in databases
                 basketRepository.delete(b);
@@ -160,7 +167,7 @@ public class BasketServiceImpl implements BasketService {
                 //Add new basket to user if user is active.
                 User user = b.getUser();
                 if(user.getUserStatus().equals(UserStatus.ACTIVE))
-                    createBasketAndAddToUser(b.getUser());
+                    selfProxy.createBasketAndAddToUser(b.getUser());
             }
             log.info("{} Expired Baskets have been deleted", expiredBaskets.size());
         }
@@ -169,6 +176,8 @@ public class BasketServiceImpl implements BasketService {
     @Override
     @Transactional
     public Basket checkoutBasket(UUID userId, UUID basketId) {
+        // self-invocation via proxy to ensure @Transactional works
+        BasketService selfProxy = (BasketService) AopContext.currentProxy();
 
         //1-Retrieve the basket
         Basket basket = findBasketById(basketId);
@@ -186,7 +195,7 @@ public class BasketServiceImpl implements BasketService {
 
         //5- Create a new basket to the user
         User user = basket.getUser();
-        Basket newBasket = createBasketAndAddToUser(user);
+        Basket newBasket = selfProxy.createBasketAndAddToUser(user);
 
         log.info("basket {} is checked-out and a new basket of id {} has been created to user {} - {}",
                 basketId, newBasket.getId(), user.getId(), user.getName());

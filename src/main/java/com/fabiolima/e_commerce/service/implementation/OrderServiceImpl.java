@@ -120,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> getUserOrders(int pgNum, int pgSize, UUID userId) {
 
-        User theUser = userService.findUserByUserId(userId);
+        userService.findUserByUserId(userId);
         Pageable pageable = PageRequest.of(pgNum, pgSize);
 
         return orderRepository.findAllByUserId(userId, pageable);

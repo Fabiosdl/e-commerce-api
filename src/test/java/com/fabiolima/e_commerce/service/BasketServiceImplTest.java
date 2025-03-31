@@ -226,11 +226,12 @@ class BasketServiceImplTest {
         }).when(productService).updateProductStock(any(Product.class), anyInt()); // Mock product service
 
         // When
-        Basket result = basketService.clearBasket(basket.getId());  // Call the method
+        basketService.clearBasket(basket.getId());  // Call the method
 
         // Then
         assertEquals(0, basket.getBasketItems().size());  // Basket should have no items after clearing
         assertEquals(12, product.getStock());  // Stock should be updated (10 + 2)
+
         verify(productService, times(1)).updateProductStock(product, -2);
     }
 

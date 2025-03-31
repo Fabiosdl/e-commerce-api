@@ -1,6 +1,7 @@
 package com.fabiolima.e_commerce.service.implementation;
 
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
+import com.fabiolima.e_commerce.exceptions.PayPalException;
 import com.fabiolima.e_commerce.repository.OrderRepository;
 import com.fabiolima.e_commerce.service.OrderService;
 import com.paypal.core.PayPalHttpClient;
@@ -97,7 +98,7 @@ public class PaypalServiceImpl {
 
         } catch (Exception e) {
             log.error("Error creating PayPal order: {} ", e.getMessage());
-            throw new RuntimeException("Error creating PayPal order: " + e.getMessage());
+            throw new PayPalException("Error creating PayPal order: " + e.getMessage());
         }
     }
 
@@ -118,7 +119,6 @@ public class PaypalServiceImpl {
 
             if("COMPLETED".equalsIgnoreCase(response.result().status())){
                 //retrieve system order from paypal id
-                UUID userId = systemOrder.get().getUser().getId();
                 UUID systemOrderId = systemOrder.get().getId();
                 entityOrderService.updateOrderStatus(systemOrderId, "PAID");
             }
@@ -128,7 +128,7 @@ public class PaypalServiceImpl {
 
         } catch (IOException e) {
             log.error("Error capturing order: {}", e.getMessage());
-            throw new RuntimeException("Error capturing order: " + e.getMessage());
+            throw new PayPalException("Error capturing order: " + e.getMessage());
         }
     }
 }

@@ -108,8 +108,8 @@ class BasketItemServiceImplTest {
     void addItemToBasket_ShouldIncrementItemQuantityInBasketAndUpdateStock_WhenBasketAlreadyHasItem(){
 
         //Given
-        UUID basketId = UUID.randomUUID();;
-        UUID productId = UUID.randomUUID();;
+        UUID basketId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
         int quantity = 6;
         int initialStock = 10;
 

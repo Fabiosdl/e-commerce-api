@@ -27,44 +27,19 @@ public class AuthenticationController {
      **/
 
     private final AuthenticationService authenticationService;
-    private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
-    private final BasketService basketService;
 
     @Autowired
-    public AuthenticationController(AuthenticationService authenticationService, JwtService jwtService, UserDetailsService userDetailsService, BasketService basketService) {
+    public AuthenticationController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-        this.basketService = basketService;
     }
 
     @Operation(summary = "Used for login. It uses user email as username")
     @PostMapping("/login")
     public ResponseEntity<JwtAuthorizationResponse> loginUser(@Valid @RequestBody LoginRequest loginInput) {
 
-        //01 - Authenticate and retrieve the user
-        User authenticatedUser = authenticationService.authenticateUser(loginInput);
-
-        //02 - load the user details
-        UserDetails userDetails = userDetailsService.loadUserByUsername(authenticatedUser.getEmail());
-
-        //03 - generate token
-        String jwtToken = jwtService.generateToken(userDetails);
-
-        //04 - add basket to user
-        basketService.createBasketAndAddToUser(authenticatedUser);
-
-        //04 - build and return the response with token and expiring date
-        JwtAuthorizationResponse jwtAuthorizationResponse = new JwtAuthorizationResponse();
-                jwtAuthorizationResponse.setToken(jwtToken);
-                jwtAuthorizationResponse.setExpiresIn(jwtService.getExpirationTime());
-                jwtAuthorizationResponse.setUserId(authenticatedUser.getId());
-                jwtAuthorizationResponse.setRole(userDetails.getAuthorities().stream()
-                        .filter(r -> ("ROLE_CUSTOMER").equals(r.getAuthority()))
-                        .map(r -> r.getAuthority()) // Extract the role string
-                        .findFirst()
-                        .orElse(null));
+        // Authenticate and retrieve the user
+        JwtAuthorizationResponse jwtAuthorizationResponse = authenticationService.authenticateUser(loginInput);
+        log.info("User id {}  has been authenticated", jwtAuthorizationResponse.getUserId());
 
         return ResponseEntity.ok(jwtAuthorizationResponse);
     }

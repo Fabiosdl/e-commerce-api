@@ -11,21 +11,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
 
-    private static final String notFound = "Not Found";
-    private static final String badRequest = "Bad Request";
-    private static final String forbidden = "Forbidden";
-    private static final String conflict = "Conflict";
+    private static final String NOT_FOUND = "Not Found";
+    private static final String BAD_REQUEST = "Bad Request";
+    private static final String FORBIDDEN = "Forbidden";
+    private static final String CONFLICT = "Conflict";
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorDetails> handleNotFound(NotFoundException ex, HttpServletRequest request){
@@ -33,7 +30,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
-                .error(notFound)
+                .error(NOT_FOUND)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -46,7 +43,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(badRequest)
+                .error(BAD_REQUEST)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -58,7 +55,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
-                .error(forbidden)
+                .error(FORBIDDEN)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -70,7 +67,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(badRequest)
+                .error(BAD_REQUEST)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -82,7 +79,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
-                .error(forbidden)
+                .error(FORBIDDEN)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -94,7 +91,19 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(badRequest)
+                .error(BAD_REQUEST)
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PayPalException.class)
+    public ResponseEntity<ErrorDetails> handlePayPalException(PayPalException ex, HttpServletRequest request){
+        ErrorDetails errorDetails = ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(BAD_REQUEST)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -106,7 +115,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(badRequest)
+                .error(BAD_REQUEST)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -118,7 +127,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(badRequest)
+                .error(BAD_REQUEST)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -130,7 +139,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
-                .error(conflict)
+                .error(CONFLICT)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -142,7 +151,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(badRequest)
+                .error(BAD_REQUEST)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -153,7 +162,7 @@ public class GlobalControllerExceptionHandler {
         ErrorDetails errorDetails = ErrorDetails.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
-                .error(forbidden)
+                .error(FORBIDDEN)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();

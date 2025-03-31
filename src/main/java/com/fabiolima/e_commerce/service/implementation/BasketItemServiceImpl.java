@@ -184,7 +184,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         // Check if there's enough stock. If not it will throw an InsufficientStockException
         ensureStockAvailable(product, basketItem.getQuantity());
 
-        //if there's enough stock, increment item and decrement stock;
+        //if there's enough stock, increment item and decrement stock
         basketItem.incrementQuantity(1);
         productService.updateProductStock(product, delta);
 

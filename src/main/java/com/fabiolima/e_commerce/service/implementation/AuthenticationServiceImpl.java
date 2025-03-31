@@ -1,5 +1,6 @@
 package com.fabiolima.e_commerce.service.implementation;
 
+import com.fabiolima.e_commerce.dto.JwtAuthorizationResponse;
 import com.fabiolima.e_commerce.dto.LoginRequest;
 import com.fabiolima.e_commerce.dto.RegistrationRequest;
 import com.fabiolima.e_commerce.exceptions.NotFoundException;
@@ -10,12 +11,16 @@ import com.fabiolima.e_commerce.entities.User;
 import com.fabiolima.e_commerce.entities.enums.UserRole;
 import com.fabiolima.e_commerce.repository.RoleRepository;
 import com.fabiolima.e_commerce.repository.UserRepository;
+import com.fabiolima.e_commerce.security.JwtService;
 import com.fabiolima.e_commerce.service.AuthenticationService;
 import com.fabiolima.e_commerce.service.BasketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,18 +31,22 @@ import java.util.Optional;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final BasketService basketService;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public AuthenticationServiceImpl(AuthenticationManager authenticationManager,
+    public AuthenticationServiceImpl(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtService jwtService,
                                      UserRepository userRepository,
                                      BasketService basketService,
                                      RoleRepository roleRepository,
                                      BCryptPasswordEncoder passwordEncoder) {
 
         this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
+        this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.basketService = basketService;
@@ -45,29 +54,44 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public User authenticateUser(LoginRequest input) {
+    public JwtAuthorizationResponse authenticateUser(LoginRequest input) {
 
         String username = input.getUsername();
         String password = input.getPassword();
 
-        //01- Authenticate the user with Authentication Manager
-        authenticationManager.authenticate(
+        // Authenticate the user with Authentication Manager
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username,password));
 
-        //02- SecurityContextHolder allows the application to know the user is authenticated.
-        // It's being used in JwtAuthenticationFilter
+        // Retrieve authenticated user email
+        String email = authentication.getName(); //API uses email for credential
 
-        // Retrieve user and add a basket to it if it hasn't one
-        Optional<User> result = userRepository.findByEmail(username);
+        // Load the user details
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+        // Generate token
+        String jwtToken = jwtService.generateToken(userDetails);
+
+        // Retrieve authenticated user and Add basket to they
+        Optional<User> result = userRepository.findByEmail(email);
         if(result.isEmpty())
-            throw new NotFoundException(String.format("Cannot find user with email %s", username));
+            throw new NotFoundException("User not found");
+        User authenticatedUser = result.get();
+        Basket basket = basketService.createBasketAndAddToUser(authenticatedUser);
+        log.info("Basket id {} has been created for user id {}", basket.getId(),authenticatedUser.getId());
 
-        User entityUser = result.get();
-        Basket basket = basketService.createBasketAndAddToUser(entityUser);
+        // Build and return the response with token and expiring date
+        JwtAuthorizationResponse jwtAuthorizationResponse = new JwtAuthorizationResponse();
+        jwtAuthorizationResponse.setToken(jwtToken);
+        jwtAuthorizationResponse.setExpiresIn(jwtService.getExpirationTime());
+        jwtAuthorizationResponse.setUserId(authenticatedUser.getId());
+        jwtAuthorizationResponse.setRole(userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(("ROLE_CUSTOMER")::equals) // Extract the role string
+                .findFirst()
+                .orElse(null));
 
-        log.info("Basket id {} has been created for user id {}", basket.getId(),entityUser.getId());
-
-        return entityUser;
+        return jwtAuthorizationResponse;
     }
 
     @Override

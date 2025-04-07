@@ -47,6 +47,7 @@ public class SecurityConfiguration {
                         )
                 )
                 .cors(Customizer.withDefaults())
+                // CSRF protection is disabled because this is a stateless REST API using JWT for authentication
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( authorizeRequests ->
                         authorizeRequests

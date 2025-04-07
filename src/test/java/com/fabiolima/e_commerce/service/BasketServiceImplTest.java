@@ -127,7 +127,7 @@ class BasketServiceImplTest {
         Page<Basket> page = new PageImpl<>(List.of(basket1, basket2, basket3), pageable, 3);
 
         // Mock the repository
-        when(basketRepository.findAllByUserId(eq(userId), eq(pageable)))
+        when(basketRepository.findAllByUserId(userId, pageable))
                 .thenReturn(page);
 
         // when
